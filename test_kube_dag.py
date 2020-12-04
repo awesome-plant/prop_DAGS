@@ -22,23 +22,35 @@ dag = DAG(
 start = DummyOperator(task_id='run_this_first', dag=dag)
 
 passing = KubernetesPodOperator(namespace='airflow',
-                          image="python:rc-slim",
-                          cmds=["python","-c"],
-                          arguments=["print('hello world')"],
-                          labels={"foo": "bar"},
                           name="passing-test",
                           task_id="passing-task",
+                          image="python:rc-slim",
+                          cmds=["python","-c"],
+                          resources={
+                                'request_cpu' : '1000m'
+                                'request_memory' : '500Mi'
+                                'limit_cpu' : '1500m'
+                                'limit_memory' : '1000Mi'}
+                          arguments=["print('hello world')"],
+                          image_pull_policy='cache'
+                          labels={"foo": "bar"},
                           get_logs=True,
                           dag=dag
                           )
 
 failing = KubernetesPodOperator(namespace='airflow',
+                          name="failing-test",
+                          task_id="failing-task",
                           image="python:rc-slim",
                           cmds=["python","-c"],
+                          resources={
+                                'request_cpu' : '1000m'
+                                'request_memory' : '500Mi'
+                                'limit_cpu' : '1500m'
+                                'limit_memory' : '1000Mi'}
                           arguments=["print('hello world')"],
+                          image_pull_policy='cache'
                           labels={"foo": "bar"},
-                          name="fail",
-                          task_id="failing-task",
                           get_logs=True,
                           dag=dag
                           )
