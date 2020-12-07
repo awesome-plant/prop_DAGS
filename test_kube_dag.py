@@ -28,9 +28,9 @@ passing = KubernetesPodOperator(namespace='airflow',
                           cmds=["python","-c"],
                           resources={
                                 'request_cpu' : '1000m'
-                                'request_memory' : '500Mi'
-                                'limit_cpu' : '1500m'
-                                'limit_memory' : '1000Mi'}
+                                ,'request_memory' : '500Mi'
+                                ,'limit_cpu' : '1500m'
+                                ,'limit_memory' : '1000Mi'}
                           arguments=["print('hello world')"],
                           image_pull_policy='cache'
                           labels={"foo": "bar"},
@@ -45,9 +45,9 @@ failing = KubernetesPodOperator(namespace='airflow',
                           cmds=["python","-c"],
                           resources={
                                 'request_cpu' : '1000m'
-                                'request_memory' : '500Mi'
-                                'limit_cpu' : '1500m'
-                                'limit_memory' : '1000Mi'}
+                                ,'request_memory' : '500Mi'
+                                ,'limit_cpu' : '1500m'
+                                ,'limit_memory' : '1000Mi'}
                           arguments=["print('hello world')"],
                           image_pull_policy='cache'
                           labels={"foo": "bar"},
