@@ -22,7 +22,7 @@ dag = DAG(
 start = DummyOperator(task_id='run_this_first', dag=dag)
 
 passing = KubernetesPodOperator(
-                           namespace='airflow'
+                           namespace="airflow-pods"
                           ,name="passing-test"
                           ,task_id="passing-task"
                           ,image="python:rc-slim"
@@ -36,7 +36,7 @@ passing = KubernetesPodOperator(
                           )
 
 failing = KubernetesPodOperator(
-                           namespace='airflow'
+                           namespace="airflow-pods"
                           ,name="failing-test"
                           ,task_id="failing-task"
                           ,image="python:rc-slim"
