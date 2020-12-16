@@ -23,8 +23,8 @@ start = DummyOperator(task_id='run_this_first', dag=dag)
 
 passing = KubernetesPodOperator(
                            namespace="airflow"
-                          ,name="passing-test"
-                          ,task_id="passing-task"
+                          ,name="airflow-passing-test"
+                          ,task_id="airflow-passing-task"
                           ,image="python:rc-slim"
                           ,cmds=["python","-c"]
                           ,resources={'limit_cpu' : '500m','limit_memory' : '1024Mi'}
@@ -37,8 +37,8 @@ passing = KubernetesPodOperator(
 
 failing = KubernetesPodOperator(
                            namespace="airflow"
-                          ,name="failing-test"
-                          ,task_id="failing-task"
+                          ,name="airflow-failing-test"
+                          ,task_id="airflow-failing-task"
                           ,image="python:rc-slim"
                           ,cmds=["python","-c"]
                           ,resources={'limit_cpu' : '500m','limit_memory' : '1024Mi'}
