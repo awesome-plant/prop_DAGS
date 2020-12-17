@@ -33,8 +33,8 @@ try:
                     image='imagerepo:latest',
                     image_pull_policy='Always',
                     dag=dag)
-
-        print("done")
+    )
+    print("done")
 
 except Exception as e:
     print(str(e))
