@@ -22,7 +22,7 @@ try:
                 print("Initialized dag")
                 kubernetes_min_pod = kubernetes_pod_operator.KubernetesPodOperator(
                     # The ID specified for the task.
-                    ,task_id='trigger-task'
+                    task_id='trigger-task'
                     # Name of task you want to run, used to generate Pod ID.
                     ,name='trigger-name'
                     ,namespace='airflow'
