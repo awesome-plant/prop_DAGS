@@ -22,17 +22,21 @@ try:
                 print("Initialized dag")
                 kubernetes_min_pod = kubernetes_pod_operator.KubernetesPodOperator(
                     # The ID specified for the task.
-                    task_id='trigger-task',
+                    ,task_id='trigger-task'
                     # Name of task you want to run, used to generate Pod ID.
-                    name='trigger-name',
-                    namespace='scheduler',
-                    in_cluster=True,
-
-                    cmds=["./docker-run.sh"],
-                    is_delete_operator_pod=False,
-                    image='imagerepo:latest',
-                    image_pull_policy='Always',
-                    dag=dag)
+                    ,name='trigger-name'
+                    ,namespace='airflow'
+                    ,in_cluster=True
+                    ,image="python:rc-slim"
+                    ,image_pull_policy='IfNotPresent'
+                    ,resources={'limit_cpu' : '500m','limit_memory' : '1024Mi'}
+                    ,labels={"foo": "bar"}
+                    ,get_logs=True
+                    ,cmds=["python","-c"]
+                    ,arguments=["print('hello world')"]
+                    ,cmds=["./docker-run.sh"]
+                    ,is_delete_operator_pod=False
+                    ,dag=dag)
                 print("done")
 
 except Exception as e:
