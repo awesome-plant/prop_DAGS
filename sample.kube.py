@@ -13,6 +13,14 @@ args = {
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
 
+init_container_volume_mounts = VolumeMount(name='xmlsave',
+                                mount_path='/usr/local/airflow/xmlSave',
+                                sub_path=None,
+                                read_only=False)
+    # init_container_volume_mounts = [
+    # k8s.V1VolumeMount(mount_path='/etc/foo', name='test-volume', sub_path=None, read_only=True)
+]
+
 try:
     print("Entered try block")
     with models.DAG(
@@ -34,6 +42,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(200); print('done')"]
+                    ,volume_mounts=init_container_volume_mounts
                     # ,cmds=["./docker-run.sh"]
                     ,is_delete_operator_pod=False
                     ,dag=dag)
