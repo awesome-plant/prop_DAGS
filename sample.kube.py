@@ -9,55 +9,19 @@ from kubernetes.client import models as k8s
 from airflow import DAG
 
 args = { 'owner': 'airflow' }
-
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
-
 volume_mount = k8s.V1VolumeMount(
                             name='xmlsave',
                             mount_path='/usr/local/airflow/xmlSave',
                             sub_path=None,
                             read_only=True)
-
 volume = k8s.V1Volume(
     name='xmlsave'
     ,persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
-        claim_name='test-volume'
+        claim_name='xmlsave'
         ),
     )
 
-affinity = k8s.V1Affinity(
-    node_affinity=k8s.V1NodeAffinity(
-        preferred_during_scheduling_ignored_during_execution=[
-            k8s.V1PreferredSchedulingTerm(
-                weight=1,
-                preference=k8s.V1NodeSelectorTerm(
-                    match_expressions=[
-                        k8s.V1NodeSelectorRequirement(key="disktype", operator="in", values=["ssd"])
-                    ]
-                ),
-            )
-        ]
-    ),
-    pod_affinity=k8s.V1PodAffinity(
-        required_during_scheduling_ignored_during_execution=[
-            k8s.V1WeightedPodAffinityTerm(
-                weight=1,
-                pod_affinity_term=k8s.V1PodAffinityTerm(
-                    label_selector=k8s.V1LabelSelector(
-                        match_expressions=[
-                            k8s.V1LabelSelectorRequirement(key="security", operator="In", values="S1")
-                        ]
-                    ),
-                    topology_key="failure-domain.beta.kubernetes.io/zone",
-                ),
-            )
-        ]
-    ),
-)
-
-
-tolerations = [k8s.V1Toleration(key="key", operator="Equal", value="value")]
-  
 try:
     print("Entered try block")
     with models.DAG(
