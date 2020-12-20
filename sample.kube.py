@@ -12,8 +12,9 @@ args = { 'owner': 'airflow' }
 
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
-volume_mount = k8s.V1VolumeMount('xmlsave',
-                            mount_path='/usr/local/xmlSave',
+volume_mount = k8s.V1VolumeMount(
+                            name='xmlsave',
+                            mount_path='/usr/local/airflow/xmlSave',
                             sub_path=None,
                             read_only=True)
 
