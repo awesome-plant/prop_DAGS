@@ -5,6 +5,7 @@ import datetime
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
 import os
+from kubernetes.client import models as k8s
 
 args = {
     'owner': 'airflow'
@@ -12,14 +13,24 @@ args = {
 
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
+volume = k8s.V1Volume(
+    name='xmlsave',
+    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='xmlsave'),
+)
 
-init_container_volume_mounts = VolumeMount(name='xmlsave',
-                                mount_path='/usr/local/airflow/xmlSave',
-                                sub_path=None,
-                                read_only=False)
-    # init_container_volume_mounts = [
-    # k8s.V1VolumeMount(mount_path='/etc/foo', name='test-volume', sub_path=None, read_only=True)
+# port = k8s.V1ContainerPort(name='http', container_port=80)
+
+init_container_volume_mounts = [
+    k8s.V1VolumeMount(mount_path='/usr/local/airflow/xmlSave', name='xmlsave', sub_path=None, read_only=True)
 ]
+
+# init_container_volume_mounts = [k8s.V1VolumeMount(name='xmlsave',
+#                                 mount_path='/usr/local/airflow/xmlSave',
+#                                 sub_path=None,
+#                                 read_only=False)
+#     # init_container_volume_mounts = [
+#     # k8s.V1VolumeMount(mount_path='/etc/foo', name='test-volume', sub_path=None, read_only=True)
+# ]   
 
 try:
     print("Entered try block")
