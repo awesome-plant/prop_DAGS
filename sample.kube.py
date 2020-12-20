@@ -33,7 +33,7 @@ try:
                     ,labels={"foo": "bar"}
                     ,get_logs=True
                     ,cmds=["python","-c"]
-                    ,arguments=["print('hello world')"]
+                    ,arguments=["import time","sleep(10)","print('hello world')"]
                     # ,cmds=["./docker-run.sh"]
                     ,is_delete_operator_pod=False
                     ,dag=dag)
