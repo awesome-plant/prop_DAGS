@@ -58,7 +58,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(200); print('done')"]
-                    ,volume_mounts=init_container_volume_mounts
+                    # ,volume_mounts=init_container_volume_mounts
                     # ,cmds=["./docker-run.sh"]
                     ,is_delete_operator_pod=False
                     ,dag=dag)
