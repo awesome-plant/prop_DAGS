@@ -12,16 +12,18 @@ args = { 'owner': 'airflow' }
 
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
-volume_mount = k8s.V1VolumeMount(
-    name='xmlsave'
-    ,mount_path='/usr/local/airflow/xmlSave'
-    ,sub_path=None
-    ,read_only=True
-    )
-volume = k8s.V1Volume(
-    name='xmlsave',
-    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='xmlsave'),
-)
+volume_mount = VolumeMount('xmlsave',
+                            mount_path='/usr/local/airflow/xmlSave',
+                            sub_path=None,
+                            read_only=True)
+
+volume_config= {
+    'persistentVolumeClaim':
+      {
+        'claimName': 'xmlsave'
+      }
+    }
+volume = Volume(name='xmlsave', configs=volume_config)
 
 affinity = {
     'nodeAffinity': {
@@ -70,7 +72,15 @@ affinity = {
         }
       ]
     }
-}         
+}
+
+tolerations = [
+    {
+        'key': "key",
+        'operator': 'Equal',
+        'value': 'value'
+     }
+]      
 try:
     print("Entered try block")
     with models.DAG(
@@ -95,6 +105,7 @@ try:
                     ,volumes=[volume]
                     ,volume_mounts=[volume_mount]
                     ,affinity=affinity
+                    ,tolerations=tolerations
                     # ,cmds=["./docker-run.sh"]
                     ,is_delete_operator_pod=False
                     ,dag=dag)
