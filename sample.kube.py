@@ -4,36 +4,21 @@ import datetime
 
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
-from airflow.contrib.operators import KubernetesOperator
+# from airflow.contrib.operators import KubernetesOperator
 import os
 from kubernetes.client import models as k8s
 
-args = {
-    'owner': 'airflow'
-}
+args = { 'owner': 'airflow' }
 
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
-# volume = k8s.V1Volume(
-#     name='xmlsave',
-#     persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='xmlsave'),
-# )
-
-# port = k8s.V1ContainerPort(name='http', container_port=80)
-
-# init_container_volume_mounts = [ 
-#                                 k8s.V1VolumeMount(
-#                                     mount_path='/usr/local/airflow/xmlSave'
-#                                     , name='xmlsave'
-#                                     , sub_path=None
-#                                     , read_only=True
-#                                     ) 
-#                                 ]
-
-volume_mount = [k8s.VolumeMount(name='xmlsave',
-                            mount_path='/usr/local/airflow/xmlSave',
-                            sub_path=None,
-                            read_only=True)
+volume_mount = [
+                k8s.VolumeMount(
+                    name='xmlsave'
+                    ,mount_path='/usr/local/airflow/xmlSave'
+                    ,sub_path=None
+                    ,read_only=True
+                    )
                 ]
 
 # init_container_volume_mounts = [k8s.V1VolumeMount(name='xmlsave',
