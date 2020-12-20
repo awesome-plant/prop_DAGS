@@ -13,16 +13,7 @@ args = {
 
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 
-volume = k8s.V1Volume(
-    name='xmlsave',
-    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='xmlsave'),
-)
-
-# port = k8s.V1ContainerPort(name='http', container_port=80)
-
-init_container_volume_mounts = [
-    k8s.V1VolumeMount(mount_path='/usr/local/airflow/xmlSave', name='xmlsave', sub_path=None, read_only=True)
-]
+init_container_volume_mounts = [ k8s.V1VolumeMount(mount_path='/usr/local/airflow/xmlSave', name='xmlsave', sub_path=None, read_only=True) ]
 
 # init_container_volume_mounts = [k8s.V1VolumeMount(name='xmlsave',
 #                                 mount_path='/usr/local/airflow/xmlSave',
