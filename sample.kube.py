@@ -74,13 +74,13 @@ try:
                     ,in_cluster=True
                     ,image="python:rc-slim"
                     ,image_pull_policy='IfNotPresent'
-                    ,resources={'limit_cpu' : '500m','limit_memory' : '1024Mi'}
+                    ,resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}
                     ,labels={"foo": "bar"}
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(200); print('done')"]
-                    ,volumes=[volume]
-                    ,volume_mounts=[volume_mount]
+                    # ,volumes=[volume]
+                    # ,volume_mounts=[volume_mount]
                     ,affinity=affinity
                     ,tolerations=tolerations
                     # ,cmds=["./docker-run.sh"]
