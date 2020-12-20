@@ -76,8 +76,8 @@ try:
                     ,labels={"foo": "bar"}
                     ,get_logs=True
                     ,cmds=["python","-c"]
-                    ,arguments=["import time; print('hello world'); time.sleep(200); print('done')"]
-                    # ,volumes=[volume]
+                    ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
+                    ,volumes=[volume]
                     # ,volume_mounts=[volume_mount]
                     # ,affinity=affinity
                     # ,tolerations=tolerations
