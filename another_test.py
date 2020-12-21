@@ -1,91 +1,53 @@
-from airflow.contrib.operators import KubernetesOperator
-from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
-from airflow.contrib.kubernetes.secret import Secret
+import datetime
+import unittest
+from unittest import TestCase
+from airflow.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.kubernetes.volume import Volume
+from airflow.kubernetes.volume_mount import VolumeMount
 
-secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
-secret_env  = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
-volume_mount = VolumeMount('xmlsave',
-                            mount_path='/usr/local/airflow/xmlSave',
-                            sub_path=None,
-                            read_only=True)
 
-volume_config= {
-    'persistentVolumeClaim':
-      {
-        'claimName': 'xmlsave'
-      }
-    }
-volume = Volume(name='xmlsave', configs=volume_config)
+class TestMailAlarm(TestCase):
+    def setUp(self):
+        self.namespace = "test-namespace"
+        self.image = "ubuntu:16.04"
+        self.name = "default"
 
-affinity = {
-    'nodeAffinity': {
-      'preferredDuringSchedulingIgnoredDuringExecution': [
-        {
-          "weight": 1,
-          "preference": {
-            "matchExpressions": {
-              "key": "disktype",
-              "operator": "In",
-              "values": ["ssd"]
-            }
-          }
+        self.cluster_context = "default"
+
+        self.dag_id = "test_dag"
+        self.task_id = "root_test_dag"
+        self.execution_date = datetime.datetime.now()
+
+        self.context = {"dag_id": self.dag_id,
+                        "task_id": self.task_id,
+                        "execution_date": self.execution_date}
+
+        self.cmds = ["sleep"]
+        self.arguments = ["100"]
+
+        self.volume_mount = VolumeMount(name='xmlsave',
+                                        mount_path='/etc/xmlsave',
+                                        sub_path=None,
+                                        read_only=False)
+
+        volume_config = {
+            'persistentVolumeClaim':
+                {
+                    'claimName': 'xmlsave'
+                }
         }
-      ]
-    },
-    "podAffinity": {
-      "requiredDuringSchedulingIgnoredDuringExecution": [
-        {
-          "labelSelector": {
-            "matchExpressions": [
-              {
-                "key": "security",
-                "operator": "In",
-                "values": ["S1"]
-              }
-            ]
-          },
-          "topologyKey": "failure-domain.beta.kubernetes.io/zone"
-        }
-      ]
-    },
-    "podAntiAffinity": {
-      "requiredDuringSchedulingIgnoredDuringExecution": [
-        {
-          "labelSelector": {
-            "matchExpressions": [
-              {
-                "key": "security",
-                "operator": "In",
-                "values": ["S2"]
-              }
-            ]
-          },
-          "topologyKey": "kubernetes.io/hostname"
-        }
-      ]
-    }
-}
+        self.volume = Volume(name='xmlsave', configs=volume_config)
 
-tolerations = [
-    {
-        'key': "key",
-        'operator': 'Equal',
-        'value': 'value'
-     }
-]
+        self.operator = KubernetesPodOperator(
+            namespace=self.namespace, image=self.image, name=self.name,
+            cmds=self.cmds,
+            arguments=self.arguments,
+            startup_timeout_seconds=600,
+            is_delete_operator_pod=True,
+            # the operator could run successfully but the directory /tmp is not mounted to kubernetes operator
+            volumes=[self.volume],
+            volume_mounts=[self.volume_mount],
+            **self.context)
 
-k = KubernetesPodOperator(namespace='airflow',
-                          image="python:rc-slim",
-                          cmds=["python","-c"],
-                          arguments=["import time; print('hello world'); time.sleep(200); print('done')"],
-                          labels={"foo": "bar"},
-                        #   secrets=[secret_file,secret_env]
-                          volume=[volume],
-                          volume_mounts=[volume_mount],
-                          name="test",
-                          task_id="task",
-                          affinity=affinity,
-                          is_delete_operator_pod=False,
-                        #   hostnetwork=False,
-                          tolerations=tolerations
-                          )
+    def test_execute(self):
+        self.operator.execute(self.context)
