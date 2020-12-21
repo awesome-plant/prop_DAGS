@@ -6,22 +6,24 @@ from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
 # from airflow.contrib.operators import KubernetesOperator
 from kubernetes.client import models as k8s
+from airflow.kubernetes.volume_mount import VolumeMount
 from airflow import DAG
 
 args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
-volume_mount = k8s.V1VolumeMount(
+volume_mount = VolumeMount(
                             name='xmlsave',
                             mount_path='/usr/local/airflow/xmlsave',
                             sub_path=None,
-                            read_only=False)
+                            read_only=False
+                            )
 # volume = k8s.V1Volume(
 #     name='xmlsave'
 #     ,persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(
 #         claim_name='xmlsave'
 #         ),
 #     )
-configmaps = [k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='config_name'))]
+# configmaps = [k8s.V1EnvFromSource(config_map_ref=k8s.V1ConfigMapEnvSource(name='config_name'))]
 
 try:
     print("Entered try block")
@@ -42,7 +44,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
-                    ,configmaps=configmaps
+                    # ,configmaps=configmaps
                     # ,volumes=[volume]
                     ,volume_mounts=[volume_mount]
                     # ,affinity=affinity
