@@ -21,7 +21,7 @@ volume_mount = VolumeMount(
 volume_config = {
     'persistentVolumeClaim':
     {
-        'claimName': 'pvc-xmlsave' # uses the persistentVolumeClaim given in the Kube yaml
+        'claimName': 'persist-pods-disk-claim' # uses the persistentVolumeClaim given in the Kube yaml
     }
 }
 volume = Volume(name='xmlsave', configs=volume_config) # the name here is the literal name given to volume for the pods yaml.
