@@ -4,9 +4,9 @@ import datetime
 import os
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
+from airflow.contrib.kubernetes.volume_mount import VolumeMount
 # from airflow.contrib.operators import KubernetesOperator
 from kubernetes.client import models as k8s
-from airflow.kubernetes.volume_mount import VolumeMount
 from airflow import DAG
 
 args = { 'owner': 'airflow' }
