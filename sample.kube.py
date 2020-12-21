@@ -12,7 +12,7 @@ from airflow import DAG
 args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 volume_mount = VolumeMount(
-                            name='xmlsave',
+                            'xmlsave',
                             mount_path='/usr/local/airflow/xmlsave',
                             sub_path=None,
                             read_only=False
@@ -44,12 +44,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
-                    # ,configmaps=configmaps
-                    # ,volumes=[volume]
                     ,volume_mounts=[volume_mount]
-                    # ,affinity=affinity
-                    # ,tolerations=tolerations
-                    # ,cmds=["./docker-run.sh"]
                     ,is_delete_operator_pod=False
                     ,dag=dag)
                 print("done")
