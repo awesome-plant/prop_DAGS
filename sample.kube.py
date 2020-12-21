@@ -59,7 +59,7 @@ try:
                     ,labels={"foo": "bar"}
                     ,get_logs=True
                     ,cmds=["python","-c"]
-                    ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
+                    ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
                     ,volume_mounts=[volume_mount]
                     ,volumes=[volume]
                     # ,affinty=affinity 
