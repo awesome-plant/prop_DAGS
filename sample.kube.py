@@ -12,7 +12,7 @@ args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 volume_mount = k8s.V1VolumeMount(
                             name='xmlsave',
-                            mount_path='/usr/local/airflow/xmlSave',
+                            mount_path='/etc/xmlSave',
                             sub_path=None,
                             read_only=True)
 volume = k8s.V1Volume(
@@ -41,8 +41,8 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
-                    ,volumes=[volume]
-                    # ,volume_mounts=[volume_mount]
+                    # ,volumes=[volume]
+                    ,volume_mounts=[volume_mount]
                     # ,affinity=affinity
                     # ,tolerations=tolerations
                     # ,cmds=["./docker-run.sh"]
