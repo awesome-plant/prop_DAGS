@@ -5,7 +5,7 @@ import os
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
-from airflow.contrib.kubernetes.Volume import Volume
+from airflow.contrib.kubernetes.volume import Volume
 # from airflow.contrib.operators import KubernetesOperator
 from kubernetes.client import models as k8s
 from airflow import DAG
@@ -21,7 +21,7 @@ volume_mount = VolumeMount(
 volume_config = {
     'persistentVolumeClaim':
     {
-        'claimName': 'pv-xmlsave' # uses the persistentVolumeClaim given in the Kube yaml
+        'claimName': 'pvc-xmlsave' # uses the persistentVolumeClaim given in the Kube yaml
     }
 }
 volume = Volume(name='xmlsave', configs=volume_config) # the name here is the literal name given to volume for the pods yaml.
