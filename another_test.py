@@ -11,25 +11,19 @@ class TestMailAlarm(TestCase):
         self.namespace = "test-namespace"
         self.image = "ubuntu:16.04"
         self.name = "default"
-
         self.cluster_context = "default"
-
         self.dag_id = "test_dag"
         self.task_id = "root_test_dag"
         self.execution_date = datetime.datetime.now()
-
         self.context = {"dag_id": self.dag_id,
                         "task_id": self.task_id,
                         "execution_date": self.execution_date}
-
         self.cmds = ["sleep"]
         self.arguments = ["100"]
-
-        self.volume_mount = VolumeMount(name='xmlsave',
+        self.volume_mount = VolumeMount('xmlsave',
                                         mount_path='/etc/xmlsave',
                                         sub_path=None,
                                         read_only=False)
-
         volume_config = {
             'persistentVolumeClaim':
                 {
@@ -37,7 +31,6 @@ class TestMailAlarm(TestCase):
                 }
         }
         self.volume = Volume(name='xmlsave', configs=volume_config)
-
         self.operator = KubernetesPodOperator(
             namespace=self.namespace, image=self.image, name=self.name,
             cmds=self.cmds,
