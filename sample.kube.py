@@ -25,21 +25,21 @@ volume_config = {
     }
 }
 volume = Volume(name='xmlsave', configs=volume_config) # the name here is the literal name given to volume for the pods yaml.
-affinity={
-        'nodeAffinity': {
-            'requiredDuringSchedulingIgnoredDuringExecution': {
-                'nodeSelectorTerms': [{
-                    'matchExpressions': [{
-                        'key': 'cloud.google.com/gke-nodepool',
-                        'operator': 'In',
-                        'values': [
-                            affinity,
-                        ]
-                    }]
-                }]
-            }
-        }
-    },
+# affinity={
+#         'nodeAffinity': {
+#             'requiredDuringSchedulingIgnoredDuringExecution': {
+#                 'nodeSelectorTerms': [{
+#                     'matchExpressions': [{
+#                         'key': 'cloud.google.com/gke-nodepool',
+#                         'operator': 'In',
+#                         'values': [
+#                             affinity,
+#                         ]
+#                     }]
+#                 }]
+#             }
+#         }
+#     },
 
 try:
     print("Entered try block")
@@ -62,7 +62,7 @@ try:
                     ,arguments=["import time; print('hello world'); time.sleep(2); print('done')"]
                     ,volume_mounts=[volume_mount]
                     ,volumes=[volume]
-                    ,affinty=affinity 
+                    # ,affinty=affinity 
                     ,is_delete_operator_pod=False
                     ,dag=dag)
                 print("done")
