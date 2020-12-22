@@ -45,8 +45,8 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    ,volume_mounts=[volume_mount]
-                    # ,volumes=[volume]
+                    # ,volume_mounts=[volume_mount]
+                    ,volumes=[volume]
                     # ,affinty=affinity 
                     ,is_delete_operator_pod=False
                     ,dag=dag)
