@@ -24,7 +24,10 @@ volume_config = {
         'claimName': 'persist-pods-disk-claim'  # uses the persistentVolumeClaim given in the Kube yaml
     }
 }
-volume = Volume(name='xmlsave', configs=volume_config) # the name here is the literal name given to volume for the pods yaml.
+volume = Volume(
+                'xmlsave'
+                , configs=volume_config
+                ) # the name here is the literal name given to volume for the pods yaml.
 
 try:
     print("Entered try block")
@@ -45,7 +48,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    # ,volume_mounts=[volume_mount]
+                    ,volume_mounts=[volume_mount]
                     ,volumes=[volume]
                     # ,affinty=affinity 
                     ,is_delete_operator_pod=False
