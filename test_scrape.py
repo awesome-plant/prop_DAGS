@@ -46,26 +46,23 @@ args={
 }
 
 def ScrapeURL(baseurl, RootDir, PageSaveXML, **kwargs):  
+
     XMLsaveFile="XML_sitemap_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
-    #create browser header for requests 
-    #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
-    # y=BeautifulSoup(response.text, features="html.parser")
-    #save xml to dir, will be read again later 
-    # XMLFile=os.path.join(RootDir + "\\DL_Files\\", file.strip(' \t\n\r') )
     XmFileDir=os.path.join(RootDir, PageSaveXML)
     print("save path:", str(XmFileDir))
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     print("xmlFile is: ", xmlFile)
     print(response.text)
-    try: 
-        os.makedirs(XmFileDir)
-        print("made dir: " + XmFileDir)
-    except Exception as e: 
-        # pass
-        print("couldnt make dir: " + XmFileDir) 
-        print(e)   
+    print("folder check for folder:", XmFileDir, os.path.isdir(XmFileDir) )
+    # try: 
+    #     os.makedirs(XmFileDir)
+    #     print("made dir: " + XmFileDir)
+    # except Exception as e: 
+    #     # pass
+    #     print("couldnt make dir: " + XmFileDir) 
+    #     print(e)   
     saveXML=open(xmlFile, "w")
     saveXML.write(response.text)
     saveXML.close()
