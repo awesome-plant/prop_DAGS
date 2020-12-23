@@ -31,11 +31,11 @@ import pip
 try:
     __import__('requests')
 except ImportError:
-    pip.main(['install', 'requests'])  
+    pip(['install', 'requests'])  
 try:
     __import__('fake_useragent')
 except ImportError:
-    pip.main(['install', 'fake_useragent'])
+    pip['install', 'fake_useragent'])
 
 import requests
 import urllib.request
