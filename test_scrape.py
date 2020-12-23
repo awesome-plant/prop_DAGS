@@ -15,7 +15,7 @@
 import logging
 import datetime
 import time
-import os
+import os, sys
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
@@ -68,6 +68,8 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, **kwargs):
         print("couldnt make dir: " + XmFileDir) 
         print(e)    
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
+    print("xmlFile is: ", xmlFile)
+    print(response.text)
     saveXML=open(xmlFile, "w")
     saveXML.write(response.text)
     saveXML.close()
