@@ -41,7 +41,7 @@ args={
     # ,'retries': 1
     # ,'retry_delay': datetime.timedelta(minutes=1)
     # ,'schedule_interval': '@daily'
-    # ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
+    ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
 
 }
 
