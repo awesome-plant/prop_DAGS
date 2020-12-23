@@ -26,17 +26,17 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator 
 
 #check/install packages 
-import pip 
 # package = 'package_name'
-try:
-    __import__('requests')
-except ImportError:
-    # pip(['install', 'requests'])  
-     os.system("pip install requests")#+ package)
-try:
-    __import__('fake-useragent')
-except ImportError:
-    os.system("pip install fake-useragent")
+os.system("pip install requests user-agents fake-useragent beautifulsoup4")#
+# try:
+#     __import__('requests')
+# except ImportError:
+#     # pip(['install', 'requests'])  
+#      os.system("pip install user-agents fake-useragent")#+ package)
+# try:
+#     __import__('fake_useragent')
+# except ImportError:
+#     os.system("pip install fake-useragent")
 
 import requests
 import urllib.request
