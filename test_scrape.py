@@ -63,7 +63,7 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
 
-YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)  
+YESTERDAY = datetime.now() - datetime.timedelta(days=1)  
 args={
     'owner': 'Airflow'
     # ,'start_date': airflow.utils.dates.days_ago(1)   
