@@ -42,7 +42,7 @@ import requests
 import urllib.request
 # from fake_useragent import UserAgent 
      #scrape formatting
-from bs4 import BeautifulSoup
+import BeautifulSoup
 import pandas as pd
 from pandas import DataFrame
     #data saving
