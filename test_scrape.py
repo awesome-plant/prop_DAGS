@@ -36,20 +36,30 @@ try:
 except:
     from io import StringIO
 
+args={
+    'owner': 'Airflow'
+    # ,'retries': 1
+    # ,'retry_delay': datetime.timedelta(minutes=1)
+    # ,'schedule_interval': '@daily'
+    # ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
+
+}
+
 def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):  
+    print("starting scrape")
     XMLsaveFile="XML_sitemap_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
     #create browser header for requests 
     #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
+    print("done header")
     response = requests.get(baseurl,headers=headers)
-    print(response.text)
-    time.sleep(600)
-
+    print("done response")
     # y=BeautifulSoup(response.text, features="html.parser")
     #save xml to dir, will be read again later 
     # XMLFile=os.path.join(RootDir + "\\DL_Files\\", file.strip(' \t\n\r') )
     XmFileDir=os.path.join(RootDir, PageSaveXML)
-    print(str(XmFileDir))
+    print("save path:", str(XmFileDir))
+    # print(str(XmFileDir))
     try: 
         os.makedirs(XmFileDir)
         print("made dir: " + XmFileDir)
@@ -59,25 +69,16 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
         print(e)    
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     saveXML=open(xmlFile, "w")
-    # saveXML.write(y.prettify())
+    saveXML.write(response.text)
     saveXML.close()
     print("file saved to: " + xmlFile)
 
-YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)  
-args={
-    'owner': 'Airflow'
-    # ,'start_date': airflow.utils.dates.days_ago(1)   
-    ,'retries': 1
-    ,'retry_delay': datetime.timedelta(minutes=1)
-    ,'schedule_interval': '@daily'
-    ,'start_date': YESTERDAY
-
-}
 
 dag = DAG(
     dag_id='GETXML_TO_CSV'
     ,catchup=False
     ,default_args=args
+    ,schedule_interval=datetime.timedelta(days=1)
 )
 
 t1_Get_Sitemap_Tree = PythonOperator(
