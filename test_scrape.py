@@ -56,7 +56,7 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, **kwargs):
     print("xmlFile is: ", xmlFile)
     print(response.text)
     print("folder check for folder:", XmFileDir, os.path.isdir(XmFileDir) )
-    sleep(600)
+    time.sleep(600)
     # try: 
     #     os.makedirs(XmFileDir)
     #     print("made dir: " + XmFileDir)
