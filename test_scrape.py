@@ -43,6 +43,7 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
     print(response.text)
+    time.sleep(600)
 
     # y=BeautifulSoup(response.text, features="html.parser")
     #save xml to dir, will be read again later 
