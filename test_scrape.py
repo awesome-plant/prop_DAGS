@@ -34,9 +34,9 @@ except ImportError:
     # pip(['install', 'requests'])  
      os.system("pip install requests")#+ package)
 try:
-    __import__('fake_useragent')
+    __import__('fake-useragent')
 except ImportError:
-    os.system("pip install fake_useragent")
+    os.system("pip install fake-useragent")
 
 import requests
 import urllib.request
