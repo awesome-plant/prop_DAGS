@@ -35,7 +35,7 @@ except ImportError:
 try:
     __import__('fake_useragent')
 except ImportError:
-    pip['install', 'fake_useragent'])
+    pip(['install', 'fake_useragent'])
 
 import requests
 import urllib.request
