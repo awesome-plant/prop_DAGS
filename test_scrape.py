@@ -13,7 +13,7 @@
 #         v. saves csv 
 #kube libs 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import os
 from airflow import models
@@ -68,7 +68,7 @@ args={
     'owner': 'Airflow'
     # ,'start_date': airflow.utils.dates.days_ago(1)   
     ,'retries': 1
-    ,'retry_delay': timedelta(minutes=1)
+    ,'retry_delay': datetime.timedelta(minutes=1)
     ,'schedule_interval': '@daily'
     ,'start_date': YESTERDAY
 
