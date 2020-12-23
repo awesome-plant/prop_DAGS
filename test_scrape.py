@@ -77,7 +77,15 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
   
+args={
+    'owner': 'Airflow'
+    # ,'start_date': airflow.utils.dates.days_ago(1)   
+    ,'retries': 1
+    ,'retry_delay': timedelta(minutes=1)
+    ,'schedule_interval': '@daily'
+    ,'start_date': datetime(2020, 3, 25)
 
+}
 
 dag = DAG(
     dag_id='GETXML_TO_CSV'
