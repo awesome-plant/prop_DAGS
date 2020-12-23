@@ -1,3 +1,4 @@
+# https://www.aylakhan.tech/?p=655
 # https://stackoverflow.com/questions/62686753/airflow-dag-id-could-not-be-found-issue-when-using-kubernetes-executor
 import logging
 import datetime
@@ -48,8 +49,20 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    ,volume_mounts=[volume_mount]
-                    ,volumes=[volume]
+                    # ,volume_mounts=[volume_mount]
+                    # ,volumes=[volume]
+                    ,volumes=[
+                        Volume("persist-pods-disk-claim",
+                            {
+                                "persistentVolumeClaim":
+                                {
+                                    "claimName": "persist-pods-disk-claim"
+                                }
+                            })
+                        ]
+                    ,volume_mounts=[
+                        VolumeMount("persist-pods-disk-claim", "/usr/local/airflow/xmlsave", sub_path=None, read_only=False)
+                        ]
                     # ,affinty=affinity 
                     ,is_delete_operator_pod=False
                     ,dag=dag)
