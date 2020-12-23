@@ -62,14 +62,15 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     # saveXML.write(y.prettify())
     saveXML.close()
     print("file saved to: " + xmlFile)
-  
+
+YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)  
 args={
     'owner': 'Airflow'
     # ,'start_date': airflow.utils.dates.days_ago(1)   
     ,'retries': 1
     ,'retry_delay': timedelta(minutes=1)
     ,'schedule_interval': '@daily'
-    ,'start_date': datetime(2021, 3, 25)
+    ,'start_date': YESTERDAY
 
 }
 
