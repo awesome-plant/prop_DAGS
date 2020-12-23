@@ -13,7 +13,7 @@
 #         v. saves csv 
 #kube libs 
 import logging
-from datetime import datetime
+import datetime
 import time
 import os
 from airflow import models
