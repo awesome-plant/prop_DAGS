@@ -45,7 +45,7 @@ args={
 
 }
 
-def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):  
+def ScrapeURL(baseurl, RootDir, PageSaveXML, **kwargs):  
     print("starting scrape")
     XMLsaveFile="XML_sitemap_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
     #create browser header for requests 
