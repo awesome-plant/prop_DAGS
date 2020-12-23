@@ -13,8 +13,8 @@
 #         v. saves csv 
 #kube libs 
 import logging
-import datetime
 from datetime import datetime, timedelta
+import time
 import os
 from airflow import models
 from airflow.contrib.operators import kubernetes_pod_operator
@@ -25,28 +25,9 @@ from airflow import DAG
 #regular scrape libs 
 from airflow.operators.python_operator import PythonOperator 
 
-#check/install packages 
-# package = 'package_name'
-os.system("pip install requests user-agents fake-useragent beautifulsoup4")#
-# try:
-#     __import__('requests')
-# except ImportError:
-#     # pip(['install', 'requests'])  
-#      os.system("pip install user-agents fake-useragent")#+ package)
-# try:
-#     __import__('fake_useragent')
-# except ImportError:
-#     os.system("pip install fake-useragent")
-
 import requests
 import urllib.request
-# from fake_useragent import UserAgent 
-     #scrape formatting
-import BeautifulSoup
-import pandas as pd
-from pandas import DataFrame
     #data saving
-import os
 #extract from gt file 
 import gzip
 import shutil 
@@ -61,7 +42,9 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
-    y=BeautifulSoup(response.text, features="html.parser")
+    print(response.text)
+
+    # y=BeautifulSoup(response.text, features="html.parser")
     #save xml to dir, will be read again later 
     # XMLFile=os.path.join(RootDir + "\\DL_Files\\", file.strip(' \t\n\r') )
     XmFileDir=os.path.join(RootDir, PageSaveXML)
@@ -75,7 +58,7 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
         print(e)    
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     saveXML=open(xmlFile, "w")
-    saveXML.write(y.prettify())
+    # saveXML.write(y.prettify())
     saveXML.close()
     print("file saved to: " + xmlFile)
   
