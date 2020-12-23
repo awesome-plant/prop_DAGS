@@ -37,7 +37,7 @@ except:
     from io import StringIO
 
 def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):  
-    XMLsaveFile="XML_sitemap_" + (datetime.now()).strftime('%Y-%m-%d') + '.xml'
+    XMLsaveFile="XML_sitemap_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
     #create browser header for requests 
     #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
@@ -63,7 +63,7 @@ def ScrapeURL(baseurl, RootDir, PageSaveXML, PageSaveCSV, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
 
-YESTERDAY = datetime.now() - datetime.timedelta(days=1)  
+YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)  
 args={
     'owner': 'Airflow'
     # ,'start_date': airflow.utils.dates.days_ago(1)   
