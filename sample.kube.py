@@ -44,7 +44,7 @@ init_container = k8s.V1Container(
     # env=init_environments,
     # volume_mounts=init_container_volume_mounts,
     command=["bash", "-cx"],
-    args=[git_saveDir]
+    args=["echo 10"]
     
 )
 
