@@ -9,7 +9,7 @@ from airflow.contrib.kubernetes.volume_mount import VolumeMount
 from airflow.contrib.kubernetes.volume import Volume
 # from airflow.contrib.operators import KubernetesOperator
 from kubernetes.client import models as k8s
-\
+
 from airflow import DAG
 
 args = { 'owner': 'airflow' }
