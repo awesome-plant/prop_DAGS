@@ -5,7 +5,8 @@ import datetime
 import os
 # from airflow import models
 # from airflow.contrib.operators import kubernetes_pod_operator
-from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+# from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 # from airflow.contrib.kubernetes.volume_mount import VolumeMount
 # from airflow.contrib.kubernetes.volume import Volume
 # from airflow.contrib.operators import KubernetesOperator
