@@ -67,8 +67,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    # ,volume_mounts=[volume_mount]
-                    # ,volumes=[volume]
+                    ,init_containers=[init_container]
                     ,volumes=[
                         Volume("persist-xmlsave",
                             {
@@ -78,7 +77,7 @@ try:
                                 }
                             })
                         ]
-                    ,volume_mounts=[
+                    ,volume_mounts=[ 
                         VolumeMount("persist-xmlsave", "/usr/local/airflow/xmlsave", sub_path=None, read_only=False)
                         ]
                     # ,affinty=affinity 
