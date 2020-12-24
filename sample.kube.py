@@ -9,6 +9,7 @@ from airflow.contrib.kubernetes.volume_mount import VolumeMount
 from airflow.contrib.kubernetes.volume import Volume
 # from airflow.contrib.operators import KubernetesOperator
 from kubernetes.client import models as k8s
+\
 from airflow import DAG
 
 args = { 'owner': 'airflow' }
@@ -24,11 +25,28 @@ volume_config = {
     {
         'claimName': 'persist-pods-disk-claim'  # uses the persistentVolumeClaim given in the Kube yaml
     }
-}
+    }
 volume = Volume(
                 'xmlsave'
                 , configs=volume_config
                 ) # the name here is the literal name given to volume for the pods yaml.
+
+#now we pull in the scripts repo 
+git_repo='https://github.com/awesome-plant/prop_DAGS.git'
+git_branch='NonProd_DAG'
+git_saveDir='/usr/local/airflow/'
+git_command = 'git clone -depth=1 -branch ' + git_branch + ' ' + git_repo + ' cd ' + git_saveDir
+
+
+init_container = k8s.V1Container(
+    name="kubePod_init-container",
+    image="alpine/git",
+    # env=init_environments,
+    # volume_mounts=init_container_volume_mounts,
+    command=["bash", "-cx"],
+    args=[git_saveDir]
+    
+)
 
 try:
     print("Entered try block")
