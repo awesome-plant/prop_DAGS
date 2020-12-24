@@ -14,7 +14,7 @@ from kubernetes.client import models as k8s
 
 from airflow import DAG
 
-args = { 'owner': 'airflow' }
+default_args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
 volume_mount = k8s.V1VolumeMount(
                             name='xmlsave',
