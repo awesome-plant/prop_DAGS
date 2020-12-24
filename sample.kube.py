@@ -70,16 +70,16 @@ try:
                     # ,volume_mounts=[volume_mount]
                     # ,volumes=[volume]
                     ,volumes=[
-                        Volume("persist-pods-disk-claim",
+                        Volume("persist-xmlsave",
                             {
                                 "persistentVolumeClaim":
                                 {
-                                    "claimName": "persist-pods-disk-claim"
+                                    "claimName": "persist-xmlsave"
                                 }
                             })
                         ]
                     ,volume_mounts=[
-                        VolumeMount("persist-pods-disk-claim", "/usr/local/airflow/xmlsave", sub_path=None, read_only=False)
+                        VolumeMount("persist-xmlsave", "/usr/local/airflow/xmlsave", sub_path=None, read_only=False)
                         ]
                     # ,affinty=affinity 
                     ,is_delete_operator_pod=False
