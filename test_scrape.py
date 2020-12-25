@@ -51,7 +51,7 @@ dag = DAG(
     dag_id='GETXML_TO_CSV'
     ,catchup=False
     ,default_args=args
-    ,schedule_interval=datetime.datetime.timedelta(days=1)
+    ,schedule_interval=datetime.timedelta(days=1)
     )
 
 def ScrapeURL(baseurl,PagesavePath, **kwargs):  
