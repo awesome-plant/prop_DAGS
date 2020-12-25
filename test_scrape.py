@@ -50,7 +50,7 @@ args={
 #     ,schedule_interval=None #datetime.timedelta(days=1)
 #     ,catchup=False
 #     )
-def ScrapeURL(baseurl,PagesavePath, **kwargs):  
+def ScrapeURL(baseurl,PageSaveXML, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
     #create browser header for requests 
     # ua = UserAgent()
@@ -60,7 +60,7 @@ def ScrapeURL(baseurl,PagesavePath, **kwargs):
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
     # y=BeautifulSoup(response.text, features="html.parser")
-    XmFileDir=os.path.join(PagesavePath, "DL_Files")
+    XmFileDir=os.path.join(PageSaveXML, "DL_Files")
     
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     saveXML=open(xmlFile, "w")
