@@ -18,7 +18,7 @@ import datetime
 import time
 from airflow import DAG
 # from airflow.example_dags.libs.helper import print_stuff
-from airflow.operators.python import PythonOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
