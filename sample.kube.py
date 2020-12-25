@@ -15,7 +15,7 @@ from airflow import DAG
 
 args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
-volume_mount = k8s.V1Volume(
+volume_mount = k8s.V1VolumeMount(
                             name='xmlsave',
                             mount_path='/usr/local/airflow/xmlsave',
                             sub_path=None,
