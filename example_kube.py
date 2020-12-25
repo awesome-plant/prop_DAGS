@@ -27,6 +27,9 @@ from airflow.operators.bash_operator import BashOperator
 # from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.contrib.operators import kubernetes_pod_operator
 from airflow.utils.dates import days_ago
+from airflow import models
+import datetime
+import logging
 
 # [START howto_operator_k8s_cluster_resources]
 # secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
