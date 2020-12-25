@@ -63,6 +63,7 @@ def ScrapeURL(baseurl,PageSaveXML, **kwargs):
     XmFileDir=os.path.join(PageSaveXML, "DL_Files")
     
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
+    time.sleep(600)
     saveXML=open(xmlFile, "w")
     saveXML.write(response.text) #y.prettify())
     saveXML.close()
