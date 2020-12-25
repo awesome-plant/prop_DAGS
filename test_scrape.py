@@ -43,39 +43,14 @@ args={
     # ,'schedule_interval': '@daily'
     ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
 
-}
-
-def ScrapeURL(baseurl, RootDir, PageSaveXML, **kwargs):  
-
-    XMLsaveFile="XML_sitemap_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
-    headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
-    response = requests.get(baseurl,headers=headers)
-    XmFileDir=os.path.join(RootDir, PageSaveXML)
-    print("save path:", str(XmFileDir))
-    xmlFile=os.path.join(XmFileDir, XMLsaveFile)
-    print("xmlFile is: ", xmlFile)
-    print(response.text)
-    print("folder check for folder:", XmFileDir, os.path.isdir(XmFileDir) )
-    time.sleep(600)
-    # try: 
-    #     os.makedirs(XmFileDir)
-    #     print("made dir: " + XmFileDir)
-    # except Exception as e: 
-    #     # pass
-    #     print("couldnt make dir: " + XmFileDir) 
-    #     print(e)   
-    saveXML=open(xmlFile, "w")
-    saveXML.write(response.text)
-    saveXML.close()
-    print("file saved to: " + xmlFile)
-
+    }
 
 dag = DAG(
     dag_id='GETXML_TO_CSV'
     ,catchup=False
     ,default_args=args
     ,schedule_interval=datetime.timedelta(days=1)
-)
+    )
 
 t1_Get_Sitemap_Tree = PythonOperator(
     task_id="t1_Get_Sitemap_Tree"
@@ -88,7 +63,6 @@ t1_Get_Sitemap_Tree = PythonOperator(
         }
     ,python_callable=ScrapeURL
     ,dag=dag
-)
-
+    )
 
 t1_Get_Sitemap_Tree
