@@ -26,6 +26,9 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 # from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.contrib.operators import kubernetes_pod_operator
+from airflow.contrib.kubernetes.volume_mount import VolumeMount
+from airflow.contrib.kubernetes.volume import Volume
+from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow import models
 import datetime
