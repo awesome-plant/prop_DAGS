@@ -22,15 +22,15 @@ This is an example dag for using the KubernetesPodOperator.
 from kubernetes.client import models as k8s
 
 from airflow import DAG
-from airflow.kubernetes.secret import Secret
+# from airflow.kubernetes.secret import Secret
 from airflow.operators.bash import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.utils.dates import days_ago
 
 # [START howto_operator_k8s_cluster_resources]
-secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
-secret_env = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
-secret_all_keys = Secret('env', None, 'airflow-secrets-2')
+# secret_file = Secret('volume', '/etc/sql_conn', 'airflow-secrets', 'sql_alchemy_conn')
+# secret_env = Secret('env', 'SQL_CONN', 'airflow-secrets', 'sql_alchemy_conn')
+# secret_all_keys = Secret('env', None, 'airflow-secrets-2')
 volume_mount = k8s.V1VolumeMount(
     name='test-volume', mount_path='/root/mount_file', sub_path=None, read_only=True
 )
@@ -114,7 +114,7 @@ with DAG(
         cmds=["bash", "-cx"],
         arguments=["echo", "10"],
         labels={"foo": "bar"},
-        secrets=[secret_file, secret_env, secret_all_keys],
+        # secrets=[secret_file, secret_env, secret_all_keys],
         ports=[port],
         volumes=[volume],
         volume_mounts=[volume_mount],
@@ -133,7 +133,7 @@ with DAG(
     quay_k8s = KubernetesPodOperator(
         namespace='default',
         image='quay.io/apache/bash',
-        image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
+        # image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
         cmds=["bash", "-cx"],
         arguments=["echo", "10", "echo pwd"],
         labels={"foo": "bar"},
