@@ -17,8 +17,9 @@ import os
 import datetime 
 import time
 from airflow import DAG
-from airflow.example_dags.libs.helper import print_stuff
+# from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
 
@@ -52,18 +53,18 @@ def ScrapeURL(baseurl,PageSaveXML, **kwargs):
     print("file saved to: " + xmlFile)
 
 with DAG(
-        dag_id='use_getXML_Scrape',
-        default_args=default_args,
-        schedule_interval=None,
-        start_date=days_ago(1),
-        tags=['get_xml_scrape'],
+        dag_id='use_getXML_Scrape'
+        ,default_args=default_args
+        ,schedule_interval=None
+        ,start_date=days_ago(1)
+        ,tags=['get_xml_scrape']
     ) as dag:    
     
     # You can use annotations on your kubernetes pods!
-    start_task = PythonOperator(
-        task_id="start_task",
-        python_callable=print_stuff,
-        executor_config={
+    start_task = BashOperator(
+        task_id="start_task"
+        ,bash_command='echo starting_scrape_process'
+        ,executor_config={
             "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
         },
     )
