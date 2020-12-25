@@ -150,31 +150,3 @@ except Exception as e:
     print(str(e))
     logging.error("Error at {}, error={}".format(__file__, str(e)))
     raise
-
-# with DAG(
-#     dag_id='example_kubernetes_operator',
-#     default_args=default_args,
-#     schedule_interval=None,
-#     start_date=days_ago(2),
-#     tags=['example'],
-# ) as dag:
-#     k = kubernetes_pod_operator.KubernetesPodOperator(
-#         namespace='default',
-#         image="ubuntu:16.04",
-#         cmds=["bash", "-cx"],
-#         arguments=["echo", "10"],
-#         labels={"foo": "bar"},
-#         # secrets=[secret_file, secret_env, secret_all_keys],
-#         ports=[port],
-#         volumes=[volume],
-#         volume_mounts=[volume_mount],
-#         env_from=configmaps,
-#         name="airflow-test-pod",
-#         task_id="task",
-#         affinity=affinity,
-#         is_delete_operator_pod=True,
-#         hostnetwork=False,
-#         tolerations=tolerations,
-#         init_containers=[init_container],
-#         priority_class_name="medium",
-#     )
