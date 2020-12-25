@@ -28,7 +28,7 @@ from airflow.operators.dummy_operator import DummyOperator
 
 import requests
 import urllib.request
-from fake_useragent import UserAgent 
+# from fake_useragent import UserAgent 
 from bs4 import BeautifulSoup
     #data saving
 #extract from gt file 
@@ -53,11 +53,11 @@ args={
 def ScrapeURL(baseurl,PagesavePath, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
     #create browser header for requests 
-    ua = UserAgent()
+    # ua = UserAgent()
     #print(ua.chrome)
-    headers = {'User-Agent':str(ua.random)}
+    # headers = {'User-Agent':str(ua.random)}
     #how many pages are there?
-    #headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
+    headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
     y=BeautifulSoup(response.text, features="html.parser")
     XmFileDir=os.path.join(PagesavePath, "DL_Files")
@@ -68,7 +68,7 @@ def ScrapeURL(baseurl,PagesavePath, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
     
-with DAG('GETXML_DAG', start_date=datetime.datetime.now() - datetime.timedelta(days=1))  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
+with DAG('GETXML_DAG', start_date=datetime.datetime.now() - datetime.timedelta(days=2))  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
     start_task = DummyOperator(
         task_id='start_task'
         # , retries=3
