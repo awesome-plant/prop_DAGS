@@ -68,7 +68,7 @@ def ScrapeURL(baseurl,PagesavePath, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
     
-with DAG('GETXML_DAG')  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
+with DAG('GETXML_DAG', start_date=datetime.datetime(2018, 11, 1))  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
     start_task = DummyOperator(
         task_id='start_task'
         , retries=3
