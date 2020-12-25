@@ -25,6 +25,7 @@ from airflow import DAG
 # from airflow.kubernetes.secret import Secret
 from airflow.operators.bash_operator import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from airflow.contrib.operators import kubernetes_pod_operator
 from airflow.utils.dates import days_ago
 
 # [START howto_operator_k8s_cluster_resources]
@@ -108,7 +109,7 @@ with DAG(
     start_date=days_ago(2),
     tags=['example'],
 ) as dag:
-    k = KubernetesPodOperator(
+    k = kubernetes_pod_operator.KubernetesPodOperator(
         namespace='default',
         image="ubuntu:16.04",
         cmds=["bash", "-cx"],
@@ -130,7 +131,7 @@ with DAG(
     )
 
     # [START howto_operator_k8s_private_image]
-    quay_k8s = KubernetesPodOperator(
+    quay_k8s = kubernetes_pod_operator.KubernetesPodOperator(
         namespace='default',
         image='quay.io/apache/bash',
         # image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
@@ -146,7 +147,7 @@ with DAG(
     # [END howto_operator_k8s_private_image]
 
     # [START howto_operator_k8s_write_xcom]
-    write_xcom = KubernetesPodOperator(
+    write_xcom = kubernetes_pod_operator.KubernetesPodOperator(
         namespace='default',
         image='alpine',
         cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
