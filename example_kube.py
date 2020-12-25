@@ -112,7 +112,7 @@ default_args = {
 try:
     print("Entered try block")
     with models.DAG(
-            dag_id='sampledag',
+            dag_id='example_kubernetes_operator',
             schedule_interval=datetime.timedelta(days=1),
             start_date=days_ago(2)) as dag:
                 print("Initialized dag")
