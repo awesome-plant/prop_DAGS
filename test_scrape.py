@@ -24,7 +24,7 @@ from kubernetes.client import models as k8s
 from airflow import DAG
 #regular scrape libs 
 from airflow.operators.python_operator import PythonOperator 
-from airflow.operators.python_operator import DummyOperator 
+from airflow.operators.dummy_operator import DummyOperator 
 
 import requests
 import urllib.request
