@@ -69,13 +69,13 @@ def ScrapeURL(baseurl,PageSaveXML, **kwargs):
     saveXML.close()
     print("file saved to: " + xmlFile)
     
-with DAG('GETXML_DAG', start_date=datetime.datetime.now() - datetime.timedelta(days=2))  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
+with DAG('DNU_GETXML_DAG', start_date=datetime.datetime.now() - datetime.timedelta(days=2))  as dag:    #, description='Python DAG', schedule_interval='*/5 * * * *', start_date=datetime.datetime(2018, 11, 1), catchup=False) as dag:     
     start_task = DummyOperator(
-        task_id='start_task'
+        task_id='DNU_start_task'
         # , retries=3
         )
     t1_Get_Sitemap_Tree = PythonOperator(
-        task_id="t1_Get_Sitemap_Tree"
+        task_id="DNU_t1_Get_Sitemap_Tree"
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
