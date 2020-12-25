@@ -102,65 +102,73 @@ default_args = {
     'owner': 'airflow',
 }
 
-with DAG(
-    dag_id='example_kubernetes_operator',
-    default_args=default_args,
-    schedule_interval=None,
-    start_date=days_ago(2),
-    tags=['example'],
-) as dag:
-    k = kubernetes_pod_operator.KubernetesPodOperator(
-        namespace='default',
-        image="ubuntu:16.04",
-        cmds=["bash", "-cx"],
-        arguments=["echo", "10"],
-        labels={"foo": "bar"},
-        # secrets=[secret_file, secret_env, secret_all_keys],
-        ports=[port],
-        volumes=[volume],
-        volume_mounts=[volume_mount],
-        env_from=configmaps,
-        name="airflow-test-pod",
-        task_id="task",
-        affinity=affinity,
-        is_delete_operator_pod=True,
-        hostnetwork=False,
-        tolerations=tolerations,
-        init_containers=[init_container],
-        priority_class_name="medium",
-    )
 
-    # [START howto_operator_k8s_private_image]
-    quay_k8s = kubernetes_pod_operator.KubernetesPodOperator(
-        namespace='default',
-        image='quay.io/apache/bash',
-        # image_pull_secrets=[k8s.V1LocalObjectReference('testquay')],
-        cmds=["bash", "-cx"],
-        arguments=["echo", "10", "echo pwd"],
-        labels={"foo": "bar"},
-        name="airflow-private-image-pod",
-        is_delete_operator_pod=True,
-        in_cluster=True,
-        task_id="task-two",
-        get_logs=True,
-    )
-    # [END howto_operator_k8s_private_image]
+try:
+    print("Entered try block")
+    with models.DAG(
+            dag_id='sampledag',
+            schedule_interval=datetime.timedelta(days=1),
+            start_date=days_ago(2)) as dag:
+                print("Initialized dag")
+                kubernetes_min_pod = kubernetes_pod_operator.KubernetesPodOperator(
+                    task_id='trigger-task'
+                    ,name='trigger-name'
+                    ,namespace='airflow'
+                    # ,in_cluster=True
+                    ,image="python:rc-slim"
+                    ,image_pull_policy='IfNotPresent'
+                    ,resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}
+                    ,labels={"foo": "bar"}
+                    ,get_logs=True
+                    ,cmds=["python","-c"]
+                    ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
+                    ,init_containers=[init_container]
+                    ,volumes=[
+                        Volume("persist-xmlsave",
+                            {
+                                "persistentVolumeClaim":
+                                {
+                                    "claimName": "persist-xmlsave"
+                                }
+                            })
+                        ]
+                    ,volume_mounts=[ 
+                        VolumeMount("persist-xmlsave", "/usr/local/airflow/xmlsave", sub_path=None, read_only=False)
+                        ]
+                    # ,affinty=affinity 
+                    ,is_delete_operator_pod=False
+                    ,dag=dag)
+                print("done")
 
-    # [START howto_operator_k8s_write_xcom]
-    write_xcom = kubernetes_pod_operator.KubernetesPodOperator(
-        namespace='default',
-        image='alpine',
-        cmds=["sh", "-c", "mkdir -p /airflow/xcom/;echo '[1,2,3,4]' > /airflow/xcom/return.json"],
-        name="write-xcom",
-        do_xcom_push=True,
-        is_delete_operator_pod=True,
-        in_cluster=True,
-        task_id="write-xcom",
-        get_logs=True,
-    )
+except Exception as e:
+    print(str(e))
+    logging.error("Error at {}, error={}".format(__file__, str(e)))
+    raise
 
-    pod_task_xcom_result = BashOperator(
-        bash_command="echo \"{{ task_instance.xcom_pull('write-xcom')[0] }}\"",
-        task_id="pod_task_xcom_result",
-    )
-    # [END howto_operator_k8s_write_xcom]
+# with DAG(
+#     dag_id='example_kubernetes_operator',
+#     default_args=default_args,
+#     schedule_interval=None,
+#     start_date=days_ago(2),
+#     tags=['example'],
+# ) as dag:
+#     k = kubernetes_pod_operator.KubernetesPodOperator(
+#         namespace='default',
+#         image="ubuntu:16.04",
+#         cmds=["bash", "-cx"],
+#         arguments=["echo", "10"],
+#         labels={"foo": "bar"},
+#         # secrets=[secret_file, secret_env, secret_all_keys],
+#         ports=[port],
+#         volumes=[volume],
+#         volume_mounts=[volume_mount],
+#         env_from=configmaps,
+#         name="airflow-test-pod",
+#         task_id="task",
+#         affinity=affinity,
+#         is_delete_operator_pod=True,
+#         hostnetwork=False,
+#         tolerations=tolerations,
+#         init_containers=[init_container],
+#         priority_class_name="medium",
+#     )
