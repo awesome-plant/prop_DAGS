@@ -29,7 +29,7 @@ from airflow.operators.dummy_operator import DummyOperator
 import requests
 import urllib.request
 # from fake_useragent import UserAgent 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
     #data saving
 #extract from gt file 
 import gzip
@@ -59,12 +59,12 @@ def ScrapeURL(baseurl,PagesavePath, **kwargs):
     #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
-    y=BeautifulSoup(response.text, features="html.parser")
+    # y=BeautifulSoup(response.text, features="html.parser")
     XmFileDir=os.path.join(PagesavePath, "DL_Files")
     
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     saveXML=open(xmlFile, "w")
-    saveXML.write(y.prettify())
+    saveXML.write(response.text) #y.prettify())
     saveXML.close()
     print("file saved to: " + xmlFile)
     
