@@ -24,7 +24,7 @@ from kubernetes.client import models as k8s
 from airflow import DAG
 # from airflow.kubernetes.secret import Secret
 from airflow.operators.bash_operator import BashOperator
-from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+# from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.contrib.operators import kubernetes_pod_operator
 from airflow.utils.dates import days_ago
 
