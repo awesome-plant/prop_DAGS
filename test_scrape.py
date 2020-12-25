@@ -27,6 +27,8 @@ from airflow.operators.python_operator import PythonOperator
 
 import requests
 import urllib.request
+from fake_useragent import UserAgent 
+from bs4 import BeautifulSoup
     #data saving
 #extract from gt file 
 import gzip
@@ -49,8 +51,37 @@ dag = DAG(
     dag_id='GETXML_TO_CSV'
     ,catchup=False
     ,default_args=args
-    ,schedule_interval=datetime.timedelta(days=1)
+    ,schedule_interval=datetime.datetime.timedelta(days=1)
     )
+
+def ScrapeURL(baseurl,PagesavePath, **kwargs):  
+    XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
+    #create browser header for requests 
+    ua = UserAgent()
+    #print(ua.chrome)
+    headers = {'User-Agent':str(ua.random)}
+    #how many pages are there?
+    #headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
+    response = requests.get(baseurl,headers=headers)
+    y=BeautifulSoup(response.text, features="html.parser")
+    #save xml to dir, will be read again later 
+    # XMLFile=os.path.join(PagesavePath + "\\DL_Files\\", file.strip(' \t\n\r') )
+    XmFileDir=os.path.join(PagesavePath, "DL_Files")
+    # try: 
+    #     os.makedirs(XmFileDir)
+    #     print("made dir: " + XmFileDir)
+    # except Exception as e: 
+    #     # pass
+    #     print("couldnt make dir: " + XmFileDir) 
+    #     print(e)
+
+    
+    xmlFile=os.path.join(XmFileDir, XMLsaveFile)
+    saveXML=open(xmlFile, "w")
+    saveXML.write(y.prettify())
+    saveXML.close()
+    print("file saved to: " + xmlFile)
+    
 
 t1_Get_Sitemap_Tree = PythonOperator(
     task_id="t1_Get_Sitemap_Tree"
