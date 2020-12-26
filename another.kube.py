@@ -5,9 +5,10 @@ import os
 from airflow import DAG
 # from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators.kubernetes_operator import KubernetesExecutor
+# from airflow.operators.kubernetes_operator import KubernetesExecutor
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
+from kubernetes.client import models as k8s
 
 default_args = {
     'owner': 'airflow',
@@ -26,7 +27,7 @@ volumemount = k8s.V1VolumeMount(
                 , read_only=False
             )
 
-from kubernetes.client import models as k8s
+
 
 with DAG(
     dag_id='example_kubernetes_executor_config',
@@ -45,7 +46,7 @@ with DAG(
     )
     example_task = PythonOperator(
     task_id='exmaple_task',
-    python_callable=print_stuff,
+    python_callable=print('print'),
     executor_config={
         'KubernetesExecutor': { 'request_cpu': '1'
                                 ,'request_memory': '128Mi'
