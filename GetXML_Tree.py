@@ -27,7 +27,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
-import bs4 #bs4.BeautifulSoup
+from bs4 import BeautifulSoup
 
 default_args={
     'owner': 'Airflow'
@@ -48,8 +48,8 @@ def ScrapeURL(baseurl,PageSaveXML, **kwargs):
     saveXML.write(response.text) #y.prettify())
     saveXML.close()
     #test read of xml file
-    soup=bs4.BeautifulSoup(response.text, features="html.parser")
-    RawURLFile = bs4.BeautifulSoup(soup, "xml")
+    soup=BeautifulSoup(response.text, features="html.parser")
+    RawURLFile = BeautifulSoup(soup, "xml")
     # for file in RawURLFile.find_all('contents'):
     print("file saved to: " + xmlFile)
     print(RawURLFile)
