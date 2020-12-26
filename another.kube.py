@@ -3,7 +3,7 @@ import logging
 import os
 
 from airflow import DAG
-from airflow.example_dags.libs.helper import print_stuff
+# from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
@@ -24,6 +24,8 @@ try:
         tags=['example3'],
     ) as dag:
 
+        def print_stuff():
+            print("stuff!")
         def test_sharedvolume_mount():
             """
             Tests whether the volume has been mounted.
