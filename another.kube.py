@@ -26,35 +26,34 @@ volumemount = k8s.V1VolumeMount(
                 , read_only=False
             )
 
-try:
-    from kubernetes.client import models as k8s
+from kubernetes.client import models as k8s
 
-    with DAG(
-        dag_id='example_kubernetes_executor_config',
-        default_args=default_args,
-        schedule_interval=None,
-        start_date=days_ago(2),
-        tags=['example3'],
-    ) as dag:
+with DAG(
+    dag_id='example_kubernetes_executor_config',
+    default_args=default_args,
+    schedule_interval=None,
+    start_date=days_ago(2),
+    tags=['example3'],
+) as dag:
 
-        start_task = BashOperator(
-            task_id="start_task"
-            ,bash_command='echo starting_scrape_process'
-            ,executor_config={
-                "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
-            },
-        )
-        example_task = PythonOperator(
-        task_id='exmaple_task',
-        python_callable=print_stuff,
-        executor_config={
-            'KubernetesExecutor': { 'request_cpu': '1'
-                                    ,'request_memory': '128Mi'
-                                    ,'limit_memory': '128Mi'
-                                    ,'volumes': [volume]
-                                    ,'volume_mounts': [volumemount]
-                                    }
-                        }
-        )
+    start_task = BashOperator(
+        task_id="start_task"
+        ,bash_command='echo starting_scrape_process'
+        ,executor_config={
+            "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
+        },
+    )
+    example_task = PythonOperator(
+    task_id='exmaple_task',
+    python_callable=print_stuff,
+    executor_config={
+        'KubernetesExecutor': { 'request_cpu': '1'
+                                ,'request_memory': '128Mi'
+                                ,'limit_memory': '128Mi'
+                                ,'volumes': [volume]
+                                ,'volume_mounts': [volumemount]
+                                }
+                    }
+    )
 
-        start_task >> example_task
+    start_task >> example_task
