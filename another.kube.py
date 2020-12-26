@@ -46,7 +46,7 @@ with DAG(
     )
     # https://www.aylakhan.tech/?p=655
     example_task = PythonOperator(
-     task_id='exmaple_task'
+     task_id='exmaple_task' 
     , python_callable=print_this
     , executor_config={
         'KubernetesExecutor': {
