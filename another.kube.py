@@ -49,10 +49,4 @@ try:
                         }
         )
 
-        start_task >> volume_task >> third_task
-        start_task >> other_ns_task
-        start_task >> sidecar_task
-        start_task >> task_with_template
-except ImportError as e:
-    log.warning('Could not import DAGs in example_kubernetes_executor_config.py: %s', str(e))
-    log.warning('Install kubernetes dependencies with: pip install apache-airflow['cncf.kubernetes']')
+        exmaple_task
