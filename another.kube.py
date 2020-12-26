@@ -46,9 +46,9 @@ with DAG(
     )
     # https://www.aylakhan.tech/?p=655
     example_task = PythonOperator(
-    task_id='exmaple_task',
-    python_callable=print_this,
-    executor_config={
+    , task_id='exmaple_task'
+    , python_callable=print_this
+    , executor_config={
         'KubernetesExecutor': {
                                 'request_cpu': '1'
                                 , 'request_memory': '128Mi'
