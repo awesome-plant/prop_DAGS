@@ -75,7 +75,7 @@ with DAG(
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-            , 'RootDir': '/usr/local/airflow/xmlsave'
+            , 'RootDir': '/opt/airflow//xmlsave'
             , 'PageSaveXML' : 'DL_Files/DL_Landing'
             # , 'XMLsaveFile':'XML_scrape_' +
             }
@@ -85,10 +85,10 @@ with DAG(
                 spec=k8s.V1PodSpec(
                     containers=[
                         k8s.V1Container(
-                            name="base",
+                            name='persist-xmlsave',
                             volume_mounts=[
                                 k8s.V1VolumeMount(
-                                    mount_path='/usr/local/airflow/xmlsave', name='persist-xmlsave'
+                                    mount_path='/opt/airflow//xmlsave', name='persist-xmlsave'
                                 )
                             ],
                         )
@@ -113,7 +113,7 @@ with DAG(
     #     ,provide_context=True
     #     ,op_kwargs={
     #         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-    #         , 'RootDir': '/usr/local/airflow/xmlsave'
+    #         , 'RootDir': '/opt/airflow//xmlsave'
     #         , 'PageSaveXML' : 'DL_Files/DL_Landing'
     #         # , 'XMLsaveFile':'XML_scrape_' +
     #         }
