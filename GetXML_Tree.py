@@ -35,22 +35,23 @@ default_args={
 
 def ScrapeURL(baseurl,PageSaveXML, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
-    #create browser header for requests 
     # ua = UserAgent()
-    #print(ua.chrome)
     # headers = {'User-Agent':str(ua.random)}
-    #how many pages are there?
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
-    # y=BeautifulSoup(response.text, features="html.parser")
     XmFileDir=os.path.join(PageSaveXML, "DL_Files")
-    
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     time.sleep(600)
     saveXML=open(xmlFile, "w")
     saveXML.write(response.text) #y.prettify())
     saveXML.close()
     print("file saved to: " + xmlFile)
+
+# def gitSync(syncFolder):
+git_repo='https://github.com/awesome-plant/prop_DAGS.git'
+git_branch='NonProd_DAG'
+git_saveDir='/usr/local/airflow/'
+git_command = 'git clone -depth=1 -branch ' + git_branch + ' ' + git_repo + ' cd ' + git_saveDir
 
 with DAG(
         dag_id='use_getXML_Scrape'
@@ -61,17 +62,13 @@ with DAG(
     ) as dag:    
     
     # You can use annotations on your kubernetes pods!
-    start_task = BashOperator(
-        task_id="start_task"
-        ,bash_command='echo starting_scrape_process'
-        ,executor_config={
-            "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
-        },
+    sync_git = BashOperator(
+        task_id="sync_git"
+        ,bash_command='echo ' + git_command
     )
 
-    # [START task_with_volume]
-    task_with_volume = PythonOperator(
-        task_id="task_with_volume"
+    scrape_task = PythonOperator(
+        task_id="scrape_task"
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
@@ -80,45 +77,6 @@ with DAG(
             # , 'XMLsaveFile':'XML_scrape_' +
             }
         ,python_callable=ScrapeURL
-        ,executor_config={
-            "pod_override": k8s.V1Pod(
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name='persist-xmlsave',
-                            volume_mounts=[
-                                k8s.V1VolumeMount(
-                                    mount_path='/opt/airflow/xmlsave', name='persist-xmlsave'
-                                )
-                            ],
-                        )
-                    ],
-                    volumes=[
-                        k8s.V1Volume(
-                            name='persist-xmlsave',
-                            host_path=k8s.V1HostPathVolumeSource(path='/D/shared_folder/xmlsave'),
-                        )
-                    ],
-                )
-            ),
-        },
     )
-    # # [END task_with_volume]
-    # start_task = DummyOperator(
-    #     task_id='DNU_start_task'
-    #     # , retries=3
-    #     )
-    # t1_Get_Sitemap_Tree = PythonOperator(
-    #     task_id="DNU_t1_Get_Sitemap_Tree"
-    #     ,provide_context=True
-    #     ,op_kwargs={
-    #         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-    #         , 'RootDir': '/opt/airflow//xmlsave'
-    #         , 'PageSaveXML' : 'DL_Files/DL_Landing'
-    #         # , 'XMLsaveFile':'XML_scrape_' +
-    #         }
-    #     ,python_callable=ScrapeURL
-    #     # ,dag=dag
-    #     )
-    start_task >> task_with_volume 
-    # start_task >> t1_Get_Sitemap_Tree
+
+    sync_git >> scrape_task 
