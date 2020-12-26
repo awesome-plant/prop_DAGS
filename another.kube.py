@@ -36,6 +36,13 @@ try:
         tags=['example3'],
     ) as dag:
 
+        start_task = BashOperator(
+            task_id="start_task"
+            ,bash_command='echo starting_scrape_process'
+            ,executor_config={
+                "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
+            },
+        )
         exmaple_task = PythonOperator(
         task_id='exmaple_task',
         python_callable=print_stuff,
@@ -49,4 +56,4 @@ try:
                         }
         )
 
-        exmaple_task
+        start_task >> exmaple_task
