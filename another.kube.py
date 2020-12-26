@@ -27,7 +27,7 @@ volumemount = k8s.V1VolumeMount(
                 , read_only=False
             )
 
-def print_this: 
+def print_this(): 
     print("this!")
 
 with DAG(
