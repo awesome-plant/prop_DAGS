@@ -27,7 +27,8 @@ volumemount = k8s.V1VolumeMount(
                 , read_only=False
             )
 
-
+def print_this: 
+    print("this!")
 
 with DAG(
     dag_id='example_kubernetes_executor_config',
@@ -46,7 +47,7 @@ with DAG(
     )
     example_task = PythonOperator(
     task_id='exmaple_task',
-    python_callable=print('print'),
+    python_callable=print_this,
     executor_config={
         'KubernetesExecutor': { 'request_cpu': '1'
                                 ,'request_memory': '128Mi'
