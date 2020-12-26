@@ -16,17 +16,18 @@ import logging
 import os
 import datetime 
 import time
+import requests
+import urllib.request
+import gzip
+import shutil 
+import pandas as pd 
 from airflow import DAG
 # from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
-
-import requests
-import urllib.request
-import gzip
-import shutil 
+from beautifulsoup4 import BeautifulSoup
 
 default_args={
     'owner': 'Airflow'
@@ -42,17 +43,12 @@ def ScrapeURL(baseurl,PageSaveXML, **kwargs):
     XmFileDir=os.path.join(PageSaveXML, "DL_Files")
     xmlFile=os.path.join(XmFileDir, XMLsaveFile)
     print(xmlFile)
-    time.sleep(600)
+    # time.sleep(600)
     saveXML=open(xmlFile, "w")
     saveXML.write(response.text) #y.prettify())
     saveXML.close()
     print("file saved to: " + xmlFile)
 
-# def gitSync(syncFolder):
-git_repo='https://github.com/awesome-plant/prop_DAGS.git'
-git_branch='NonProd_DAG'
-git_saveDir='/usr/local/airflow/'
-git_command = 'git clone -depth=1 -branch ' + git_branch + ' ' + git_repo + ' cd ' + git_saveDir
 
 with DAG(
         dag_id='use_getXML_Scrape'
@@ -61,7 +57,6 @@ with DAG(
         ,start_date=days_ago(1)
         ,tags=['get_xml_scrape']
     ) as dag:    
-    
 
     scrape_task = PythonOperator(
         task_id="scrape_task"
@@ -73,7 +68,6 @@ with DAG(
             # , 'XMLsaveFile':'XML_scrape_' +
             }
         ,python_callable=ScrapeURL
-    )
-
-    # sync_git >> 
+        )
+    
     scrape_task 
