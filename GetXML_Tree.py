@@ -24,7 +24,7 @@ import pandas as pd
 from airflow import DAG
 # from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
 # from beautifulsoup4 import BeautifulSoup
@@ -58,7 +58,7 @@ with DAG(
         ,start_date=days_ago(1)
         ,tags=['get_xml_scrape']
     ) as dag:    
-
+    starter = DummyOperator( task_id='dummy_starter' )
     scrape_task = PythonOperator(
         task_id="scrape_task"
         ,provide_context=True
@@ -71,4 +71,4 @@ with DAG(
         ,python_callable=ScrapeURL
         )
     
-    scrape_task 
+    starter >> scrape_task 
