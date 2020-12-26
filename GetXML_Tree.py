@@ -88,7 +88,7 @@ with DAG(
                             name='persist-xmlsave',
                             volume_mounts=[
                                 k8s.V1VolumeMount(
-                                    mount_path='/opt/airflow//xmlsave', name='persist-xmlsave'
+                                    mount_path='/opt/airflow/xmlsave', name='persist-xmlsave'
                                 )
                             ],
                         )
