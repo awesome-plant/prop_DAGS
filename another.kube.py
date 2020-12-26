@@ -64,6 +64,7 @@ with DAG(
                                     }
                                 ]
                             }
+                        }
     )
 
     start_task >> example_task
