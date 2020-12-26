@@ -47,13 +47,13 @@ with DAG(
     # https://www.aylakhan.tech/?p=655
     example_task = PythonOperator(
      task_id='exmaple_task' 
-    # , python_callable=print_this
+    , python_callable=print_this
     , executor_config={
         'KubernetesExecutor': {
                                 'request_cpu': '1'
                                 , 'request_memory': '128Mi'
                                 , 'limit_memory': '128Mi'
-                                , 'image': 'python:rc-slim'
+                                , 'image':'python:rc-slim'
                                 , 'volumes': [ {
                                     'name': 'xmlsave'
                                     ,'persistentVolumeClaim':{'claimName': 'xmlsave' }
