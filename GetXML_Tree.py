@@ -62,21 +62,22 @@ with DAG(
     ) as dag:    
     
     # You can use annotations on your kubernetes pods!
-    sync_git = BashOperator(
-        task_id="sync_git"
-        ,bash_command='echo ' + git_command
-    )
+    # sync_git = BashOperator(
+    #     task_id="sync_git"
+    #     ,bash_command='echo ' + git_command
+    # )
 
     scrape_task = PythonOperator(
         task_id="scrape_task"
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-            , 'RootDir': '/opt/airflow//xmlsave'
+            , 'RootDir': '/opt/airflow/xmlsave'
             , 'PageSaveXML' : 'DL_Files/DL_Landing'
             # , 'XMLsaveFile':'XML_scrape_' +
             }
         ,python_callable=ScrapeURL
     )
 
-    sync_git >> scrape_task 
+    # sync_git >> 
+    scrape_task 
