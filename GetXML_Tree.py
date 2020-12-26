@@ -27,7 +27,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
-from BeautifulSoup4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 default_args={
     'owner': 'Airflow'
