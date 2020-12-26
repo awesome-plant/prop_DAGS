@@ -6,6 +6,7 @@ from airflow import DAG
 # from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.kubernetes_operator import KubernetesExecutor
+from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
 
 default_args = {
@@ -43,7 +44,7 @@ try:
                 "pod_override": k8s.V1Pod(metadata=k8s.V1ObjectMeta(annotations={"test": "annotation"}))
             },
         )
-        exmaple_task = PythonOperator(
+        example_task = PythonOperator(
         task_id='exmaple_task',
         python_callable=print_stuff,
         executor_config={
@@ -56,4 +57,4 @@ try:
                         }
         )
 
-        start_task >> exmaple_task
+        start_task >> example_task
