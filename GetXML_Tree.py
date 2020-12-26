@@ -61,19 +61,14 @@ with DAG(
         ,tags=['get_xml_scrape']
     ) as dag:    
     
-    # You can use annotations on your kubernetes pods!
-    # sync_git = BashOperator(
-    #     task_id="sync_git"
-    #     ,bash_command='echo ' + git_command
-    # )
 
     scrape_task = PythonOperator(
         task_id="scrape_task"
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-            , 'RootDir': '/opt/airflow/xmlsave'
-            , 'PageSaveXML' : 'DL_Files/DL_Landing'
+            # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
+            , 'PageSaveXML' : '/opt/airflow/logs/XML_save_folder'
             # , 'XMLsaveFile':'XML_scrape_' +
             }
         ,python_callable=ScrapeURL
