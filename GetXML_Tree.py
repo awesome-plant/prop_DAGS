@@ -19,7 +19,8 @@ import time
 import requests
 import urllib.request
 from lxml import etree
-import lxml.etree as ET
+from fake_useragent import UserAgent
+# import lxml.etree as ET
 import pandas as pd 
 #airflow libs
 from airflow import DAG
@@ -35,9 +36,9 @@ default_args={
 
 def ScrapeURL(baseurl,PageSaveFolder, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
-    # ua = UserAgent()
-    # headers = {'User-Agent':str(ua.random)}
-    headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
+    ua = UserAgent()
+    headers = {'User-Agent':str(ua.random)}
+    # headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
     xmlFile=PageSaveFolder + '\\' + XMLsaveFile
     # time.sleep(600)
@@ -95,7 +96,7 @@ with DAG(
     ) as dag:    
     starter = DummyOperator( task_id='dummy_starter' )
     scrape_task = PythonOperator(
-        task_id="scrape_task"
+        task_id="scrape_sitemap_task"
         ,provide_context=True
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
