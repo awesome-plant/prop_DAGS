@@ -54,7 +54,7 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     #iteration is done literally one aspect at a time, since xml wouldnt play nice
     #print element.tag to understand
     for element in root.iter():
-        if str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Contents' and _Filename != ''
+        if str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Contents' and _Filename != '':
             #write to pd 
             XMLDataset=XMLDataset.append({
                     'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
