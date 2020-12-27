@@ -86,24 +86,41 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
             _StorageClass=str(element.text)
     XMLDataset.to_csv(xmlFile +'.csv')
     print("file saved to: " + xmlFile +'.csv')
+    #used in next part
+    # return XMLDataset
 
-with DAG(
+   
+dag = DAG(
         dag_id='use_getXML_Scrape'
         ,default_args=default_args
         ,schedule_interval=None
         ,start_date=days_ago(1)
         ,tags=['get_xml_scrape']
-    ) as dag:    
-    starter = DummyOperator( task_id='dummy_starter' )
-    scrape_task = PythonOperator(
-        task_id="scrape_sitemap_task"
-        ,provide_context=True
-        ,op_kwargs={
-            'baseurl':'https://www.realestate.com.au/xml-sitemap/'
-            # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
-            , 'PageSaveFolder' : '/opt/airflow/logs/XML_save_folder'
-            }
-        ,python_callable=ScrapeURL
+    )
+starter = DummyOperator( dag = dag, task_id='dummy_starter' )
+scrape_task = PythonOperator(
+    task_id="scrape_sitemap_rawxml"
+    ,provide_context=True
+    ,op_kwargs={
+        'baseurl':'https://www.realestate.com.au/xml-sitemap/'
+        # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
+        , 'PageSaveFolder' : '/opt/airflow/logs/XML_save_folder'
+        }
+    ,python_callable=ScrapeURL
+    )
+
+# https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
+XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d'))
+a[]
+for i in len(XMLDataset) :
+    a.append(
+        BashOperator(
+            task_id='scrape_sitemap_gz_'+str(i),
+            bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[1] ,
+            xcom_push=True,
+            dag=dag
+            )
         )
     
-    starter >> scrape_task 
+    starter >> scrape_task  >> a[i]
+# starter >> scrape_task 
