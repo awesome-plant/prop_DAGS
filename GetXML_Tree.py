@@ -11,49 +11,80 @@
 #         iii. parses contents as xml 
 #         iv. converts to csv 
 #         v. saves csv 
-#kube libs 
+#scrape libs libs 
 import logging
 import os
 import datetime 
 import time
 import requests
 import urllib.request
-import gzip
-import shutil 
+from lxml import etree
+import lxml.etree as ET
 import pandas as pd 
+#airflow libs
 from airflow import DAG
-# from airflow.example_dags.libs.helper import print_stuff
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.utils.dates import days_ago
 from kubernetes.client import models as k8s
-from bs4 import BeautifulSoup
 
 default_args={
     'owner': 'Airflow'
     ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
     }
 
-def ScrapeURL(baseurl,PageSaveXML, **kwargs):  
-    XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'
+def ScrapeURL(baseurl,PageSaveFolder, **kwargs):  
+    XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     # ua = UserAgent()
     # headers = {'User-Agent':str(ua.random)}
     headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
     response = requests.get(baseurl,headers=headers)
-    XmFileDir=os.path.join(PageSaveXML, "DL_Files")
-    xmlFile=os.path.join(XmFileDir, XMLsaveFile)
-    print(xmlFile)
+    xmlFile=PageSaveFolder + '\\' + XMLsaveFile
     # time.sleep(600)
-    saveXML=open(xmlFile, "w")
-    saveXML.write(response.text) #y.prettify())
+    saveXML=open(xmlFile +'.xml', "w")
+    saveXML.write(response.text)
     saveXML.close()
-    #test read of xml file
-    soup=BeautifulSoup(response.text, features="html.parser")
-    RawURLFile = BeautifulSoup(soup, "xml")
-    # for file in RawURLFile.find_all('contents'):
-    print("file saved to: " + xmlFile)
-    print(RawURLFile)
-
+    print("file saved to: " + xmlFile +'.xml')
+    #parse to XML 
+    result = response.content 
+    root = etree.fromstring(result) 
+    #scrape variables
+    _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
+    XMLDataset=pd.DataFrame(columns =['ScrapeDT','Suffix', 'FileName', 'FileType', 'LastMod', 'Size', 'StorageClass'])
+    #iteration is done literally one aspect at a time, since xml wouldnt play nice
+    #print element.tag to understand
+    for element in root.iter():
+        if str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Contents' and _Filename != ''
+            #write to pd 
+            XMLDataset=XMLDataset.append({
+                    'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                    , 'Suffix' : str(_Suffix)
+                    , 'FileName' : str(_Filename)
+                    , 'FileType' : str(_Type)
+                    , 'LastMod': str(_LastModified)
+                    , 'Size' : str(_Size)
+                    , 'StorageClass': str(_StorageClass)
+                    } ,ignore_index=True) 
+            _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
+        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Key':
+            _Filename=str(element.text)
+            _Suffix=str(element.text).split('-')[0]
+            #get name subcat
+            if 'buy' in _Filename.lower(): 
+                _Type='buy'
+            elif 'sold' in _Filename.lower(): 
+                _Type='sold' 
+            elif 'rent' in _Filename.lower(): 
+                _Type='rent' 
+            else: _Type=''
+        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'LastModified':
+            _LastModified=str(element.text)
+        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Size':
+            _Size=str(element.text)
+        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'StorageClass':
+            _StorageClass=str(element.text)
+    XMLDataset.to_csv(xmlFile +'.csv')
+    print("file saved to: " + xmlFile +'.csv')
 
 with DAG(
         dag_id='use_getXML_Scrape'
@@ -69,8 +100,7 @@ with DAG(
         ,op_kwargs={
             'baseurl':'https://www.realestate.com.au/xml-sitemap/'
             # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
-            , 'PageSaveXML' : '/opt/airflow/logs/XML_save_folder'
-            # , 'XMLsaveFile':'XML_scrape_' +
+            , 'PageSaveFolder' : '/opt/airflow/logs/XML_save_folder'
             }
         ,python_callable=ScrapeURL
         )
