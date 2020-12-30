@@ -96,7 +96,7 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     #used in next part
     # return XMLDataset
 
-def SaveScrape(baseurl, PageSaveFolder, ScrapeFile):
+def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
     #download from sitemap, use dynamic variable 
     sitemap_url = baseurl #'https://www.realestate.com.au/xml-sitemap/'#pdp-sitemap-buy-1.xml.gz' 
     _file=ScrapeFile #im lazy, sue me
