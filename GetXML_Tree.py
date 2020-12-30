@@ -114,18 +114,18 @@ scrape_task = PythonOperator(
         }
     ,python_callable=ScrapeURL
     )
+starter >> scrape_task 
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
-XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
-# a[]
-for i in range(0,XMLDataset.shape[0]):
-    xml_gz=DummyOperator(
-            task_id='scrape_sitemap_gz_'+str(i),
-            # bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[i] ,
-            # xcom_push=True,
-            dag=dag
-            )
-        
-    
-    starter >> scrape_task  >> xml_gz #a[i]
-# starter >> scrape_task 
+for x in os.scandir('/opt/airflow/logs/XML_save_folder/'):
+    if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv'':
+        XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
+        for i in range(0,XMLDataset.shape[0]):
+            xml_gz=DummyOperator(
+                    task_id='scrape_sitemap_gz_'+str(i),
+                    # bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[i] ,
+                    # xcom_push=True,
+                    dag=dag
+                    )
+            starter >> scrape_task  >> xml_gz #a[i]
+        # starter >> scrape_task 
