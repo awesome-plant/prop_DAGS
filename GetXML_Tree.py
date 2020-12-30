@@ -20,8 +20,9 @@ import requests
 import urllib.request
 from lxml import etree
 from fake_useragent import UserAgent
-# import lxml.etree as ET
 import pandas as pd 
+import gzip
+import shutil 
 #airflow libs
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -95,6 +96,74 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     #used in next part
     # return XMLDataset
 
+def SaveScrape(baseurl, PageSaveFolder, ScrapeFile):
+    #download from sitemap, use dynamic variable 
+    sitemap_url = baseurl #'https://www.realestate.com.au/xml-sitemap/'#pdp-sitemap-buy-1.xml.gz' 
+    _file=ScrapeFile #im lazy, sue me
+    gz_save_name =_file[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
+    gz_url = sitemap_url + _file
+    gz_save_path = PageSaveFolder
+
+    urllib.request.urlretrieve(sitemap_url + _file, gz_save_path + gz_save_name)
+    #save gz to dir for archiving 
+    print("file:", gz_save_name)
+    print("written to dir:", gz_save_path + gz_save_name)
+    #feast upon that rich gooey xml 
+    _xml_save = _file[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'  
+    with gzip.open(gz_save_path + gz_save_name, 'rb') as f_in:
+        with open(gz_save_path + _xml_save, 'wb') as f_out: 
+            shutil.copyfileobj(f_in, f_out)
+    #xml part 
+    root = etree.parse(gz_save_path + _xml_save)
+    XML_gz_Dataset=pd.DataFrame(columns =['ScrapeDT','Url', 'PropType', 'State', 'Suburb', 'PropID', 'LastMod', 'ExternalIP'])
+    _PropType=_State=_PropID=_LastMod=_split=_Url=""
+    _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    #iterate xml
+    for element in root.iter():
+        #writes results to df, same as the previous module 
+        if 'url' in element.tag and _Url != '':
+            XML_gz_Dataset=XML_gz_Dataset.append({
+                        'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                        , 'Url' : str(_Url)
+                        , 'PropType' : str(_PropType)
+                        , 'State' : str(_State)
+                        , 'Suburb' : str(_Suburb)
+                        , 'PropID' : str(_PropID)
+                        , 'LastMod': str(_LastMod)
+                        , 'ExternalIP': str(_external_ip)
+                        } ,ignore_index=True) 
+            _PropType=_State=_PropID=_LastMod=_split=_Url=""
+        if 'lastmod' in element.tag: 
+            _LastMod = element.text
+        #just about everything gleaned from loac (url) tag
+        elif 'loc' in element.tag: 
+            if '-tas-' in element.text: 
+                _State='tas'
+            elif '-vic-' in element.text: 
+                _State='vic'
+            elif '-nsw-' in element.text: 
+                _State='nsw'
+            elif '-act-' in element.text: 
+                _State='act'
+            elif '-qld-' in element.text: 
+                _State='qld'
+            elif '-nt-' in element.text: 
+                _State='nt'
+            elif '-sa-' in element.text: 
+                _State='sa'
+            elif '-wa-' in element.text: 
+                _State='wa'
+            
+            _Url = element.text
+            _split=str(element.text).split(_State)
+            #had to do it this way so unconventional suburb names are still caught
+            _PropType = _split[0].replace('https://www.realestate.com.au/property-','')[:-1]
+            _split=str(element.text).split('-')
+            _Suburb=_split[len(_split) -2 ]
+            _PropID=_split[len(_split) -1 ]
+
+    XML_gz_Dataset.to_csv(gz_save_path + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + _xml_save[:-3] + '_results' +'.csv')
    
 dag = DAG(
         dag_id='use_getXML_Scrape'
@@ -110,9 +179,10 @@ scrape_task = PythonOperator(
     ,op_kwargs={
         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
         # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
-        , 'PageSaveFolder' : '/opt/airflow/logs/XML_save_folder'
+        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder'
         }
     ,python_callable=ScrapeURL
+    ,dag = dag
     )
 starter >> scrape_task 
 
@@ -120,12 +190,17 @@ starter >> scrape_task
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/'):
     if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
         XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
-        for i in range(0,XMLDataset.shape[0]):
-            xml_gz=DummyOperator(
-                    task_id='scrape_sitemap_gz_'+str(i),
-                    # bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[i] ,
-                    # xcom_push=True,
-                    dag=dag
+        for i in range(0,XMLDataset[XMLDataset['FileType'].notnull()].shape[0]): 
+            xml_gz_extract=PythonOperator(
+                    task_id='scrape_sitemap_gz_'+str(i)
+                    ,provide_context=True
+                    ,op_kwargs={
+                        'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
+                        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files'
+                        , 'ScrapeFile': str(i)
+                        }
+                    ,python_callable=SaveScrape
+                    ,dag=dag
                     )
-            starter >> scrape_task  >> xml_gz #a[i]
+            starter >> scrape_task  >> xml_gz_extract #a[i]
         # starter >> scrape_task 
