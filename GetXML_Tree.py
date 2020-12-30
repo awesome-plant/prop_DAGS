@@ -118,7 +118,7 @@ starter >> scrape_task
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/'):
-    if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv'':
+    if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
         XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
         for i in range(0,XMLDataset.shape[0]):
             xml_gz=DummyOperator(
