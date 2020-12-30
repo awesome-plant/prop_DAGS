@@ -52,7 +52,11 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     root = etree.fromstring(result) 
     #scrape variables
     _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
-    XMLDataset=pd.DataFrame(columns =['ScrapeDT','Suffix', 'FileName', 'FileType', 'LastMod', 'Size', 'StorageClass'])
+    XMLDataset=pd.DataFrame(columns =['ScrapeDT','Suffix', 'FileName', 'FileType', 'LastMod', 'Size', 'StorageClass', 'ExternalIP'])
+
+    #get external IP https://stackoverflow.com/questions/2311510/getting-a-machines-external-ip-address-with-python
+    _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+
     #iteration is done literally one aspect at a time, since xml wouldnt play nice
     #print element.tag to understand
     for element in root.iter():
@@ -66,6 +70,7 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
                     , 'LastMod': str(_LastModified)
                     , 'Size' : str(_Size)
                     , 'StorageClass': str(_StorageClass)
+                    , 'ExternalIP': str(_external_ip)
                     } ,ignore_index=True) 
             _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
         elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Key':
@@ -114,10 +119,10 @@ scrape_task = PythonOperator(
 XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
 # a[]
 for i in range(0,XMLDataset.shape[0]):
-    xml_gz=BashOperator(
+    xml_gz=DummyOperator(
             task_id='scrape_sitemap_gz_'+str(i),
-            bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[i] ,
-            xcom_push=True,
+            # bash_command='echo _' + str(i) + '_' + XMLDataset['FileName'].loc[i] ,
+            # xcom_push=True,
             dag=dag
             )
         
