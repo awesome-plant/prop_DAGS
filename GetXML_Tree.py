@@ -115,7 +115,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile):
             shutil.copyfileobj(f_in, f_out)
     #xml part 
     root = etree.parse(gz_save_path + _xml_save)
-    XML_gz_Dataset=pd.DataFrame(columns =['ScrapeDT','Url', 'PropType', 'State', 'Suburb', 'PropID', 'LastMod', 'ExternalIP'])
+    XML_gz_Dataset=pd.DataFrame(columns =['Parent_gz','ScrapeDT','Url', 'PropType', 'State', 'Suburb', 'PropID', 'LastMod', 'ExternalIP'])
     _PropType=_State=_PropID=_LastMod=_split=_Url=""
     _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     #iterate xml
@@ -123,7 +123,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile):
         #writes results to df, same as the previous module 
         if 'url' in element.tag and _Url != '':
             XML_gz_Dataset=XML_gz_Dataset.append({
-                        'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                        'Parent_gz': str(ScrapeFile)
+                        ,'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
                         , 'Url' : str(_Url)
                         , 'PropType' : str(_PropType)
                         , 'State' : str(_State)
@@ -190,7 +191,8 @@ starter >> scrape_task
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/'):
     if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
         XMLDataset= pd.read_csv('/opt/airflow/logs/XML_save_folder/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
-        for i in range(0,XMLDataset[XMLDataset['FileType'].notnull()].shape[0]): 
+        for i in range(0, XMLDataset[XMLDataset['FileType'].notnull()].iloc[0:1].shape[0]):
+        # XMLDataset[XMLDataset['FileType'].notnull()].shape[0]): 
             xml_gz_extract=PythonOperator(
                     task_id='scrape_sitemap_gz_'+str(i)
                     ,provide_context=True
