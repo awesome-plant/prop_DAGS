@@ -163,8 +163,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
             _Suburb=_split[len(_split) -2 ]
             _PropID=_split[len(_split) -1 ]
 
-    XML_gz_Dataset.to_csv(gz_save_path + '\\gz_files\\' + _xml_save[:-3] + '_results' +'.csv')
-    print("file saved to: " + gz_save_path + '\\gz_files\\' + _xml_save[:-3] + '_results' +'.csv')
+    XML_gz_Dataset.to_csv(gz_save_path + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + _xml_save[:-3] + '_results' +'.csv')
    
 dag = DAG(
         dag_id='use_getXML_Scrape'
@@ -180,7 +180,7 @@ scrape_task = PythonOperator(
     ,op_kwargs={
         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
         # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
-        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder'
+        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/raw_sitemap'
         }
     ,python_callable=ScrapeURL
     ,dag = dag
