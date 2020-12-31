@@ -163,8 +163,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
             _Suburb=_split[len(_split) -2 ]
             _PropID=_split[len(_split) -1 ]
 
-    XML_gz_Dataset.to_csv(gz_save_path + '\gz_files' + _xml_save[:-3] + '_results' +'.csv')
-    print("file saved to: " + gz_save_path + '\gz_files' + _xml_save[:-3] + '_results' +'.csv')
+    XML_gz_Dataset.to_csv(gz_save_path + '\\gz_files\\' + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + '\\gz_files\\' + _xml_save[:-3] + '_results' +'.csv')
    
 dag = DAG(
         dag_id='use_getXML_Scrape'
