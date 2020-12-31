@@ -199,7 +199,7 @@ for x in os.scandir('/opt/airflow/logs/XML_save_folder/'):
                     ,op_kwargs={
                         'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
                         , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files'
-                        , 'ScrapeFile': XMLDataset[XMLDataset['FileType'].notnull()]['FileName'].iloc[0:i + 1].to_string(index=False) #pass in filename from filtered iteration
+                        , 'ScrapeFile': XMLDataset[XMLDataset['FileType'].notnull()]['FileName'].iloc[0:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
                         }
                     ,python_callable=SaveScrape
                     ,dag=dag
