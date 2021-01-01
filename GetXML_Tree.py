@@ -119,11 +119,11 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     print("file saved to: " + xmlFile +'.csv')
     try:
     # Connect to an existing database
-    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
-    cursor = connection.cursor()
-    cursor.execute("SELECT coalesce(max(H_FILEID), 0) + 1 as h_fileid from sc_land.SC_SOURCE_HEADER")
-    h_fileid = cursor.fetchone() #next iteration of file ID 
-    print('new h_fileid is:', h_fileid[0])
+        connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
+        cursor = connection.cursor()
+        cursor.execute("SELECT coalesce(max(H_FILEID), 0) + 1 as h_fileid from sc_land.SC_SOURCE_HEADER")
+        h_fileid = cursor.fetchone() #next iteration of file ID 
+        print('new h_fileid is:', h_fileid[0])
     except (Exception, Error) as error:
         print("Error while connecting to PostgreSQL", error)
     finally:
