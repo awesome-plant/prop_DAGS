@@ -106,7 +106,12 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
                 _Type='rent' 
             else: _Type=''
         elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'LastModified':
-            _LastModified=datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S.%f%z')
+            try:
+                _LastModified=datetime.datetime.strptime(element.text, '%Y-%m-%dT%H:%M:%S.%f%z')
+            except Exception as e: 
+                print(element.text)
+                print(e)
+                srgargerh
         elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Size':
             _Size=str(element.text)
         elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'StorageClass':
