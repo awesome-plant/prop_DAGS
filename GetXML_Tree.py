@@ -55,10 +55,10 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     xmlFile=PageSaveFolder + XMLsaveFile 
 
     # time.sleep(600)
-    saveXML=open(xmlFile +'.xml', "w")
-    saveXML.write(response.text)
-    saveXML.close()
-    print("file saved to: " + xmlFile +'.xml')
+    # saveXML=open(xmlFile +'.xml', "w")
+    # saveXML.write(response.text)
+    # saveXML.close()
+    # print("file saved to: " + xmlFile +'.xml')
     H_FileSize=round(os.path.getsize(xmlFile +'.xml') / 1000)
 
     #write to parent table, apparently im storing in 3rd normal
