@@ -27,6 +27,7 @@ import shutil
 import psycopg2
 from sqlalchemy import create_engine
 from psycopg2 import Error
+import csv
 from io import StringIO
 #airflow libs
 from airflow import DAG
@@ -135,18 +136,18 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     engine = create_engine('postgresql://postgres:root@172.22.114.65:5432/scrape_db')
     XML_H_Dataset.to_sql(
         name='sc_source_header'
+        ,schema='sc_land'
         ,con=engine
         ,method=psql_insert_copy
-        ,schema='sc_land'
         ,if_exists='append'
         ,index=False
         )
 
     XML_S_Dataset.to_sql(
         name='sc_source_file'
+        ,schema='sc_land'
         ,con=engine
         ,method=psql_insert_copy
-        ,schema='sc_land'
         ,if_exists='append'
         ,index=False
     )
