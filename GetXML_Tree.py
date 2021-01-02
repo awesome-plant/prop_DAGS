@@ -187,14 +187,15 @@ def psql_insert_copy(table, conn, keys, data_iter):
         cur.copy_expert(sql=sql, file=s_buf)
 
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
+    print('gz file:', ScrapeFile)
     #download from sitemap, use dynamic variable 
     sitemap_url = baseurl #'https://www.realestate.com.au/xml-sitemap/'#pdp-sitemap-buy-1.xml.gz' 
     _file=ScrapeFile #im lazy, sue me
     gz_save_name =_file[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
     gz_url = sitemap_url + _file
     gz_save_path = PageSaveFolder
+    urllib.request.urlretrieve(gz_url, gz_save_path + gz_save_name)
 
-    urllib.request.urlretrieve(sitemap_url + _file, gz_save_path + gz_save_name)
     #save gz to dir for archiving 
     print("file:", gz_save_name)
     print("written to dir:", gz_save_path + gz_save_name)
@@ -205,7 +206,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
             shutil.copyfileobj(f_in, f_out)
     #xml part 
     root = etree.parse(gz_save_path + _xml_save)
-    XML_gz_Dataset=pd.DataFrame(columns =['Parent_gz','ScrapeDT','Url', 'PropType', 'State', 'Suburb', 'PropID', 'LastMod', 'ExternalIP'])
+    XML_gz_Dataset=pd.DataFrame(columns =['parent_gz','scrape_dt','url', 'proptype', 'state', 'suburb', 'prop_id', 'lastmod', 'external_ip', 's_fileid'])
     _PropType=_State=_PropID=_LastMod=_split=_Url=""
     _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     #iterate xml
@@ -213,15 +214,15 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
         #writes results to df, same as the previous module 
         if 'url' in element.tag and _Url != '':
             XML_gz_Dataset=XML_gz_Dataset.append({
-                        'Parent_gz': str(ScrapeFile)
-                        ,'ScrapeDT' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
-                        , 'Url' : str(_Url)
-                        , 'PropType' : str(_PropType)
-                        , 'State' : str(_State)
-                        , 'Suburb' : str(_Suburb)
-                        , 'PropID' : str(_PropID)
-                        , 'LastMod': str(_LastMod)
-                        , 'ExternalIP': str(_external_ip)
+                        'parent_gz': str(ScrapeFile)
+                        ,'scrape_dt' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                        , 'url' : str(_Url)
+                        , 'proptype' : str(_PropType)
+                        , 'state' : str(_State)
+                        , 'suburb' : str(_Suburb)
+                        , 'prop_id' : str(_PropID)
+                        , 'lastmod': str(_LastMod)
+                        , 'external_ip': str(_external_ip)
                         } ,ignore_index=True) 
             _PropType=_State=_PropID=_LastMod=_split=_Url=""
         if 'lastmod' in element.tag: 
@@ -252,9 +253,43 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
             _split=str(element.text).split('-')
             _Suburb=_split[len(_split) -2 ]
             _PropID=_split[len(_split) -1 ]
+    XML_gz_Dataset.to_csv(gz_save_path + 'parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + 'parsed_csv\\ ' _xml_save[:-3] + '_results' +'.csv')
+    XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
+    #now we add to db table 
+    #parent file link
+    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
+    cursor = connection.cursor()
+    # with connection.cursor() as cursor:
+    cursor.execute("""
+        select max(s_fileid)
+        FROM sc_land.sc_source_file
+        WHERE s_filename = %(s_filename)s
+        and date(lastmod) = %(lastmod)s;
+        """,
+            {
+                's_filename': XML_gz_Dataset['parent_gz'].drop_duplicates()[0]
+                ,'lastmod' : XML_gz_Dataset['lastmod'].dt.date.drop_duplicates()[0]
+            }
+        )
+    result = cursor.fetchone()
+    print("parent file link is:",ScrapeFile,"is:", result[0])
+    XML_gz_Dataset['s_fileid']=result[0]
+    #remove redundant link
+    XML_gz_Dataset=XML_gz_Dataset.drop(columns=['parent_gz'])
 
-    XML_gz_Dataset.to_csv(gz_save_path + _xml_save[:-3] + '_results' +'.csv')
-    print("file saved to: " + gz_save_path + _xml_save[:-3] + '_results' +'.csv')
+    #time to insert  
+    print("inserting into tables: sc_property_links")
+    engine = create_engine('postgresql://postgres:root@172.22.114.65:5432/scrape_db')
+    XML_gz_Dataset.to_sql(
+        name='sc_property_links'
+        ,schema='sc_land'
+        ,con=engine
+        ,method=psql_insert_copy
+        ,if_exists='append'
+        ,index=False
+        )
+    print("insert complete, fin")
    
 dag = DAG(
         dag_id='use_getXML_Scrape'
