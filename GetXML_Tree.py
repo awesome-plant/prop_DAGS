@@ -210,8 +210,12 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
     XML_gz_Dataset=pd.DataFrame(columns =['parent_gz','scrape_dt','url', 'proptype', 'state', 'suburb', 'prop_id', 'lastmod', 'external_ip', 's_fileid'])
     _PropType=_State=_PropID=_LastMod=_split=_Url=""
     _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    _count=1
+    _time=time.time()
     #iterate xml
     for element in root.iter():
+        if _count % 10000 == 0: 
+            print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
         #writes results to df, same as the previous module 
         if 'url' in element.tag and _Url != '':
             XML_gz_Dataset=XML_gz_Dataset.append({
@@ -246,16 +250,23 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
                 _State='sa'
             elif '-wa-' in element.text: 
                 _State='wa'
-            
+    
             _Url = element.text
-            _split=str(element.text).split(_State)
-            #had to do it this way so unconventional suburb names are still caught
-            _PropType = _split[0].replace('https://www.realestate.com.au/property-','')[:-1]
-            _split=str(element.text).split('-')
-            _Suburb=_split[len(_split) -2 ]
-            _PropID=_split[len(_split) -1 ]
-    XML_gz_Dataset.to_csv(gz_save_path + '\\parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
-    print("file saved to: " + gz_save_path + '\\parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
+            if _State=='': #sometimes the urls they give are wrong
+                print("incorrect url:", str(element.text))
+                _PropType=''
+                _Suburb=''
+                _PropID=''
+            else: 
+                _split=str(element.text).split(_State) 
+                #had to do it this way so unconventional suburb names are still caught
+                _PropType = _split[0].replace('https://www.realestate.com.au/property-','')[:-1]
+                _split=str(element.text).split('-')
+                _Suburb=_split[len(_split) -2 ]
+                _PropID=_split[len(_split) -1 ]
+            _count+=1
+    XML_gz_Dataset.to_csv(gz_save_path + '\\parsed_csv\\' + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + '\\parsed_csv\\' + _xml_save[:-3] + '_results' +'.csv')
     XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
     #now we add to db table 
     #parent file link
