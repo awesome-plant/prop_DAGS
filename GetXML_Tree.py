@@ -55,12 +55,11 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
     xmlFile=PageSaveFolder + XMLsaveFile 
 
     # time.sleep(600)
-    # saveXML=open(xmlFile +'.xml', "w")
-    # saveXML.write(response.text)
-    # saveXML.close()
-    # print("file saved to: " + xmlFile +'.xml')
+    saveXML=open(xmlFile +'.xml', "w")
+    saveXML.write(response.text)
+    saveXML.close()
+    print("temp file saved to: " + xmlFile +'.xml')
     H_FileSize=round(os.path.getsize(xmlFile +'.xml') / 1000)
-
     #write to parent table, apparently im storing in 3rd normal
     XML_H_Dataset=pd.DataFrame(columns =['external_ip', 'folderpath', 'h_filename', 'scrape_dt', 'h_filesize_kb','h_fileid'])
     # XML_H_Dataset.dtypes
@@ -152,9 +151,11 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
         ,index=False
     )
     print("inserts completed")
+    print('removing extracted xml file')
+    os.remove(xmlFile +'.xml')
+    print("fin")
     #used in next part
     # return XML_S_Dataset
-
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-sql-method
 def psql_insert_copy(table, conn, keys, data_iter):
     """
@@ -289,7 +290,10 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
         ,if_exists='append'
         ,index=False
         )
-    print("insert complete, fin")
+    print("insert complete")
+    print('removing extracted xml file')
+    os.remove(gz_save_path + _xml_save)
+    print("fin")
    
 dag = DAG(
         dag_id='use_getXML_Scrape'
