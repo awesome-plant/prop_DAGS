@@ -321,7 +321,7 @@ starter >> scrape_task
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
     if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
         XML_H_Dataset= pd.read_csv(x.path) #'/opt/airflow/logs/XML_save_folder/raw_sitemap/XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv')
-        for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]): #.iloc[0:1]
+        for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].iloc[0:10].shape[0]): #
         # XMLDataset[XMLDataset['filetype'].notnull()].shape[0]): 
             xml_gz_extract=PythonOperator(
                     task_id='scrape_sitemap_gz_'+str(i)
@@ -329,7 +329,7 @@ for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
                     ,op_kwargs={
                         'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
                         , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
-                        , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[0:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
+                        , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[i:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
                         }
                     ,python_callable=SaveScrape
                     ,dag=dag
