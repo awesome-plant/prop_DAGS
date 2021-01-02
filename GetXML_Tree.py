@@ -309,7 +309,7 @@ scrape_task = PythonOperator(
     ,op_kwargs={
         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
         # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
-        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/raw_sitemap'
+        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/raw_sitemap/'
         }
     ,python_callable=ScrapeURL
     ,dag = dag
@@ -327,7 +327,7 @@ for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
                     ,provide_context=True
                     ,op_kwargs={
                         'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
-                        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files'
+                        , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
                         , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[0:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
                         }
                     ,python_callable=SaveScrape
