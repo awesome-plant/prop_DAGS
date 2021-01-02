@@ -303,6 +303,7 @@ dag = DAG(
         ,tags=['get_xml_scrape']
     )
 starter = DummyOperator( dag = dag, task_id='dummy_starter' )
+ender = DummyOperator( dag = dag, task_id='dummy_ender' )
 scrape_task = PythonOperator(
     task_id="scrape_sitemap_rawxml"
     ,provide_context=True
@@ -333,5 +334,5 @@ for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
                     ,python_callable=SaveScrape
                     ,dag=dag
                     )
-            starter >> scrape_task  >> xml_gz_extract #a[i]
+            starter >> scrape_task  >> xml_gz_extract >> ender #a[i]
         # starter >> scrape_task 
