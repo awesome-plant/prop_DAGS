@@ -253,8 +253,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
             _split=str(element.text).split('-')
             _Suburb=_split[len(_split) -2 ]
             _PropID=_split[len(_split) -1 ]
-    XML_gz_Dataset.to_csv(gz_save_path + 'parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
-    print("file saved to: " + gz_save_path + 'parsed_csv\\ ' _xml_save[:-3] + '_results' +'.csv')
+    XML_gz_Dataset.to_csv(gz_save_path + '\\parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
+    print("file saved to: " + gz_save_path + '\\parsed_csv\\ ' + _xml_save[:-3] + '_results' +'.csv')
     XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
     #now we add to db table 
     #parent file link
