@@ -55,7 +55,7 @@ default_args = {
 
 
 with DAG(
-    dag_id='example_kubernetes_operator',
+    dag_id='example_kube_pod,
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),
