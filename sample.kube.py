@@ -29,7 +29,7 @@ volume_config= {
     }
 
 volume = Volume(
-    name='xmlsave'
+    name='persist-xmlsave'
     , configs=volume_config
 )
 
