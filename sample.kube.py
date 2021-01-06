@@ -141,7 +141,7 @@ with DAG(
                     # # ,affinty=affinity 
                     # ,is_delete_operator_pod=False
                     # ,dag=dag
-                    )
+                    # )
 #                 print("done")
 
 # except Exception as e:
