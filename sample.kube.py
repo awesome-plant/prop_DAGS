@@ -33,22 +33,6 @@ volume = Volume(
     , configs=volume_config
 )
 
-
-# init_container_volume_mounts = k8s.V1VolumeMount(
-#     mount_path='/usr/local/airflow/xmlsave'
-#     , name='persist-xmlsave'
-#     , sub_path=None
-#     , read_only=False
-#     )
-
-# init_container = k8s.V1Container(
-#     name="kubePod_init-container"
-#     ,image="alpine/git"
-#     ,volume_mounts= [init_container_volume_mounts]
-#     ,command=["bash", "-cx"]
-#     ,args=["echo test-kube-print-output"]
-#     )
-
 default_args = {
     'owner': 'airflow',
 }
@@ -69,17 +53,12 @@ with DAG(
         , cmds=["python","-c"]
         , arguments=["import time; print('hello world'); time.sleep(600); print('done')"]        
         , labels={"foo": "bar"}
-        # , secrets=[secret_file, secret_env, secret_all_keys]
-        # , ports=[port]
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        # , env_from=configmaps
-        # , affinity=affinity
         , is_delete_operator_pod=True
         , hostnetwork=False
-        # , tolerations=tolerations
-        # , init_containers=[init_container]
         , priority_class_name="medium"
+        , in_cluster=True
     )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
