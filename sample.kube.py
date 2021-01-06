@@ -78,7 +78,7 @@ with DAG(
         , is_delete_operator_pod=True
         , hostnetwork=False
         # , tolerations=tolerations
-        , init_containers=[init_container]
+        # , init_containers=[init_container]
         , priority_class_name="medium"
     )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
