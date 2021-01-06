@@ -51,15 +51,17 @@ with DAG(
         , task_id="task-kube-pod"
         , image="python:rc-slim"
         , cmds=["python","-c"]
-        , arguments=["import time; print('hello world'); time.sleep(600); print('done')"]        
-        , labels={"foo": "bar"}
-        , volumes=[volume]
-        , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=True
-        , hostnetwork=False
-        , priority_class_name="medium"
-        , in_cluster=True
-        
+        , arguments=["import time; print('hello world'); time.sleep(600); print('done')"]      
+        , image_pull_policy="IfNotPresent"
+        , resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}  
+        # , labels={"foo": "bar"}
+        # , volumes=[volume]
+        # , volume_mounts=[volume_mount]
+        # , is_delete_operator_pod=True
+        # , priority_class_name="medium"
+        # , in_cluster=True
+        # , get_logs=True
+
     )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
