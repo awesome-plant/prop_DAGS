@@ -124,22 +124,22 @@ with DAG(
 #             start_date=YESTERDAY) as dag:
 #                 print("Initialized dag")
 #                 kubernetes_min_pod = KubernetesPodOperator(
-                    task_id='trigger-task'
-                    ,name='trigger-name'
-                    ,namespace='airflow'
-                    # ,in_cluster=True
-                    ,image="python:rc-slim"
-                    ,image_pull_policy='IfNotPresent'
-                    ,resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}
-                    ,labels={"foo": "bar"}
-                    ,get_logs=True
-                    ,cmds=["python","-c"]
-                    ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    # ,init_containers=[init_container]
-                    ,volumes=[volume]
-                    ,volume_mounts= [volumemount]
-                    # ,affinty=affinity 
-                    ,is_delete_operator_pod=False
+                    # task_id='trigger-task'
+                    # ,name='trigger-name'
+                    # ,namespace='airflow'
+                    # # ,in_cluster=True
+                    # ,image="python:rc-slim"
+                    # ,image_pull_policy='IfNotPresent'
+                    # ,resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}
+                    # ,labels={"foo": "bar"}
+                    # ,get_logs=True
+                    # ,cmds=["python","-c"]
+                    # ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
+                    # # ,init_containers=[init_container]
+                    # ,volumes=[volume]
+                    # ,volume_mounts= [volumemount]
+                    # # ,affinty=affinity 
+                    # ,is_delete_operator_pod=False
                     # ,dag=dag
                     )
 #                 print("done")
