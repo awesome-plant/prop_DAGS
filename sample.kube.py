@@ -50,7 +50,7 @@ with DAG(
     dag_id='example_kubernetes_operator',
     default_args=default_args,
     schedule_interval=None,
-    # start_date=days_ago(1),
+    start_date=days_ago(1),
     tags=['example'],
 ) as dag:
     k = KubernetesPodOperator(
