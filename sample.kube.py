@@ -54,7 +54,7 @@ with DAG(
     tags=['example'],
 ) as dag:
     k = KubernetesPodOperator(
-    namespace='airflow'
+        namespace='airflow'
         , name="airflow-test-pod"
         , task_id="task-kube-pod"
         , image="python:rc-slim"
@@ -73,6 +73,12 @@ with DAG(
         , init_containers=[init_container]
         , priority_class_name="medium"
     )
+    sitemap_starter = DummyOperator(task_id='dummy_starter' )
+    sitemap_ender = DummyOperator(task_id='dummy_ender' )
+sitemap_starter >> k >> sitemap_ender 
+
+
+
 
 
 
