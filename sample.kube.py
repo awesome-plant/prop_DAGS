@@ -5,42 +5,49 @@ import datetime
 import os
 from airflow import models
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.contrib.operators import KubernetesOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.contrib.kubernetes.volume import Volume
+from airflow.contrib.kubernetes.volume_mount import VolumeMount
 # from airflow.contrib.kubernetes.volume_mount import VolumeMount
 # from airflow.contrib.kubernetes.volume import Volume
 # from airflow.contrib.operators import KubernetesOperator
-from kubernetes.client import models as k8s
+# from kubernetes.client import models as k8s
 from airflow.utils.dates import days_ago
 from airflow import DAG
 
-volume_mount = k8s.V1VolumeMount(
-    mount_path='/usr/local/airflow/xmlsave'
-    , name='persist-xmlsave'
+volume_mount = VolumeMount(
+    'persist-xmlsave'
+    , mount_path='/usr/local/airflow/xmlsave'
     , sub_path=None
     , read_only=False
 )
 
-volume = k8s.V1Volume(
+volume_config= {
+    'persistentVolumeClaim': { 'claimName': 'persist-xmlsave' }
+    }
+
+volume = Volume(
     name='xmlsave'
-    ,persistent_volume_claim=k8s.V1HostPathVolumeSource(path='xmlsave'),
+    , configs=volume_config
 )
 
 
-init_container_volume_mounts = k8s.V1VolumeMount(
-    mount_path='/usr/local/airflow/xmlsave'
-    , name='persist-xmlsave'
-    , sub_path=None
-    , read_only=False
-    )
+# init_container_volume_mounts = k8s.V1VolumeMount(
+#     mount_path='/usr/local/airflow/xmlsave'
+#     , name='persist-xmlsave'
+#     , sub_path=None
+#     , read_only=False
+#     )
 
-init_container = k8s.V1Container(
-    name="kubePod_init-container"
-    ,image="alpine/git"
-    ,volume_mounts= [init_container_volume_mounts]
-    ,command=["bash", "-cx"]
-    ,args=["echo test-kube-print-output"]
-    )
+# init_container = k8s.V1Container(
+#     name="kubePod_init-container"
+#     ,image="alpine/git"
+#     ,volume_mounts= [init_container_volume_mounts]
+#     ,command=["bash", "-cx"]
+#     ,args=["echo test-kube-print-output"]
+#     )
 
 default_args = {
     'owner': 'airflow',
@@ -81,7 +88,7 @@ sitemap_starter >> k >> sitemap_ender
 
 
 
-
+# examplekubernetesoperatortriggertask-41e0ef4ac4d24a72923daf07f938bb39
 
 
 
