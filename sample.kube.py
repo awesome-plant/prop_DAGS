@@ -59,6 +59,7 @@ with DAG(
         , hostnetwork=False
         , priority_class_name="medium"
         , in_cluster=True
+        
     )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
