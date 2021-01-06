@@ -50,13 +50,13 @@ with DAG(
     dag_id='example_kubernetes_operator',
     default_args=default_args,
     schedule_interval=None,
-    start_date=days_ago(1),
+    # start_date=days_ago(1),
     tags=['example'],
 ) as dag:
     k = KubernetesPodOperator(
     namespace='airflow'
         , name="airflow-test-pod"
-        , task_id="task"
+        , task_id="task-kube-pod"
         , image="python:rc-slim"
         , cmds=["python","-c"]
         , arguments=["import time; print('hello world'); time.sleep(600); print('done')"]        
@@ -142,7 +142,7 @@ with DAG(
                     # ,is_delete_operator_pod=False
                     # ,dag=dag
                     # )
-                    
+
 #                 print("done")
 
 # except Exception as e:
