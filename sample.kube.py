@@ -15,23 +15,22 @@ from airflow import DAG
 
 args = { 'owner': 'airflow' }
 YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
-volume_mount = k8s.V1VolumeMount(
-                            name='xmlsave',
-                            mount_path='/usr/local/airflow/xmlsave',
-                            sub_path=None,
-                            read_only=False
-                            )
-
+# volume_mount = k8s.V1VolumeMount(
+#     name='xmlsave',
+#     mount_path='/usr/local/airflow/xmlsave',
+#     sub_path=None,
+#     read_only=False
+#     )
 volume = k8s.V1Volume(
-            name='xmlsave'
-            ,persistent_volume_claim=k8s.V1HostPathVolumeSource(path='xmlsave'),
-        )
+    name='xmlsave'
+    ,persistent_volume_claim=k8s.V1HostPathVolumeSource(path='xmlsave'),
+)
 volumemount = k8s.V1VolumeMount(
-                mount_path='/usr/local/airflow/xmlsave'
-                , name='persist-xmlsave'
-                , sub_path=None
-                , read_only=False
-            )
+    mount_path='/usr/local/airflow/xmlsave'
+    , name='persist-xmlsave'
+    , sub_path=None
+    , read_only=False
+)
 
 #now we pull in the scripts repo 
 git_repo='https://github.com/awesome-plant/prop_DAGS.git'
@@ -67,7 +66,7 @@ try:
                     ,get_logs=True
                     ,cmds=["python","-c"]
                     ,arguments=["import time; print('hello world'); time.sleep(600); print('done')"]
-                    ,init_containers=[init_container]
+                    # ,init_containers=[init_container]
                     ,volumes=[volume]
                     ,volume_mounts= [volumemount]
                     # ,affinty=affinity 
