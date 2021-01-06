@@ -55,11 +55,11 @@ with DAG(
         , image_pull_policy="IfNotPresent"
         , resources={'limit_cpu' : '500m','limit_memory' : '512Mi'}  
         # , labels={"foo": "bar"}
-        # , volumes=[volume]
-        # , volume_mounts=[volume_mount]
+        , volumes=[volume]
+        , volume_mounts=[volume_mount]
         # , is_delete_operator_pod=True
         # , priority_class_name="medium"
-        # , in_cluster=True
+        , in_cluster=True
         # , get_logs=True
 
     )
