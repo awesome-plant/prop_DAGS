@@ -17,9 +17,9 @@ import os
 import datetime 
 import time
 import requests
-import urllib.request
 from lxml import etree
 from fake_useragent import UserAgent
+from fp.fp import FreeProxy
 import pandas as pd 
 import gzip
 import shutil 
@@ -42,22 +42,60 @@ default_args={
     ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
     }
 
-def ScrapeURL(baseurl,PageSaveFolder, **kwargs):  
+def getProxy(): 
+    # def here returns proxy, confirmed with different whatismyip return 
+    url='https://ident.me/'
+    ua = UserAgent()
+    q=requests.get(url)
+    _actualIP=q.text
+    _newIP=''
+    _getIP_time=time.process_time()
+    _try=0
+    _checkout=False
+    while _checkout==False: #_newIP != _actualIP :
+        headers = {'User-Agent':str(ua.random)}
+        start= time.process_time()
+        proxy = FreeProxy(rand=True).get()
+        taken = time.process_time() - start
+        proxies= { 'http': proxy, 'https': proxy } 
+        try:
+            r = requests.get(url, headers=headers, proxies=proxies)
+            _newIP = r.text
+            print("realIP is: ", _actualIP, " - proxy IP is:", _newIP, " - attempt no.", str(_try))
+        except Exception as e: 
+            print('error on proxy get, try again:', e)
+        if _actualIP !=_newIP:
+            _checkout=True
+        _try+=1
+    print("fin, total time", str( time.process_time() - _getIP_time ) )
+    print("realIP is: ", _actualIP, " - proxy IP is:", _newIP, " - attempt no.", str(_try))
+    return proxies, _newIP
+
+def ScrapeURL(baseurl, PageSaveFolder, Scrapewait):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     ua = UserAgent()
     headers = {'User-Agent':str(ua.random)}
 
-    #get external IP https://stackoverflow.com/questions/2311510/getting-a-machines-external-ip-address-with-python
-    H_external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    proxies,H_external_ip=getProxy()
+    # q = request.get('https://ident.me')
+    # H_external_ip=q.text
     H_ScrapeDT=(datetime.datetime.now())
-    # headers = { 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36', }
-    response = requests.get(baseurl,headers=headers)
-    xmlFile=PageSaveFolder + XMLsaveFile 
+    _getPass=False
+    #loop until it works, if it takes too long get another proxy 
+    while _getPass==False:
+        try:
+            response = requests.get(baseurl,headers=headers,proxies=proxies, timeout=Scrapewait)
+            _getPass=True
+        except Exception as e:
+            print('error recieved, trying again:',e) 
+            proxies,H_external_ip=getProxy()
 
-    # time.sleep(600)
+    xmlFile=PageSaveFolder + XMLsaveFile 
     saveXML=open(xmlFile +'.xml', "w")
-    saveXML.write(response.text)
     saveXML.close()
+    tree = etree.fromstring(response.content ) 
+    with open(xmlFile +'.xml', "wb") as saveXML:
+        saveXML.write(etree.tostring(tree,pretty_print=True))
     print("temp file saved to: " + xmlFile +'.xml')
     H_FileSize=round(os.path.getsize(xmlFile +'.xml') / 1000)
     #write to parent table, apparently im storing in 3rd normal
@@ -70,53 +108,32 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
                     , 'scrape_dt': H_ScrapeDT
                     , 'h_filesize_kb': int(H_FileSize)
                     } ,ignore_index=True) 
-    XML_H_Dataset['h_fileid']=pd.to_numeric(XML_H_Dataset['h_fileid'])
-    # XML_H_Dataset.to_datetime()
-
     #parse to XML 
     result = response.content 
-    root = etree.fromstring(result) 
     #scrape variables
     _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
     XML_S_Dataset=pd.DataFrame(columns =['suffix', 's_filename', 'filetype', 'lastmod', 's_filesize_kb', 'storageclass', 'h_fileid'])
-
-    #iteration is done literally one aspect at a time, since xml wouldnt play nice
-    #print element.tag to understand
-    for element in root.iter():
-        if str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Contents' and _Filename != '':
-            #write to pd 
-            XML_S_Dataset=XML_S_Dataset.append({
-                    'suffix' : str(_Suffix)
-                    , 's_filename' : str(_Filename)
-                    , 'filetype' : str(_Type)
-                    , 'lastmod': _LastModified
-                    , 's_filesize_kb' : round(int(_Size) / 1000)
-                    , 'storageclass': str(_StorageClass)
-                    } ,ignore_index=True) 
-            _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
-        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Key':
-            _Filename=str(element.text)
-            _Suffix=str(element.text).split('-')[0]
-            #get name subcat
-            if 'buy' in _Filename.lower(): 
-                _Type='buy'
-            elif 'sold' in _Filename.lower(): 
-                _Type='sold' 
-            elif 'rent' in _Filename.lower(): 
-                _Type='rent' 
-            else: _Type=''
-        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'LastModified':
-            _LastModified=datetime.datetime.strptime((element.text).replace('Z','+0000'), '%Y-%m-%dT%H:%M:%S.%f%z')
-        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'Size':
-            _Size=str(element.text)
-        elif str(element.tag).replace("{http://s3.amazonaws.com/doc/2006-03-01/}","") == 'StorageClass':
-            _StorageClass=str(element.text)
+    #FINALLY got this bit working, as always the issue was the namespace
+    body=tree.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+    for element in body:
+        _Type=''
+        if 'buy' in (element[0].text).lower(): 
+            _Type='buy'
+        elif 'sold' in (element[0].text).lower(): 
+            _Type='sold'
+        elif 'rent' in (element[0].text).lower(): 
+            _Type='rent'
+        XML_S_Dataset=XML_S_Dataset.append({
+            'suffix' : str(str(element[0].text).split('-')[0])
+            , 's_filename' : str(element[0].text)
+            , 'filetype' : str(_Type)
+            , 'lastmod': datetime.datetime.strptime((element[1].text).replace('Z','+0000'), '%Y-%m-%dT%H:%M:%S.%f%z')
+            , 's_filesize_kb' : round(int(element[3].text) / 1000)
+            , 'storageclass': str(element[4].text)
+            } ,ignore_index=True) 
     #hard code dtypes for sql later        
     XML_S_Dataset['lastmod']=pd.to_datetime(XML_S_Dataset['lastmod'])
     XML_S_Dataset['s_filesize_kb']=pd.to_numeric(XML_S_Dataset['s_filesize_kb'])
-    XML_S_Dataset['h_fileid']=pd.to_numeric(XML_S_Dataset['h_fileid'])
-    XML_S_Dataset.to_csv(xmlFile +'.csv')
-    print("file saved to: " + xmlFile +'.csv')
     try:
     # Connect to an existing database
         connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
@@ -131,6 +148,12 @@ def ScrapeURL(baseurl,PageSaveFolder, **kwargs):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
+    XML_S_Dataset['h_fileid']=h_fileid[0]
+    XML_H_Dataset['h_fileid']=h_fileid[0]
+    XML_S_Dataset['h_fileid']=pd.to_numeric(XML_S_Dataset['h_fileid'])
+    XML_H_Dataset['h_fileid']=pd.to_numeric(XML_H_Dataset['h_fileid'])
+    XML_S_Dataset.to_csv(xmlFile +'.csv')
+    print("file saved to: " + xmlFile +'.csv')
     print("inserting into tables: sc_source_header, sc_source_file")
     engine = create_engine('postgresql://postgres:root@172.22.114.65:5432/scrape_db')
     XML_H_Dataset.to_sql(
@@ -322,6 +345,7 @@ scrape_task = PythonOperator(
         'baseurl':'https://www.realestate.com.au/xml-sitemap/'
         # , 'RootDir': '/opt/airflow/logs/XML_save_folder' 
         , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/raw_sitemap/'
+        ,'Scrapewait': 5
         }
     ,python_callable=ScrapeURL
     ,dag = sitemap_dag
@@ -360,6 +384,7 @@ for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]): 
                 'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
                 , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
                 , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[i:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
+                ,'Scrapewait': 5
                 }
             ,python_callable=SaveScrape
             ,dag=xml_parse_dag
