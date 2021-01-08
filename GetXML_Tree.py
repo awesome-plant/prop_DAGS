@@ -212,13 +212,29 @@ def psql_insert_copy(table, conn, keys, data_iter):
 
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
     print('gz file:', ScrapeFile)
+    ua = UserAgent()
+    headers = {'User-Agent':str(ua.random)}
+    proxies,external_ip=getProxy()
+
+    _getPass=False
+        #loop until it works, if it takes too long get another proxy 
+    while _getPass==False:
+        try:
+            response = requests.get(baseurl + ScrapeFile, headers=headers,proxies=proxies, timeout=Scrapewait)
+            _getPass=True
+        except Exception as e:
+            print('error recieved, trying again:',e) 
+            proxies,external_ip=getProxy()
+
+    print('gz file:', ScrapeFile)
     #download from sitemap, use dynamic variable 
     sitemap_url = baseurl #'https://www.realestate.com.au/xml-sitemap/'#pdp-sitemap-buy-1.xml.gz' 
     _file=ScrapeFile #im lazy, sue me
     gz_save_name =_file[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
     gz_url = sitemap_url + _file
     gz_save_path = PageSaveFolder
-    urllib.request.urlretrieve(gz_url, gz_save_path + gz_save_name)
+    #save to gz
+    open(gz_save_path + gz_save_name, 'wb').write(response.content)
 
     #save gz to dir for archiving 
     print("file:", gz_save_name)
@@ -228,69 +244,80 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
     with gzip.open(gz_save_path + gz_save_name, 'rb') as f_in:
         with open(gz_save_path + _xml_save, 'wb') as f_out: 
             shutil.copyfileobj(f_in, f_out)
-    #xml part 
-    root = etree.parse(gz_save_path + _xml_save)
-    XML_gz_Dataset=pd.DataFrame(columns =['parent_gz','scrape_dt','url', 'proptype', 'state', 'suburb', 'prop_id', 'lastmod', 'external_ip', 's_fileid'])
-    _PropType=_State=_PropID=_LastMod=_split=_Url=""
-    _external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    tree = etree.parse(gz_save_path + _xml_save)
+    with open(gz_save_path + _xml_save, "wb") as saveXML:
+        saveXML.write(etree.tostring(tree,pretty_print=True))
+
     _count=1
     _time=time.time()
     #iterate xml
-    for element in root.iter():
+    body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
+    _count=1
+    _time=time.time()
+    # XML_gz_Dataset=pd.DataFrame(columns =['parent_gz','scrape_dt','url', 'proptype', 'state', 'suburb', 'prop_id', 'lastmod', 'external_ip', 's_fileid'])
+    new_Dataset=   pd.DataFrame(columns =['parent_gz','scrape_dt','url', 'lastmod', 's_fileid'])
+    for element in body:
         if _count % 10000 == 0: 
             print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
-        #writes results to df, same as the previous module 
-        if 'url' in element.tag and _Url != '':
-            XML_gz_Dataset=XML_gz_Dataset.append({
-                        'parent_gz': str(ScrapeFile)
-                        ,'scrape_dt' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
-                        , 'url' : str(_Url)
-                        , 'proptype' : str(_PropType)
-                        , 'state' : str(_State)
-                        , 'suburb' : str(_Suburb)
-                        , 'prop_id' : str(_PropID)
-                        , 'lastmod': str(_LastMod)
-                        , 'external_ip': str(_external_ip)
-                        } ,ignore_index=True) 
-            _PropType=_State=_PropID=_LastMod=_split=_Url=""
-        if 'lastmod' in element.tag: 
-            _LastMod = element.text
-        #just about everything gleaned from loac (url) tag
-        elif 'loc' in element.tag: 
-            if '-tas-' in element.text: 
-                _State='tas'
-            elif '-vic-' in element.text: 
-                _State='vic'
-            elif '-nsw-' in element.text: 
-                _State='nsw'
-            elif '-act-' in element.text: 
-                _State='act'
-            elif '-qld-' in element.text: 
-                _State='qld'
-            elif '-nt-' in element.text: 
-                _State='nt'
-            elif '-sa-' in element.text: 
-                _State='sa'
-            elif '-wa-' in element.text: 
-                _State='wa'
-    
-            _Url = element.text
-            if _State=='': #sometimes the urls they give are wrong
-                print("incorrect url:", str(element.text))
-                _PropType=''
-                _Suburb=''
-                _PropID=''
-            else: 
-                _split=str(element.text).split(_State) 
-                #had to do it this way so unconventional suburb names are still caught
-                _PropType = _split[0].replace('https://www.realestate.com.au/property-','')[:-1]
-                _split=str(element.text).split('-')
-                _Suburb=_split[len(_split) -2 ]
-                _PropID=_split[len(_split) -1 ]
-            _count+=1
-    XML_gz_Dataset.to_csv(gz_save_path + '\\parsed_csv\\' + _xml_save[:-3] + '_results' +'.csv')
+        # _LastMod = element[1].text
+        # _Url = element[0].text
+        # #writes results to df, same as the previous module 
+        new_Dataset=new_Dataset.append({
+                    'parent_gz': str(ScrapeFile)
+                    ,'scrape_dt' : (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                    , 'url' : str(element[0].text)
+                    , 'lastmod': str(element[1].text)
+                    } ,ignore_index=True) 
+        _count+=1 
+    print("xml extract time:", time.time() - _time)
+    XML_gz_Dataset=new_Dataset
+
+    #add state
+    XML_gz_Dataset['state']=XML_gz_Dataset.apply(lambda x: 
+        'nsw' if '-nsw-' in x.url else
+        'qld' if '-qld-' in x.url else
+        'tas' if '-tas-' in x.url else
+        'act' if '-act-' in x.url else
+        'sa' if '-sa-' in x.url else
+        'nt' if '-nt-' in x.url else
+        'wa' if '-wa-' in x.url else
+        'vic' if '-vic-' in x.url else ''
+        , axis=1)
+
+    # get proptype 
+    XML_gz_Dataset['proptype']=XML_gz_Dataset['url'].apply(lambda x: 
+        x.split('-nsw-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-nsw-')) > 1 else 
+        x.split('-qld-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-qld-')) > 1 else 
+        x.split('-tas-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-tas-')) > 1 else 
+        x.split('-act-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-act-')) > 1 else 
+        x.split('-sa-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-sa-')) > 1 else 
+        x.split('-nt-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-nt-')) > 1 else 
+        x.split('-wa-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-wa-')) > 1 else 
+        x.split('-vic-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') if len(x.split('-vic-')) > 1 else ''
+        )
+
+    #get suburb
+    XML_gz_Dataset['suburb']=XML_gz_Dataset['url'].apply(lambda x:
+        x.split('-nsw-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-nsw-')) > 1 else
+        x.split('-qld-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-qld-')) > 1 else
+        x.split('-tas-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-tas-')) > 1 else
+        x.split('-act-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-act-')) > 1 else
+        x.split('-sa-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-sa-')) > 1 else
+        x.split('-nt-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-nt-')) > 1 else
+        x.split('-wa-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-wa-')) > 1 else
+        x.split('-vic-')[1].replace('https://www.realestate.com.au/property-','').replace(x.split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() if len(x.split('-vic-')) > 1 else ''
+        )
+
+    #get prop id
+    XML_gz_Dataset['prop_id']=XML_gz_Dataset['url'].apply(lambda x:
+        x.split('-')[-1]
+    )
+    XML_gz_Dataset.to_csv(gz_save_path + '/parsed_csv/' + _xml_save[:-3] + '_results' +'.csv')
     print("file saved to: " + gz_save_path + '\\parsed_csv\\' + _xml_save[:-3] + '_results' +'.csv')
     XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
+    print("total time:", time.time() - _time)
+
+
     #now we add to db table 
     #parent file link
     connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
