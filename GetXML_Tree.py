@@ -403,7 +403,7 @@ xml_parse_ender = DummyOperator( dag = xml_parse_dag, task_id='dummy_ender' )
 # if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
 XML_H_Dataset= pd.read_csv(_max_path) 
 # for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]):
-for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].iloc[0:10].shape[0]): #
+for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].iloc[0:1].shape[0]): #
 # XMLDataset[XMLDataset['filetype'].notnull()].shape[0]): 
     xml_gz_extract=PythonOperator(
             task_id='scrape_sitemap_gz_'+str(i)
