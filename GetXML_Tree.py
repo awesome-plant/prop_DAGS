@@ -74,6 +74,7 @@ def getProxy():
 
 def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
+    time.sleep(random.randint(1,10))
     ua = UserAgent()
     headers = {'User-Agent':str(ua.random)}
 
@@ -213,6 +214,7 @@ def psql_insert_copy(table, conn, keys, data_iter):
 
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print('gz file:', ScrapeFile)
+    time.sleep(random.randint(1,10))
     ua = UserAgent()
     headers = {'User-Agent':str(ua.random)}
     proxies,external_ip=getProxy()
