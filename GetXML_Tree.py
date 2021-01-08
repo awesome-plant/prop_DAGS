@@ -36,7 +36,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.utils.dates import days_ago
-from kubernetes.client import models as k8s
+# from kubernetes.client import models as k8s
 
 default_args={
     'owner': 'Airflow'
