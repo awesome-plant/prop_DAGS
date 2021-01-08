@@ -210,7 +210,7 @@ def psql_insert_copy(table, conn, keys, data_iter):
             table_name, columns)
         cur.copy_expert(sql=sql, file=s_buf)
 
-def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, **kwargs):
+def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print('gz file:', ScrapeFile)
     ua = UserAgent()
     headers = {'User-Agent':str(ua.random)}
