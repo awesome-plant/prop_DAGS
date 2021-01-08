@@ -55,7 +55,8 @@ def getProxy():
     _checkout=False
     time.sleep(random.randint(1,10))
     while _checkout==False: #_newIP != _actualIP :
-        headers = {'User-Agent':str(ua.random)}
+        #headers = {'User-Agent':str(ua.random)}
+        headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
         proxy = FreeProxy(rand=True).get()
         proxies= { 'http': proxy, 'https': proxy } 
         try:
@@ -76,7 +77,8 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     time.sleep(random.randint(1,10))
     ua = UserAgent()
-    headers = {'User-Agent':str(ua.random)}
+    #headers = {'User-Agent':str(ua.random)}
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
     proxies,H_external_ip=getProxy()
     # q = request.get('https://ident.me')
@@ -216,7 +218,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print('gz file:', ScrapeFile)
     time.sleep(random.randint(1,10))
     ua = UserAgent()
-    headers = {'User-Agent':str(ua.random)}
+    #headers = {'User-Agent':str(ua.random)}
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     proxies,external_ip=getProxy()
 
     _getPass=False
