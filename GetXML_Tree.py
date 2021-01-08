@@ -18,7 +18,7 @@ import datetime
 import time
 import requests
 from lxml import etree
-from fake_useragent import UserAgent
+# from fake_useragent import UserAgent
 from fp.fp import FreeProxy
 import pandas as pd 
 import gzip
@@ -46,7 +46,7 @@ default_args={
 def getProxy(): 
     # def here returns proxy, confirmed with different whatismyip return 
     url='https://ident.me/'
-    ua = UserAgent()
+    # ua = UserAgent()
     q=requests.get(url)
     _actualIP=q.text
     _newIP=''
@@ -76,7 +76,7 @@ def getProxy():
 def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     time.sleep(random.randint(1,10))
-    ua = UserAgent()
+    # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
@@ -217,7 +217,7 @@ def psql_insert_copy(table, conn, keys, data_iter):
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print('gz file:', ScrapeFile)
     time.sleep(random.randint(1,10))
-    ua = UserAgent()
+    # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     proxies,external_ip=getProxy()
