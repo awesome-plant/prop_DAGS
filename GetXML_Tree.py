@@ -23,6 +23,7 @@ from fp.fp import FreeProxy
 import pandas as pd 
 import gzip
 import shutil 
+import random
 #postgres db stuff 
 import psycopg2
 from sqlalchemy import create_engine
@@ -52,18 +53,18 @@ def getProxy():
     _getIP_time=time.process_time()
     _try=0
     _checkout=False
+    time.sleep(random.randint(1,10))
     while _checkout==False: #_newIP != _actualIP :
         headers = {'User-Agent':str(ua.random)}
-        start= time.process_time()
         proxy = FreeProxy(rand=True).get()
-        taken = time.process_time() - start
         proxies= { 'http': proxy, 'https': proxy } 
         try:
             r = requests.get(url, headers=headers, proxies=proxies)
             _newIP = r.text
             print("realIP is: ", _actualIP, " - proxy IP is:", _newIP, " - attempt no.", str(_try))
         except Exception as e: 
-            print('error on proxy get, try again:', e)
+            print('proxy error, sleep 1-10 try again:', e)
+            time.sleep(random.randint(1,10))
         if _actualIP !=_newIP:
             _checkout=True
         _try+=1
