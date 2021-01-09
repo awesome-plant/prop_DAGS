@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"/opt/airflow/dags/mods")
+sys.path.insert(0,"/opt/airflow/dags/mods"))
 import requests
 from lxml.html import fromstring
 import pandas as pd
