@@ -7,7 +7,7 @@ import mods.db_import as db_import
 from sqlalchemy import create_engine
 import psycopg2
 
-def preFlightProxy(timeout):
+def preFlightProxy(timeout, **kwargs):
     url = 'https://sslproxies.org/'
     response = requests.get(url)
     parser = fromstring(response.text)
@@ -28,7 +28,7 @@ def preFlightProxy(timeout):
         print("error on preflight getProxy:", e)
     return df_proxies[df_proxies['result']], result
 
-def testProxy(proxy, timeout):
+def testProxy(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     url='https://ident.me/'
@@ -50,7 +50,7 @@ def testProxy(proxy, timeout):
     print("proxy:", proxy, "- result:", result)
     return result
 
-def newProxyList(df_proxies):
+def newProxyList(df_proxies, **kwargs):
     result=False
     try:
         df_proxies['status']='ready'
