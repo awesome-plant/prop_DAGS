@@ -14,7 +14,7 @@ from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
 from airflow.utils.dates import days_ago
 
-def PreFlight(): 
+def PreFlight(**kwargs): 
     print("starting preflight")
     df_proxies, pfp_status=pf.preFlightProxy(5)
     if pfp_status==True:
