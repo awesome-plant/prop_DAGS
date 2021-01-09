@@ -3,7 +3,7 @@
 # from lxml.html import fromstring
 # import pandas as pd
 import sys
-sys.path.insert(0,"/opt/airflow/dags/mods")
+sys.path.insert(0,"/opt/airflow/dags/mods"))
 import mods.pre_flight as pf 
 #airflow bits
 from airflow import DAG
@@ -29,7 +29,7 @@ preflight_proxy = DAG(
         dag_id='preflight_proxy'
         ,default_args=default_args
         # ,schedule_interval='@hourly'
-        ,start_date=days_ago(1)
+        # ,start_date=days_ago(1)
         ,tags=['preflight_proxy']
         ,catchup=False
     )
