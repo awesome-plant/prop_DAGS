@@ -28,8 +28,12 @@ import random
 import psycopg2
 from sqlalchemy import create_engine
 from psycopg2 import Error
-import csv
-from io import StringIO
+
+#moving repetitive parts to shared folder
+import mods.db_import as db_import
+import mods.proxy as proxy
+# import csv
+# from io import StringIO
 #airflow libs
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -43,35 +47,6 @@ default_args={
     ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
     }
 
-def getProxy(): 
-    # def here returns proxy, confirmed with different whatismyip return 
-    url='https://ident.me/'
-    # ua = UserAgent()
-    q=requests.get(url)
-    _actualIP=q.text
-    _newIP=''
-    _getIP_time=time.process_time()
-    _try=0
-    _checkout=False
-    time.sleep(random.randint(1,10))
-    while _checkout==False: #_newIP != _actualIP :
-        #headers = {'User-Agent':str(ua.random)}
-        headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-        proxy = FreeProxy(rand=True).get()
-        proxies= { 'http': proxy, 'https': proxy } 
-        try:
-            r = requests.get(url, headers=headers, proxies=proxies)
-            _newIP = r.text
-            print("realIP is: ", _actualIP, " - proxy IP is:", _newIP, " - attempt no.", str(_try))
-        except Exception as e: 
-            print('proxy error, sleep 1-10 try again:', e)
-            time.sleep(random.randint(1,10))
-        if _actualIP !=_newIP:
-            _checkout=True
-        _try+=1
-    print("fin, total time", str( time.process_time() - _getIP_time ) )
-    print("realIP is: ", _actualIP, " - proxy IP is:", _newIP, " - attempt no.", str(_try))
-    return proxies, _newIP
 
 def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):  
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
@@ -80,7 +55,7 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
-    proxies,H_external_ip=getProxy()
+    proxies,H_external_ip=proxy.getProxy()
     # q = request.get('https://ident.me')
     # H_external_ip=q.text
     H_ScrapeDT=(datetime.datetime.now())
@@ -92,7 +67,7 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
             _getPass=True
         except Exception as e:
             print('error recieved, trying again:',e) 
-            proxies,H_external_ip=getProxy()
+            proxies,H_external_ip=proxy.getProxy()
 
     xmlFile=PageSaveFolder + XMLsaveFile 
     saveXML=open(xmlFile +'.xml', "w")
@@ -113,7 +88,6 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
                     , 'h_filesize_kb': int(H_FileSize)
                     } ,ignore_index=True) 
     #parse to XML 
-    result = response.content 
     #scrape variables
     _Suffix=_Filename=_LastModified=_Size=_StorageClass=_Type=""
     XML_S_Dataset=pd.DataFrame(columns =['suffix', 's_filename', 'filetype', 'lastmod', 's_filesize_kb', 'storageclass', 'h_fileid'])
@@ -164,7 +138,7 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
         name='sc_source_header'
         ,schema='sc_land'
         ,con=engine
-        ,method=psql_insert_copy
+        ,method=db_import.psql_insert_copy
         ,if_exists='append'
         ,index=False
         )
@@ -173,7 +147,7 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
         name='sc_source_file'
         ,schema='sc_land'
         ,con=engine
-        ,method=psql_insert_copy
+        ,method=db_import.psql_insert_copy
         ,if_exists='append'
         ,index=False
     )
@@ -183,36 +157,6 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
     print("fin")
     #used in next part
     # return XML_S_Dataset
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-sql-method
-def psql_insert_copy(table, conn, keys, data_iter):
-    """
-    Execute SQL statement inserting data
-
-    Parameters
-    ----------
-    table : pandas.io.sql.SQLTable
-    conn : sqlalchemy.engine.Engine or sqlalchemy.engine.Connection
-    keys : list of str
-        Column names
-    data_iter : Iterable that iterates the values to be inserted
-    """
-    # gets a DBAPI connection that can provide a cursor
-    dbapi_conn = conn.connection
-    with dbapi_conn.cursor() as cur:
-        s_buf = StringIO()
-        writer = csv.writer(s_buf)
-        writer.writerows(data_iter)
-        s_buf.seek(0)
-
-        columns = ', '.join('"{}"'.format(k) for k in keys)
-        if table.schema:
-            table_name = '{}.{}'.format(table.schema, table.name)
-        else:
-            table_name = table.name
-
-        sql = 'COPY {} ({}) FROM STDIN WITH CSV'.format(
-            table_name, columns)
-        cur.copy_expert(sql=sql, file=s_buf)
 
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print('gz file:', ScrapeFile)
@@ -220,7 +164,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    proxies,external_ip=getProxy()
+    proxies,external_ip=proxy.getProxy()
 
     _getPass=False
         #loop until it works, if it takes too long get another proxy 
@@ -230,7 +174,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
             _getPass=True
         except Exception as e:
             print('error recieved, trying again:',e) 
-            proxies,external_ip=getProxy()
+            proxies,external_ip=proxy.getProxy()
 
     print('gz file:', ScrapeFile)
     #download from sitemap, use dynamic variable 
