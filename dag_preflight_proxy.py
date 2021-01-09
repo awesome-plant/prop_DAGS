@@ -20,7 +20,7 @@ def PreFlight():
 
 default_args={
     'owner': 'Airflow'
-    ,'start_date': datetime.datetime.now() - datetime.timedelta(days=1) #yesterday
+    ,'start_date': datetime.now() - timedelta(days=1) #yesterday
     }
 
 preflight_proxy = DAG(
