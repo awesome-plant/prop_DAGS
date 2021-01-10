@@ -45,7 +45,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
-    session.get(url)
+    # session.get(baseurl)
     response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
         #     scrape_pass=True
         # except: 
