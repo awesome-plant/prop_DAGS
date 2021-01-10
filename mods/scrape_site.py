@@ -90,48 +90,36 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     for element in body:
         # if _count % 10000 == 0: 
         #     print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
-
         list_lastmod.append(element[1].text)
         list_url.append(element[0].text)
-        if '-nsw-' in element[0].text: 
-            list_state.append('nsw')
-            list_proptype.append( (element[0].text).split('-nsw-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-nsw-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-qld-' in element[0].text: 
-            list_state.append('qld')
-            list_proptype.append( (element[0].text).split('-qld-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-qld-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-tas-' in element[0].text: 
-            list_state.append('tas')
-            list_proptype.append( (element[0].text).split('-tas-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-tas-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-act-' in element[0].text: 
-            list_state.append('act')
-            list_proptype.append( (element[0].text).split('-act-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-act-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-sa-' in element[0].text: 
-            list_state.append('sa')
-            list_proptype.append( (element[0].text).split('-sa-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-sa-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-nt-' in element[0].text: 
-            list_state.append('nt')
-            list_proptype.append( (element[0].text).split('-nt-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-nt-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-wa-' in element[0].text: 
-            list_state.append('wa')
-            list_proptype.append( (element[0].text).split('-wa-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-wa-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        elif '-vic-' in element[0].text: 
-            list_state.append('vic')
-            list_proptype.append( (element[0].text).split('-vic-')[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
-            list_suburb.append( (element[0].text).split('-vic-')[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
-        else: 
-            list_url.append('')
-            list_state.append('')
-            list_suburb.append('')
+        _splitval=''
+        if '-nsw-' in element[0].text: _splitval='-nsw-'
+        # elif '+nsw+' in element[0].text: _splitval='+nsw+' 
+        elif '-qld-' in element[0].text: _splitval='-qld-'
+        # elif '+qld+' in element[0].text:  _splitval='+qld+'  
+        elif '-tas-' in element[0].text: _splitval='-tas-'
+        # elif '+tas+' in element[0].text: _splitval='+tas+'
+        elif '-act-' in element[0].text: _splitval='-act-'
+        # elif '+act+' in element[0].text: _splitval='+act+'
+        elif '-sa-' in element[0].text: _splitval='-sa-'
+        # elif '+sa+' in element[0].text: _splitval='+sa+'
+        elif '-nt-' in element[0].text: _splitval='-nt-'
+        # elif '+nt+' in element[0].text: _splitval='+nt+'
+        elif '-wa-' in element[0].text: _splitval='-wa-'
+        # elif '+wa+' in element[0].text: _splitval='+wa+'
+        elif '-vic-' in element[0].text: _splitval='-vic-'
+        # elif '+vic+' in element[0].text: _splitval='+vic+'
 
+        if _splitval !='':
+            list_state.append(_splitval.replace('-','').replace('+',''))
+            list_proptype.append( (element[0].text).split(_splitval)[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
+            list_suburb.append( (element[0].text).split(_splitval)[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
+        else: 
+            list_state.append('')
+            list_proptype.append('')
+            list_suburb.append('')
         list_propid.append( (element[0].text).split('-')[-1] )
-        _count+=1 
+        # _count+=1 
 
     XML_gz_Dataset = pd.DataFrame(
         np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
