@@ -25,7 +25,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    update=False
+    update=True
     r_proxy,prox_status=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", update)
     if prox_status==False: 
         print('error getting proxy, quitting')
