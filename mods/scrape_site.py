@@ -19,7 +19,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwargs):
-    _start = time.time()
+    _time=time.time()
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     xmlFile=PageSaveFolder + XMLsaveFile 
     with open(xmlFile +'.xml', "w") as saveXML:
@@ -66,10 +66,13 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
 
     #save to gz
     open(PageSaveFolder + gz_save_name, 'wb').write(response.content)
+    time.sleep(5)
         #feast upon that rich gooey xml 
     _xml_save = ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'  
     with gzip.open(PageSaveFolder + gz_save_name, 'rb') as f_in:
+        time.sleep(5)
         with open(PageSaveFolder + _xml_save, 'wb') as f_out: 
+            time.sleep(5)
             shutil.copyfileobj(f_in, f_out)
     tree = etree.parse(PageSaveFolder + _xml_save)
     with open(PageSaveFolder + _xml_save, "wb") as saveXML:
@@ -77,8 +80,6 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
 
     body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
     _count=1
-    _time=time.time()
-
     #now we parse and read, using lists instead of df since its A BUNCH faster
     list_lastmod=[]
     list_url=[]
