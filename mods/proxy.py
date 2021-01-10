@@ -8,10 +8,10 @@ def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs):
     try: 
         with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
             with conn.cursor() as cur:
-                cur.execute("select proxy from sc_land.SC_PROXY_RAW where status ='ready' order by table_id limit 1")
+                cur.execute("select proxy from sc_land.sc_proxy_raw where status ='ready' order by table_id limit 1")
                 result = cur.fetchone()
                 if update==True:
-                    cur.execute("update sc_land.SC_PROXY_RAW set status = 'used' where proxy = %(proxy)s",
+                    cur.execute("update sc_land.sc_proxy_raw set status = 'used' where proxy = %(proxy)s",
                         {
                             'proxy': result[0]
                         }

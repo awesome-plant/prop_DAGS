@@ -13,6 +13,10 @@ import mods.db_import as db_import
 from sqlalchemy import create_engine
 import sys
 
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     _start = time.time()
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
@@ -25,13 +29,27 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    update=True
-    r_proxy,prox_status=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", update)
+
+    r_proxy,prox_status=proxy.getProxy(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65",ps_port="5432", ps_db="scrape_db", update=True)
+ 
     if prox_status==False: 
         print('error getting proxy, quitting')
         sys.exit() 
 
-    response = requests.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+    # https://stackoverflow.com/questions/23013220/max-retries-exceeded-with-url-in-requests
+    # scrape_pass=False    
+    # while scrape_pass==False:
+    #     try:
+    session = requests.Session()
+    retry = Retry(connect=5, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    session.get(url)
+    response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+        #     scrape_pass=True
+        # except: 
+
     print('gz file:', ScrapeFile)
     gz_save_name =ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
 
@@ -157,3 +175,4 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     print("fin")
 
     print("total runtime", time.time() - _time)
+    return r_proxy
