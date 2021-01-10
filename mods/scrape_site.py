@@ -23,7 +23,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     xmlFile=PageSaveFolder + XMLsaveFile 
     with open(xmlFile +'.xml', "w") as saveXML:
-        print("done")
+        print("blank xml created")
 
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
     # time.sleep(random.randint(1,10))
@@ -42,22 +42,27 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
 
     # https://stackoverflow.com/questions/23013220/max-retries-exceeded-with-url-in-requests
     
-    session = requests.Session()
-    retry = Retry(connect=5, backoff_factor=0.5)
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+    # session = requests.Session()
+    # retry = Retry(connect=5, backoff_factor=0.5)
+    # adapter = HTTPAdapter(max_retries=retry)
+    # session.mount('http://', adapter)
+    # session.mount('https://', adapter)
     # session.get(baseurl)
-    # scrape_pass=False    
-    # while scrape_pass==False:
-    try:
-        response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
-        #     scrape_pass=True
-    except session.Timeout as e:
-        _waittime=random.randint(0,9)
-        print("timeout, wait secs before retry:", _waittime)
-        time.sleep(_waittime)
-        response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+    scrape_pass=False    
+    _loopcount=0
+    while scrape_pass==False:
+        try:
+            response = requests.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+            scrape_pass=True
+        except requests.exceptions.Timeout:
+            _waittime=+random.randint(0,9)
+            print("timeout, wait secs before retry:", _waittime)
+            time.sleep(_waittime)
+            _loopcount+=1
+        if _loopcount >=20: 
+            print("quitted after 20 tries, link:",baseurl + ScrapeFile)
+            sys.exit()
+            # response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
     gz_save_name =ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
 
     #save to gz

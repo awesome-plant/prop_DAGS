@@ -309,35 +309,35 @@ scrape_task = PythonOperator(
     )
 sitemap_starter >> scrape_task >> sitemap_ender 
 
-_max_name=''
-_max_path=''
-_max_mod= 0
+# _max_name=''
+# _max_path=''
+# _max_mod= 0
 
-# https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
-for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
-    if os.path.getmtime(x.path) > _max_mod:
-        _max_name=x.name
-        _max_path=x.path
-        _max_mod=os.path.getmtime(x.path)
+# # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
+# for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
+#     if os.path.getmtime(x.path) > _max_mod:
+#         _max_name=x.name
+#         _max_path=x.path
+#         _max_mod=os.path.getmtime(x.path)
 
 
 
-# if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
-XML_H_Dataset= pd.read_csv(_max_path) 
-# for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]):
-for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].iloc[0:5].shape[0]): #
-# XMLDataset[XMLDataset['filetype'].notnull()].shape[0]): 
-    xml_gz_extract=PythonOperator(
-            task_id='scrape_sitemap_gz_'+str(i)
-            ,provide_context=True
-            ,op_kwargs={
-                'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
-                , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
-                , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[i:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
-                ,'Scrapewait': 5
-                }
-            ,python_callable=SaveScrape
-            ,dag=xml_parse_dag
-            )
-    xml_parse_starter >> xml_gz_extract >> xml_parse_ender #a[i]
-        # starter >> scrape_task 
+# # # if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
+# # XML_H_Dataset= pd.read_csv(_max_path) 
+# # # for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]):
+# # for i in range(0, XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].iloc[0:5].shape[0]): #
+# # # XMLDataset[XMLDataset['filetype'].notnull()].shape[0]): 
+# #     xml_gz_extract=PythonOperator(
+# #             task_id='scrape_sitemap_gz_'+str(i)
+# #             ,provide_context=True
+# #             ,op_kwargs={
+# #                 'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
+# #                 , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
+# #                 , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[i:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
+# #                 ,'Scrapewait': 5
+# #                 }
+# #             ,python_callable=SaveScrape
+# #             ,dag=xml_parse_dag
+# #             )
+# #     xml_parse_starter >> xml_gz_extract >> xml_parse_ender #a[i]
+# #         # starter >> scrape_task 

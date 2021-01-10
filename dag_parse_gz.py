@@ -22,6 +22,7 @@ def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
     useProxy=''
     for i in range(0, scrape_batch.shape[0]):
         #placeholder, call function 
+        print("starting: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
         useProxy=ss.SaveScrape(
             baseurl=baseurl
             , PageSaveFolder=PageSaveFolder
@@ -29,7 +30,7 @@ def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
             , Scrapewait=Scrapewait
             , useProxy=useProxy
             )
-        print("completed: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
+        
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
