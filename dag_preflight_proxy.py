@@ -18,13 +18,13 @@ def PreFlight(**kwargs):
     print("starting preflight")
     df_proxies, pfp_status=pf.preFlightProxy(5)
     if pfp_status==True:
-        npl_status=pf.newProxyList(df_proxies)
+        npl_status=pf.newProxyList(df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db")
         if npl_status==True: 
             print("imported new proxies successfully")
 
 default_args={
     'owner': 'Airflow'
-    ,'start_date': datetime.now() - timedelta(days=1) #yesterday
+    # ,'start_date': datetime.now() - timedelta(days=1) #yesterday
     }
 
 preflight_proxy = DAG(

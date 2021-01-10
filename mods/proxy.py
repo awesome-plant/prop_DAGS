@@ -1,10 +1,34 @@
 #gets proxy address for testing 
-import time 
-import requests 
-from fp.fp import FreeProxy
-import random
+from sqlalchemy import create_engine
+import psycopg2
 
-def getProxy(): 
+def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
+    status=False
+    proxy=''
+    try: 
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+            with conn.cursor() as cur:
+                cur.execute("select proxy from sc_land.SC_PROXY_RAW where status ='ready' order by table_id limit 1")
+                result = cur.fetchone()
+                if update==True:
+                    cur.execute("update sc_land.SC_PROXY_RAW set status = 'used' where proxy = %(proxy)s",
+                        {
+                            'proxy': result[0]
+                        }
+                    )
+                    conn.commit()
+        print("proxy used is:", result[0])
+        proxy=result[0]
+        # proxy={ 
+        #     'http' : 'http://' + result[0]
+        #     ,'https' : 'https://' + result[0]
+        # }
+        status=True
+    except Exception as e: 
+        print("error on get next proxy:", e)
+    return proxy, status
+
+def oldDNU():
     # def here returns proxy, confirmed with different whatismyip return 
     url='https://ident.me/'
     # ua = UserAgent()

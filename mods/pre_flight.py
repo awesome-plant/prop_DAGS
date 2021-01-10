@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 import psycopg2
 
 def preFlightProxy(timeout, **kwargs):
+    #gets list of proxies from website, tests each one returns t/f 
     url = 'https://sslproxies.org/'
     response = requests.get(url)
     parser = fromstring(response.text)
@@ -22,7 +23,7 @@ def preFlightProxy(timeout, **kwargs):
                     IP.append(x.strip())
         df_proxies = pd.DataFrame.from_dict(IP)
         df_proxies=df_proxies.rename(columns={ df_proxies.columns[0]:'proxy'})
-        df_proxies['result']=df_proxies.apply(lambda x: testProxy(x['proxy'], 5), axis=1) 
+        df_proxies['result']=df_proxies.apply(lambda x: testProxy(x['proxy'], timeout), axis=1) 
         result=True
     except Exception as e: 
         print("error on preflight getProxy:", e)
@@ -47,10 +48,10 @@ def testProxy(proxy, timeout, **kwargs):
         pass
     if _actualIP !=_newIP:
         result=True
-    print("proxy:", proxy, "- result:", result)
+    # print("proxy:", proxy, "- result:", result)
     return result
 
-def newProxyList(df_proxies, **kwargs):
+def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     result=False
     try:
         df_proxies['status']='ready'
@@ -59,12 +60,7 @@ def newProxyList(df_proxies, **kwargs):
         # 2. truncate raw 
         # 3. import df to raw 
         #connection details here 
-        ps_user="postgres"
-        ps_pass="root"
-        ps_host="172.22.114.65"
-        ps_port="5432"
-        ps_db="scrape_db"
-
+        
         with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
             with conn.cursor() as cur:
                 cur.execute("insert into sc_land.SC_PROXY_HIS (proxy, scrape_dt, status) select proxy, now(), status from sc_land.sc_proxy_raw")
