@@ -19,7 +19,7 @@ _max_path=''
 _max_mod= 0
 
 def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
-    for i in scrape_batch.shape[0]:
+    for i in range(0, scrape_batch.shape[0]):
         #placeholder, call function 
         ss.SaveScrape(
             baseurl=baseurl
@@ -27,7 +27,7 @@ def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
             ,ScrapeFile=scrape_batch.iloc[i:i + 1].to_string(index=False).strip()
             ,Scrapewait=Scrapewait
             )
-    print("completed: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
+        print("completed: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
@@ -67,7 +67,3 @@ for i in range(0, math.ceil(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].s
             ,dag=xml_parse_dag
             )
     xml_parse_starter >> xml_gz_batch >> xml_parse_ender
-
-
-
-
