@@ -43,7 +43,7 @@ def testProxy(proxy, timeout, **kwargs):
         r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
         _newIP = r.text
         # print("realIP is: ", _actualIP, " - proxy IP is:", _newIP)
-    except Exception as e: 
+    except: 
         # print('proxy error:', e)
         pass
     if _actualIP !=_newIP:

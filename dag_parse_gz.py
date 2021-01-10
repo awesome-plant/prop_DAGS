@@ -1,18 +1,10 @@
-# from lxml import etree
 import os
+import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import mods.scrape_site as ss
 # import time
 import datetime 
 import pandas as pd
-# import numpy as np
-# import mods.proxy as proxy 
-# import requests
-# import gzip
-# import shutil
-# import psycopg2
-# from sqlalchemy import create_engine
-# from psycopg2 import Error
-
-#everything specific here needed 
 import math  
 #airflow libs
 from airflow import DAG
@@ -26,9 +18,16 @@ _max_name=''
 _max_path=''
 _max_mod= 0
 
-def print_list(scrape_batch, **kwargs):
-    print(str(type(scrape_batch)))
-
+def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
+    for i in scrape_batch.shape[0]:
+        #placeholder, call function 
+        ss.SaveScrape(
+            baseurl=baseurl
+            , PageSaveFolder=PageSaveFolder
+            ,ScrapeFile=scrape_batch.iloc[i:i + 1].to_string(index=False).strip()
+            ,Scrapewait=Scrapewait
+            )
+    print("completed: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
 for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
@@ -48,7 +47,6 @@ xml_parse_dag = DAG(
         dag_id='xml_parse_dag'
         ,default_args=default_args
         ,schedule_interval=None
-        # ,start_date=days_ago(1)
         ,tags=['get_xml_parse']
     )
 
@@ -56,16 +54,14 @@ xml_parse_starter = DummyOperator( dag = xml_parse_dag, task_id='dummy_starter' 
 xml_parse_ender = DummyOperator( dag = xml_parse_dag, task_id='dummy_ender' )
 
 for i in range(0, math.ceil(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]/batch_size)):
-    # print(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[(i*batch_size)-batch_size:(i*batch_size) + 1])
     xml_gz_batch=PythonOperator(
             task_id='scrape_sitemap_batch_'+str(i)
             ,provide_context=True
             ,op_kwargs={
                 'scrape_batch': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[(i*batch_size)-batch_size:(i*batch_size) + 1]
-            #     'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
-            #     , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
-            #     , 'ScrapeFile': XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[i:i + 1].to_string(index=False).strip() #pass in filename from filtered iteration
-            #     ,'Scrapewait': 5
+                ,'baseurl': 'https://www.realestate.com.au/xml-sitemap/'
+                , 'PageSaveFolder': '/opt/airflow/logs/XML_save_folder/gz_files/'
+                ,'Scrapewait': 5
                 }
             ,python_callable=print_list #SaveScrape
             ,dag=xml_parse_dag
