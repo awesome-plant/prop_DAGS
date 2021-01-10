@@ -18,8 +18,8 @@ import math
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.bash_operator import BashOperator
-from airflow.utils.dates import days_ago
+# from airflow.operators.bash_operator import BashOperator
+# from airflow.utils.dates import days_ago
 
 batch_size=20
 _max_name=''
@@ -50,9 +50,13 @@ xml_parse_dag = DAG(
         # ,start_date=days_ago(1)
         ,tags=['get_xml_parse']
     )
+
+xml_parse_starter = DummyOperator( dag = xml_parse_dag, task_id='dummy_starter' )
+xml_parse_ender = DummyOperator( dag = xml_parse_dag, task_id='dummy_ender' )
+
 for i in range(0, math.ceil(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].shape[0]/batch_size)):
     # print(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()]['s_filename'].iloc[(i*batch_size)-batch_size:(i*batch_size) + 1])
-    xml_gz_extract=PythonOperator(
+    xml_gz_batch=PythonOperator(
             task_id='scrape_sitemap_batch_'+str(i)
             ,provide_context=True
             ,op_kwargs={
@@ -65,9 +69,8 @@ for i in range(0, math.ceil(XML_H_Dataset[XML_H_Dataset['filetype'].notnull()].s
             ,python_callable=print_list #SaveScrape
             ,dag=xml_parse_dag
             )
+    xml_parse_starter >> xml_gz_batch >> xml_parse_ender
 
 
 
-xml_parse_starter = DummyOperator( dag = xml_parse_dag, task_id='dummy_starter' )
-xml_parse_ender = DummyOperator( dag = xml_parse_dag, task_id='dummy_ender' )
 
