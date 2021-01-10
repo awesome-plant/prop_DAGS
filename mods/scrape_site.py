@@ -5,6 +5,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import mods.proxy as proxy 
+import random
 import requests
 import gzip
 import shutil
@@ -40,25 +41,27 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
         
 
     # https://stackoverflow.com/questions/23013220/max-retries-exceeded-with-url-in-requests
-    # scrape_pass=False    
-    # while scrape_pass==False:
-    #     try:
+    
     session = requests.Session()
     retry = Retry(connect=5, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
     # session.get(baseurl)
-    response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+    # scrape_pass=False    
+    # while scrape_pass==False:
+    try:
+        response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
         #     scrape_pass=True
-        # except: 
-
-    print('gz file:', ScrapeFile)
+    except session.Timeout as e:
+        _waittime=random.randint(0,9)
+        print("timeout, wait secs before retry:", _waittime)
+        time.sleep(_waittime)
+        response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
     gz_save_name =ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
 
     #save to gz
     open(PageSaveFolder + gz_save_name, 'wb').write(response.content)
-    print("written to dir:", PageSaveFolder + gz_save_name)
         #feast upon that rich gooey xml 
     _xml_save = ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'  
     with gzip.open(PageSaveFolder + gz_save_name, 'rb') as f_in:
@@ -80,8 +83,8 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     list_suburb=[]
     list_propid=[]
     for element in body:
-        if _count % 10000 == 0: 
-            print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
+        # if _count % 10000 == 0: 
+        #     print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
 
         list_lastmod.append(element[1].text)
         list_url.append(element[0].text)
@@ -162,7 +165,6 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     #remove redundant link
     XML_gz_Dataset=XML_gz_Dataset.drop(columns=['parent_gz'])
     # #time to insert  
-    print("inserting into tables: sc_property_links")
     engine = create_engine('postgresql://postgres:root@172.22.114.65:5432/scrape_db')
     XML_gz_Dataset.to_sql(
         name='sc_property_links'
@@ -172,10 +174,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
         ,if_exists='append'
         ,index=False
         )
-    print("insert complete")
-    print('removing extracted xml file')
     os.remove(PageSaveFolder + _xml_save)
-    print("fin")
-
     print("total runtime", time.time() - _time)
+    print('----------------------------------------------------------------'))
     return r_proxy
