@@ -176,5 +176,5 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
         )
     os.remove(PageSaveFolder + _xml_save)
     print("total runtime", time.time() - _time)
-    print('----------------------------------------------------------------'))
+    print('----------------------------------------------------------------')
     return r_proxy
