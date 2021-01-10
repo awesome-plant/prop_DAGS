@@ -30,8 +30,12 @@ from sqlalchemy import create_engine
 from psycopg2 import Error
 
 #moving repetitive parts to shared folder
+import sys
+import os 
+# sys.path.insert(0,"/opt/airflow/dags/mods")
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db_import
-import mods.proxy as proxy
+import mods.proxy as proxy 
 # import csv
 # from io import StringIO
 #airflow libs
@@ -54,21 +58,12 @@ def ScrapeURL(baseurl, PageSaveFolder, Scrapewait, **kwargs):
     # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-
-    proxies,H_external_ip=proxy.getProxy()
+    proxy, status=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
     # q = request.get('https://ident.me')
     # H_external_ip=q.text
     H_ScrapeDT=(datetime.datetime.now())
-    _getPass=False
-    #loop until it works, if it takes too long get another proxy 
-    while _getPass==False:
-        try:
-            response = requests.get(baseurl,headers=headers,proxies=proxies, timeout=Scrapewait)
-            _getPass=True
-        except Exception as e:
-            print('error recieved, trying again:',e) 
-            proxies,H_external_ip=proxy.getProxy()
 
+    response = requests.get(baseurl,headers=headers,proxies=proxy, timeout=Scrapewait)
     xmlFile=PageSaveFolder + XMLsaveFile 
     saveXML=open(xmlFile +'.xml', "w")
     saveXML.close()
@@ -290,31 +285,16 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
     #remove redundant link
     XML_gz_Dataset=XML_gz_Dataset.drop(columns=['parent_gz'])
 
-    #time to insert  
-    print("inserting into tables: sc_property_links")
-    engine = create_engine('postgresql://postgres:root@172.22.114.65:5432/scrape_db')
-    XML_gz_Dataset.to_sql(
-        name='sc_property_links'
-        ,schema='sc_land'
-        ,con=engine
-        ,method=psql_insert_copy
-        ,if_exists='append'
-        ,index=False
-        )
-    print("insert complete")
-    print('removing extracted xml file')
-    os.remove(gz_save_path + _xml_save)
-    print("fin")
    
-sitemap_dag = DAG(
-        dag_id='use_getXML_Scrape'
+get_xml_scrape = DAG(
+        dag_id='get_xml_scrape'
         ,default_args=default_args
         ,schedule_interval=None
         ,start_date=days_ago(1)
         ,tags=['get_xml_scrape']
     )
-sitemap_starter = DummyOperator( dag = sitemap_dag, task_id='dummy_starter' )
-sitemap_ender = DummyOperator( dag = sitemap_dag, task_id='dummy_ender' )
+sitemap_starter = DummyOperator( dag = get_xml_scrape, task_id='dummy_starter' )
+sitemap_ender = DummyOperator( dag = get_xml_scrape, task_id='dummy_ender' )
 scrape_task = PythonOperator(
     task_id="scrape_sitemap_rawxml"
     ,provide_context=True
@@ -325,7 +305,7 @@ scrape_task = PythonOperator(
         ,'Scrapewait': 5
         }
     ,python_callable=ScrapeURL
-    ,dag = sitemap_dag
+    ,dag = get_xml_scrape
     )
 sitemap_starter >> scrape_task >> sitemap_ender 
 
@@ -340,15 +320,7 @@ for x in os.scandir('/opt/airflow/logs/XML_save_folder/raw_sitemap'):
         _max_path=x.path
         _max_mod=os.path.getmtime(x.path)
 
-xml_parse_dag = DAG(
-        dag_id='use_get_xml_parse'
-        ,default_args=default_args
-        ,schedule_interval=None
-        ,start_date=days_ago(1)
-        ,tags=['get_xml_parse']
-    )
-xml_parse_starter = DummyOperator( dag = xml_parse_dag, task_id='dummy_starter' )
-xml_parse_ender = DummyOperator( dag = xml_parse_dag, task_id='dummy_ender' )
+
 
 # if x.name == 'XML_scrape_' + (datetime.datetime.now()).strftime('%Y-%m-%d') +'.csv':
 XML_H_Dataset= pd.read_csv(_max_path) 
