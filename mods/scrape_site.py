@@ -54,15 +54,14 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
         try:
             response = requests.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
             scrape_pass=True
-        except requests.exceptions.Timeout:
-            _waittime=+random.randint(0,9)
-            print("timeout, wait secs before retry:", _waittime)
+        except: # requests.exceptions.Timeout:
+            _waittime=+random.randint(1,9)
+            print("count:",_loopcount,"-timeout, wait secs before retry:", _waittime)
             time.sleep(_waittime)
             _loopcount+=1
         if _loopcount >=20: 
-            print("quitted after 20 tries, link:",baseurl + ScrapeFile)
-            sys.exit()
-            # response = session.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
+            print("getting new proxy after 20 tries, link:",baseurl + ScrapeFile)
+            r_proxy,prox_status=proxy.getProxy(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65",ps_port="5432", ps_db="scrape_db", update=False)
     gz_save_name =ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.gz'
 
     #save to gz
