@@ -19,13 +19,15 @@ _max_path=''
 _max_mod= 0
 
 def print_list(scrape_batch, baseurl, PageSaveFolder, Scrapewait, **kwargs):
+    useProxy=''
     for i in range(0, scrape_batch.shape[0]):
         #placeholder, call function 
-        ss.SaveScrape(
+        useProxy=ss.SaveScrape(
             baseurl=baseurl
             , PageSaveFolder=PageSaveFolder
-            ,ScrapeFile=scrape_batch.iloc[i:i + 1].to_string(index=False).strip()
-            ,Scrapewait=Scrapewait
+            , ScrapeFile=scrape_batch.iloc[i:i + 1].to_string(index=False).strip()
+            , Scrapewait=Scrapewait
+            , useProxy=useProxy
             )
         print("completed: ", str(i), scrape_batch.iloc[i:i + 1].to_string(index=False).strip())
 
