@@ -26,7 +26,7 @@ _max_name=''
 _max_path=''
 _max_mod= 0
 
-def print_list(scrape_batch):
+def print_list(scrape_batch, **kwargs):
     print(scrape_batch)
 
 # https://stackoverflow.com/questions/52558018/airflow-generate-dynamic-tasks-in-single-dag-task-n1-is-dependent-on-taskn
