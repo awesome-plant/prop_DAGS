@@ -51,7 +51,7 @@ with DAG(
         , task_id="task-kube-pod"
         , image="python:rc-slim"
         , cmds=["python","-c"]
-        , arguments=["import time; print('hello world'); time.sleep(600); print('done')"]      
+        , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
         , resources={'limit_cpu' : '50m','limit_memory' : 1, 'limit_cpu': 1}  
         , labels={"foo": "bar"}
