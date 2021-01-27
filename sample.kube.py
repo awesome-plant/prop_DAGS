@@ -51,7 +51,9 @@ with DAG(
         , task_id="task-kube-pod"
         , image="python:rc-slim"
         # , cmds=["python","-c"]
-        , cmds=["apt-get update","apt-get install git", "git clone https://github.com/awesome-plant/prop_DAGS.git"]
+        , cmds=["bash", "-cx"]
+        , arguments=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
+        # , cmds=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
         # , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
         , resources={'limit_cpu' : '50m','limit_memory' : '512Mi', 'limit_cpu': 1}  
