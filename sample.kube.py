@@ -79,10 +79,6 @@ sitemap_starter >> k >> sitemap_ender
 
 
 
-# examplekubernetesoperatortriggertask-41e0ef4ac4d24a72923daf07f938bb39
-
-
-
 
 
 
