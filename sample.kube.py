@@ -17,19 +17,25 @@ from airflow.contrib.kubernetes.volume_mount import VolumeMount
 from airflow.utils.dates import days_ago
 from airflow import DAG
 
+# volume_mount = VolumeMount(
+#     'persist-xmlsave'
+#     , mount_path='/usr/local/airflow/xmlsave'
+#     , sub_path=None
+#     , read_only=False
+# )
 volume_mount = VolumeMount(
-    'persist-xmlsave'
-    , mount_path='/usr/local/airflow/xmlsave'
+    'persist-airflow-logs'
+    , mount_path='/opt/airflow/logs'
     , sub_path=None
     , read_only=False
 )
 
 volume_config= {
-    'persistentVolumeClaim': { 'claimName': 'persist-xmlsave' }
+    'persistentVolumeClaim': { 'claimName': 'persist-airflow-logs' }
     }
 
 volume = Volume(
-    name='persist-xmlsave'
+    name='persist-airflow-logs'
     , configs=volume_config
 )
 
