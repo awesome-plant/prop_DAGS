@@ -53,11 +53,11 @@ with DAG(
         , cmds=["python","-c"]
         , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
-        , resources={'limit_cpu' : '50m','limit_memory' : 1, 'limit_cpu': 1}  
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi', 'limit_cpu': 1}  
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=True
+        , is_delete_operator_pod=False
         # , priority_class_name="medium"
         , in_cluster=True
         # , get_logs=True
