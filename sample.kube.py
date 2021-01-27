@@ -52,7 +52,7 @@ with DAG(
         , image="python:rc-slim"
         # , cmds=["python","-c"]
         , cmds=["bash", "-cx"]
-        , arguments=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
+        , arguments=["apt-get update && apt-get install git -y && git clone https://github.com/awesome-plant/prop_DAGS.git"]
         # , cmds=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
         # , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
