@@ -48,12 +48,12 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     # session.mount('http://', adapter)
     # session.mount('https://', adapter)
     # session.get(baseurl)
-    scrape_pass=False    
+    _pass=False    
     _loopcount=0
-    while scrape_pass==False:
+    while _pass==False:
         try:
             response = requests.get(baseurl + ScrapeFile,headers=headers, timeout=Scrapewait, proxies= {'http' : 'http://' + r_proxy, 'https' : 'https://' + r_proxy}) #r_proxy)
-            scrape_pass=True
+            _pass=True
         except: # requests.exceptions.Timeout:
             _waittime=+random.randint(1,9)
             print("count:",_loopcount,"-timeout, wait secs before retry:", _waittime)
@@ -70,14 +70,27 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     time.sleep(5)
         #feast upon that rich gooey xml 
     _xml_save = ScrapeFile[:-7] + '_' + (datetime.datetime.now()).strftime('%Y-%m-%d') + '.xml'  
-    with gzip.open(PageSaveFolder + gz_save_name, 'rb') as f_in:
-        time.sleep(5)
-        with open(PageSaveFolder + _xml_save, 'wb') as f_out: 
-            time.sleep(5)
-            shutil.copyfileobj(f_in, f_out)
-    tree = etree.parse(PageSaveFolder + _xml_save)
-    with open(PageSaveFolder + _xml_save, "wb") as saveXML:
-        saveXML.write(etree.tostring(tree,pretty_print=True))
+    _pass=False
+    _loopcount=0
+    while _pass==False:
+        try:
+            with gzip.open(PageSaveFolder + gz_save_name, 'rb') as f_in:
+                time.sleep(5)
+                with open(PageSaveFolder + _xml_save, 'wb') as f_out: 
+                    time.sleep(5)
+                    shutil.copyfileobj(f_in, f_out)
+            tree = etree.parse(PageSaveFolder + _xml_save)
+            with open(PageSaveFolder + _xml_save, "wb") as saveXML:
+                saveXML.write(etree.tostring(tree,pretty_print=True))
+            _pass=True
+        except: 
+            _waittime=+random.randint(1,9)
+            print("count:",_loopcount,"-error extracting file, wait secs before retry:", _waittime)
+            time.sleep(_waittime)
+            _loopcount+=1
+        if _loopcount+=1:
+            print("20 tries, aborting")
+            sys.exit() 
 
     body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
     _count=1

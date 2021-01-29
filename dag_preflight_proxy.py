@@ -14,9 +14,9 @@ from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
 from airflow.utils.dates import days_ago
 
-def PreFlight(**kwargs): 
+def PreFlight(timeout, **kwargs): 
     print("starting preflight")
-    df_proxies, pfp_status=pf.preFlightProxy(5)
+    df_proxies, pfp_status=pf.preFlightProxy(timeout)
     if pfp_status==True:
         npl_status=pf.newProxyList(df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db")
         if npl_status==True: 
@@ -32,6 +32,7 @@ preflight_proxy = DAG(
         ,default_args=default_args
         # ,schedule_interval='@hourly'
         # ,start_date=days_ago(1)
+        ,op_kwargs={ 'timeout' : 10}
         ,tags=['preflight_proxy']
         ,catchup=False
     )

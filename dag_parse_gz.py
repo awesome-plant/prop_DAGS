@@ -13,7 +13,7 @@ from airflow.operators.dummy_operator import DummyOperator
 # from airflow.operators.bash_operator import BashOperator
 # from airflow.utils.dates import days_ago
 
-batch_size=20
+batch_size=10
 _max_name=''
 _max_path=''
 _max_mod= 0
