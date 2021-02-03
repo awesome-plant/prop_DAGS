@@ -173,6 +173,7 @@ def getProxy_proxy_list():
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['webage']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
+    print(df_proxy_list.head())
     browser.quit() 
 
 def getProxy_proxynova():
