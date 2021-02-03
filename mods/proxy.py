@@ -3,8 +3,6 @@ from sqlalchemy import create_engine
 import psycopg2
 import sys
 
-def test(): 
-    print('hello world')
 
 def getProxy_openproxy():
     #docker script
@@ -65,6 +63,150 @@ def getProxy_openproxy():
         columns=['proxy','webpage'])
     print(df_proxy_list.head())
 
+def getProxy_proxyscrape():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import numpy as np
+    import pandas as pd 
+
+    url='https://proxyscrape.com/free-proxy-list'#'https://api.proxyscrape.com/v2/?request=share&protocol=socks4&timeout=400&country=all&simplified=true'
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+    #get subpage urls 
+    browser.implicitly_wait(10)
+    time.sleep(5)
+
+    #close overlay if exists 
+    if len(browser.find_elements_by_xpath("//iframe[@class='HB-Takeover french-rose']")) >0: #overlay active
+        print("clearing active overlay")
+        time.sleep(15)
+        browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        browser.switch_to_frame(browser.find_element_by_xpath("//iframe[@class='HB-Takeover french-rose']"))
+        time.sleep(15)
+        click_stat=False
+        while click_stat ==False:
+            try:
+                browser.execute_script("arguments[0].click();", browser.find_element_by_class_name("icon-close"))
+                click_stat=True
+            except Exception as e: 
+                print("error sleep 10, trying again:", str(e))
+                time.sleep(10)
+        print("overlay cleared")
+    #get to proxy page
+    browser.switch_to.default_content() #swap from iframe window
+    # browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+    browser.maximize_window()
+    # https://stackoverflow.com/questions/40485157/how-to-move-range-input-using-selenium-in-python
+    en =  browser.find_element_by_id("socks4timeoutslide")
+    move = ActionChains(browser)
+    move.click_and_hold(en).move_by_offset(-95, 0).release().perform()
+    button = browser.find_element_by_id("sharesocks4") #browser.find_elements_by_class_name('downloadbtn')[1]
+    button.click()
+    #load new page
+    browser.implicitly_wait(10)
+    time.sleep(5)
+    s_scrape = browser.find_element_by_css_selector("textarea") 
+    proxylist=[] #stores IPs 
+    webpage=[] #
+    # count=0
+    for IP in (s_scrape.text).splitlines(): #add to list 
+            proxylist.append(IP)
+            webpage.append('proxy-list.download')
+    print("done scraping")
+    #now write to df 
+    df_proxy_list = pd.DataFrame(
+        np.column_stack([proxylist, webpage]), 
+        columns=['proxy','webpage'])
+    print(df_proxy_list.head())
+    browser.quit() 
+
+def getProxy_proxy_list():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import numpy as np
+    import pandas as pd 
+    url='https://www.proxy-list.download/SOCKS4'
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+    #get subpage urls 
+    browser.implicitly_wait(10)
+    time.sleep(5)
+    s_scrape = browser.find_element_by_id("downloadbtn") #browser.find_element_by_css_selector("textarea") 
+    s_scrape.click() #download as txt file 
+    df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
+    df_proxy_list['webage']='proxy-list.download'
+    browser.quit() 
+
+def getProxy_proxynova():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import numpy as np
+    import pandas as pd 
+
+    url='https://www.proxynova.com/proxy-server-list/anonymous-proxies/'
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+
+    table = browser.find_element_by_id("tbl_proxy_list")
+
+    proxylist=[]
+    webpage=[]
+    for a in table.text.splitlines():
+        if '.' in a: 
+            a_split= a.split(" ")
+            proxylist.append(a_split[0] + ":" + a_split[1])
+            webpage.append('proxynova.com')
+
+    print("done scraping")
+    #now write to df 
+    df_proxy_list = pd.DataFrame(
+        np.column_stack([proxylist, webpage]), 
+        columns=['proxy','webpage'])
+
+    print(df_proxy_list.head())
+    browser.quit()
+
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
     proxy=''
@@ -95,3 +237,12 @@ if __name__ == '__main__':
     if sys.argv[1] =='openproxy':
         print("running openproxy")
         getProxy_openproxy()
+    elif sys.argv[1] =='proxyscrape':
+        print("running proxyscrape")
+        getProxy_proxyscrape()
+    elif sys.argv[1] =='proxy_list':
+        print("running proxy_list")
+        getProxy_proxy_list()
+    elif sys.argv[1] =='proxynova':
+        print("running proxynova")
+        getProxy_proxynova()

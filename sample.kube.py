@@ -45,36 +45,77 @@ default_args = {
 
 
 with DAG(
-    dag_id='example_kube_pod',
+    dag_id='dag_get_proxies',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),
     tags=['example'],
 ) as dag:
-    k = KubernetesPodOperator(
+    openproxy = KubernetesPodOperator(
         namespace='airflow'
-        , name="scrape_test" #"airflow-test-pod"
-        , task_id="task-kube-pod"
+        , name="proxes-openproxy"
+        , task_id="proxes-openproxy"
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
-        # , cmds=["python","-c"]
         , cmds=["bash", "-cx"]
-        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py openproxy"]
-        # , cmds=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
-        # , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py openproxy"]  
         , image_pull_policy="IfNotPresent"
-        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi', 'limit_cpu': 1}  
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
         , is_delete_operator_pod=False
-        # , priority_class_name="medium"
         , in_cluster=True
-        # , get_logs=True
-
-    )
+        )
+    ,proxyscrape = KubernetesPodOperator(
+        namespace='airflow'
+        , name="proxes-proxyscrape"
+        , task_id="proxes-proxyscrape"
+        , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+        , cmds=["bash", "-cx"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxyscrape"]  
+        , image_pull_policy="IfNotPresent"
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+        , labels={"foo": "bar"}
+        , volumes=[volume]
+        , volume_mounts=[volume_mount]
+        , is_delete_operator_pod=False
+        , in_cluster=True
+        )
+    ,proxy_list = KubernetesPodOperator(
+        namespace='airflow'
+        , name="proxes-proxy_list"
+        , task_id="proxes-proxy_list"
+        , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+        , cmds=["bash", "-cx"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxy_list"]  
+        , image_pull_policy="IfNotPresent"
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+        , labels={"foo": "bar"}
+        , volumes=[volume]
+        , volume_mounts=[volume_mount]
+        , is_delete_operator_pod=False
+        , in_cluster=True
+        )
+    ,proxynova = KubernetesPodOperator(
+        namespace='airflow'
+        , name="proxes-proxynova"
+        , task_id="proxes-proxynova"
+        , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+        , cmds=["bash", "-cx"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxynova"]  
+        , image_pull_policy="IfNotPresent"
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+        , labels={"foo": "bar"}proxynova
+        , volumes=[volume]
+        , volume_mounts=[volume_mount]
+        , is_delete_operator_pod=False
+        , in_cluster=True
+        )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
-sitemap_starter >> k >> sitemap_ender 
+sitemap_starter >> openproxy >> sitemap_ender 
+sitemap_starter >> proxy_list >> sitemap_ender 
+sitemap_starter >> proxynova >> sitemap_ender 
 
 
 
