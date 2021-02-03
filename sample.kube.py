@@ -53,12 +53,12 @@ with DAG(
 ) as dag:
     k = KubernetesPodOperator(
         namespace='airflow'
-        , name="airflow-test-pod"
+        , name="scrape_test" #"airflow-test-pod"
         , task_id="task-kube-pod"
         , image="python:rc-slim"
         # , cmds=["python","-c"]
         , cmds=["bash", "-cx"]
-        , arguments=["apt-get update && apt-get install git -y && git clone https://github.com/awesome-plant/prop_DAGS.git"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py openproxy "]
         # , cmds=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
         # , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
