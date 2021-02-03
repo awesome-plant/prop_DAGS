@@ -58,7 +58,7 @@ with DAG(
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
         # , cmds=["python","-c"]
         , cmds=["bash", "-cx"]
-        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python proxy.py openproxy"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py openproxy"]
         # , cmds=["apt-get update && apt-get install git && git clone https://github.com/awesome-plant/prop_DAGS.git"]
         # , arguments=["import time; print('hello world'); time.sleep(6000); print('done')"]      
         , image_pull_policy="IfNotPresent"
