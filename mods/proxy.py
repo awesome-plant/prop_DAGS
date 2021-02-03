@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 import psycopg2
 import os 
 import sys
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+# sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db 
 
 def getProxy_openproxy():
@@ -184,7 +184,7 @@ def getProxy_proxynova():
     import datetime 
     import numpy as np
     import pandas as pd 
-    
+
     url='https://www.proxynova.com/proxy-server-list/anonymous-proxies/'
 
     chrome_options = Options()
