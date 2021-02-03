@@ -66,7 +66,7 @@ with DAG(
         , is_delete_operator_pod=False
         , in_cluster=True
         )
-    ,proxyscrape = KubernetesPodOperator(
+    proxyscrape = KubernetesPodOperator(
         namespace='airflow'
         , name="proxes-proxyscrape"
         , task_id="proxes-proxyscrape"
@@ -81,7 +81,7 @@ with DAG(
         , is_delete_operator_pod=False
         , in_cluster=True
         )
-    ,proxy_list = KubernetesPodOperator(
+    proxy_list = KubernetesPodOperator(
         namespace='airflow'
         , name="proxes-proxy_list"
         , task_id="proxes-proxy_list"
@@ -96,7 +96,7 @@ with DAG(
         , is_delete_operator_pod=False
         , in_cluster=True
         )
-    ,proxynova = KubernetesPodOperator(
+    proxynova = KubernetesPodOperator(
         namespace='airflow'
         , name="proxes-proxynova"
         , task_id="proxes-proxynova"
