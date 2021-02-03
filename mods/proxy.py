@@ -1,6 +1,7 @@
 #gets proxy address for testing 
 from sqlalchemy import create_engine
 import psycopg2
+import os 
 import sys
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db 
