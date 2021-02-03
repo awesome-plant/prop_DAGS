@@ -53,8 +53,8 @@ with DAG(
 ) as dag:
     openproxy = KubernetesPodOperator(
         namespace='airflow'
-        , name="proxes-openproxy"
-        , task_id="proxes-openproxy"
+        , name="proxies-openproxy"
+        , task_id="proxies-openproxy"
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
         , cmds=["bash", "-cx"]
         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py openproxy"]  
@@ -68,8 +68,8 @@ with DAG(
         )
     proxyscrape = KubernetesPodOperator(
         namespace='airflow'
-        , name="proxes-proxyscrape"
-        , task_id="proxes-proxyscrape"
+        , name="proxies-proxyscrape"
+        , task_id="proxies-proxyscrape"
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
         , cmds=["bash", "-cx"]
         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxyscrape"]  
@@ -83,8 +83,8 @@ with DAG(
         )
     proxy_list = KubernetesPodOperator(
         namespace='airflow'
-        , name="proxes-proxy_list"
-        , task_id="proxes-proxy_list"
+        , name="proxies-proxy_list"
+        , task_id="proxies-proxy_list"
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
         , cmds=["bash", "-cx"]
         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxy_list"]  
@@ -98,8 +98,8 @@ with DAG(
         )
     proxynova = KubernetesPodOperator(
         namespace='airflow'
-        , name="proxes-proxynova"
-        , task_id="proxes-proxynova"
+        , name="proxies-proxynova"
+        , task_id="proxies-proxynova"
         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
         , cmds=["bash", "-cx"]
         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxynova"]  
@@ -116,6 +116,7 @@ with DAG(
 sitemap_starter >> openproxy >> sitemap_ender 
 sitemap_starter >> proxy_list >> sitemap_ender 
 sitemap_starter >> proxynova >> sitemap_ender 
+sitemap_starter >> proxyscrape >> sitemap_ender 
 
 
 
