@@ -88,7 +88,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
             print("count:",_loopcount,"-error extracting file, wait secs before retry:", _waittime)
             time.sleep(_waittime)
             _loopcount+=1
-        if _loopcount+=1:
+        if _loopcount==1:
             print("20 tries, aborting")
             sys.exit() 
 

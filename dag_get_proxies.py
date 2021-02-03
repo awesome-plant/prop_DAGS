@@ -5,24 +5,14 @@ import datetime
 import os
 from airflow import models
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
-# from airflow.contrib.operators import KubernetesOperator
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.contrib.kubernetes.volume import Volume
 from airflow.contrib.kubernetes.volume_mount import VolumeMount
-# from airflow.contrib.kubernetes.volume_mount import VolumeMount
-# from airflow.contrib.kubernetes.volume import Volume
-# from airflow.contrib.operators import KubernetesOperator
-# from kubernetes.client import models as k8s
+
 from airflow.utils.dates import days_ago
 from airflow import DAG
 
-# volume_mount = VolumeMount(
-#     'persist-xmlsave'
-#     , mount_path='/usr/local/airflow/xmlsave'
-#     , sub_path=None
-#     , read_only=False
-# )
 volume_mount = VolumeMount(
     'persist-airflow-logs'
     , mount_path='/opt/airflow/logs'
@@ -63,7 +53,7 @@ with DAG(
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=False
+        , is_delete_operator_pod=True
         , in_cluster=True
         )
     proxyscrape = KubernetesPodOperator(
@@ -78,7 +68,7 @@ with DAG(
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=False
+        , is_delete_operator_pod=True
         , in_cluster=True
         )
     proxy_list = KubernetesPodOperator(
@@ -93,7 +83,7 @@ with DAG(
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=False
+        , is_delete_operator_pod=True
         , in_cluster=True
         )
     proxynova = KubernetesPodOperator(
@@ -108,7 +98,7 @@ with DAG(
         , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
-        , is_delete_operator_pod=False
+        , is_delete_operator_pod=True
         , in_cluster=True
         )
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
@@ -182,7 +172,7 @@ sitemap_starter >> proxyscrape >> sitemap_ender
                     # ,volumes=[volume]
                     # ,volume_mounts= [volumemount]
                     # # ,affinty=affinity 
-                    # ,is_delete_operator_pod=False
+                    # ,is_delete_operator_pod=True
                     # ,dag=dag
                     # )
 

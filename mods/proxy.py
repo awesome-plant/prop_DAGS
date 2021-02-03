@@ -2,20 +2,22 @@
 from sqlalchemy import create_engine
 import psycopg2
 import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import mods.db_import as db 
 
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import ActionChains
+import time 
+import datetime 
+import numpy as np
+import pandas as pd 
 
 def getProxy_openproxy():
     #docker script
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    import time 
-    import numpy as np
-    import pandas as pd 
-
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -36,6 +38,7 @@ def getProxy_openproxy():
     proxylist=[] #stores IPs 
     webpage=[] #
     proxy_list=[] #stores IP pages 
+    dt_=[]
     count=0
     #get proxy pages
     for proxy_page in ListlinkerHref:
@@ -55,24 +58,16 @@ def getProxy_openproxy():
         for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
             webpage.append(proxy_page)
+            dt_.append(datetime.datetime.now())
 
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage]), 
-        columns=['proxy','webpage'])
+        np.column_stack([proxylist, webpage,dt_]), 
+        columns=['proxy','webpage','scrape_dt'])
     print(df_proxy_list.head())
 
 def getProxy_proxyscrape():
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    import time 
-    import numpy as np
-    import pandas as pd 
 
     url='https://proxyscrape.com/free-proxy-list'#'https://api.proxyscrape.com/v2/?request=share&protocol=socks4&timeout=400&country=all&simplified=true'
     chrome_options = Options()
@@ -88,7 +83,6 @@ def getProxy_proxyscrape():
     #get subpage urls 
     browser.implicitly_wait(10)
     time.sleep(5)
-
     #close overlay if exists 
     if len(browser.find_elements_by_xpath("//iframe[@class='HB-Takeover french-rose']")) >0: #overlay active
         print("clearing active overlay")
@@ -121,28 +115,22 @@ def getProxy_proxyscrape():
     s_scrape = browser.find_element_by_css_selector("textarea") 
     proxylist=[] #stores IPs 
     webpage=[] #
+    dt_=[]
     # count=0
     for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
             webpage.append('proxy-list.download')
+            dt_.append(datetime.datetime.now())
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage]), 
-        columns=['proxy','webpage'])
+        np.column_stack([proxylist, webpage,dt_]), 
+        columns=['proxy','webpage','scrape_dt'])
     print(df_proxy_list.head())
     browser.quit() 
 
 def getProxy_proxy_list():
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    import time 
-    import numpy as np
-    import pandas as pd 
+
     url='https://www.proxy-list.download/SOCKS4'
 
     chrome_options = Options()
@@ -162,18 +150,10 @@ def getProxy_proxy_list():
     s_scrape.click() #download as txt file 
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['webage']='proxy-list.download'
+    df_proxy_list['scrape_dt']=datetime.datetime.now()
     browser.quit() 
 
 def getProxy_proxynova():
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    import time 
-    import numpy as np
-    import pandas as pd 
 
     url='https://www.proxynova.com/proxy-server-list/anonymous-proxies/'
 
@@ -192,20 +172,26 @@ def getProxy_proxynova():
 
     proxylist=[]
     webpage=[]
+    dt_=[]
     for a in table.text.splitlines():
         if '.' in a: 
             a_split= a.split(" ")
             proxylist.append(a_split[0] + ":" + a_split[1])
             webpage.append('proxynova.com')
+            dt_.append(datetime.datetime.now())
 
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage]), 
-        columns=['proxy','webpage'])
+        np.column_stack([proxylist, webpage,dt_]), 
+        columns=['proxy','webpage','scrape_dt'])
 
     print(df_proxy_list.head())
     browser.quit()
+
+def SaveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
+    # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
+    print('test')
 
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
