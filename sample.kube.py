@@ -105,7 +105,7 @@ with DAG(
         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxynova"]  
         , image_pull_policy="IfNotPresent"
         , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
-        , labels={"foo": "bar"}proxynova
+        , labels={"foo": "bar"}
         , volumes=[volume]
         , volume_mounts=[volume_mount]
         , is_delete_operator_pod=False
