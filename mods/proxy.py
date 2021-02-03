@@ -4,7 +4,7 @@ import psycopg2
 import os 
 import sys
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
-import db_import as db_import #local file
+# import db_import as db_import #local file
 # 
 
 def getProxy_openproxy():
