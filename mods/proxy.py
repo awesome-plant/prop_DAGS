@@ -6,18 +6,17 @@ import sys
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db 
 
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver import ActionChains
-import time 
-import datetime 
-import numpy as np
-import pandas as pd 
-
 def getProxy_openproxy():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import datetime 
+    import numpy as np
+    import pandas as pd 
     #docker script
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -69,6 +68,16 @@ def getProxy_openproxy():
     print(df_proxy_list.head())
 
 def getProxy_proxyscrape():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import datetime 
+    import numpy as np
+    import pandas as pd 
 
     url='https://proxyscrape.com/free-proxy-list'#'https://api.proxyscrape.com/v2/?request=share&protocol=socks4&timeout=400&country=all&simplified=true'
     chrome_options = Options()
@@ -131,6 +140,16 @@ def getProxy_proxyscrape():
     browser.quit() 
 
 def getProxy_proxy_list():
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import datetime 
+    import numpy as np
+    import pandas as pd 
 
     url='https://www.proxy-list.download/SOCKS4'
 
@@ -155,7 +174,17 @@ def getProxy_proxy_list():
     browser.quit() 
 
 def getProxy_proxynova():
-
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    import time 
+    import datetime 
+    import numpy as np
+    import pandas as pd 
+    
     url='https://www.proxynova.com/proxy-server-list/anonymous-proxies/'
 
     chrome_options = Options()
