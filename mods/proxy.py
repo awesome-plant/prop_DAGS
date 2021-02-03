@@ -169,6 +169,7 @@ def getProxy_proxy_list():
     time.sleep(5)
     s_scrape = browser.find_element_by_id("downloadbtn") #browser.find_element_by_css_selector("textarea") 
     s_scrape.click() #download as txt file 
+    time.sleep(15) #allow file to download
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['webage']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
