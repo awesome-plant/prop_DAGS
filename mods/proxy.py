@@ -26,7 +26,7 @@ def getProxy_openproxy():
     chrome_options.experimental_options["prefs"] = chrome_prefs
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
 
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+    # headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     url='https://openproxy.space/list'
     browser = webdriver.Chrome(options=chrome_options)
     browser.get(url)
@@ -93,4 +93,5 @@ def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs):
 
 if __name__ == '__main__':
     if sys.argv[1] =='openproxy':
-        print("this one")
+        print("running openproxy")
+        getProxy_openproxy()
