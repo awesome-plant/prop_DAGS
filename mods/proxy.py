@@ -3,6 +3,8 @@ from sqlalchemy import create_engine
 import psycopg2
 import os 
 import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import db_import as db_import
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 # import db_import as db_import #local file
 # 
@@ -232,10 +234,13 @@ def getProxy_proxynova():
     browser.quit()
 
 def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
-    sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
-    import db_import as db_import #local file
+     #local file
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
+    #this section does 2 things 
+    # 1. remove list of existing proxies for said host - move raw to hist
+    # 2. insert new proxies into table
     print('test')
+
 
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
