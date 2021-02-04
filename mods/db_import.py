@@ -32,7 +32,6 @@ def psql_insert_copy(table, conn, keys, data_iter):
             table_name, columns)
         cur.copy_expert(sql=sql, file=s_buf)
 
-
 def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
     #this section does 2 things 
@@ -72,7 +71,6 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         print("finished importing new proxies from:", df_proxy_list['website'].drop_duplicates().to_string(index=False).strip())
     except Exception as e:
         print("error on reflight impProxy:", e)
-
 
 def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     result=False

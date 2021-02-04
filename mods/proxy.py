@@ -61,13 +61,21 @@ def getProxy_openproxy():
             proxylist.append(IP)
             website.append(proxy_page)
             dt_.append(datetime.datetime.now())
-
-    print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_]), 
         columns=['proxy','website','scrape_dt'])
-    print(df_proxy_list.head())
+    browser.quit() 
+    print("done scraping, now writing")
+    db_import.saveProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , update='proxy-list.download'
+        , df_proxy_list=df_proxy_list
+        )
 
 def getProxy_proxyscrape():
     from selenium.webdriver.chrome.options import Options
@@ -133,13 +141,21 @@ def getProxy_proxyscrape():
             proxylist.append(IP)
             website.append('proxy-list.download')
             dt_.append(datetime.datetime.now())
-    print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_]), 
         columns=['proxy','website','scrape_dt'])
-    print(df_proxy_list.head())
     browser.quit() 
+    print("done scraping, now writing")
+    db_import.saveProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , update='proxy-list.download'
+        , df_proxy_list=df_proxy_list
+        )
 
 def getProxy_proxy_list():
     from selenium.webdriver.chrome.options import Options
@@ -210,9 +226,7 @@ def getProxy_proxynova():
     chrome_options.add_argument("--disable-popup-blocking")
     browser = webdriver.Chrome(options=chrome_options)
     browser.get(url)
-
     table = browser.find_element_by_id("tbl_proxy_list")
-
     proxylist=[]
     website=[]
     dt_=[]
@@ -222,15 +236,21 @@ def getProxy_proxynova():
             proxylist.append(a_split[0] + ":" + a_split[1])
             website.append('proxynova.com')
             dt_.append(datetime.datetime.now())
-
-    print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_]), 
         columns=['proxy','website','scrape_dt'])
-
-    print(df_proxy_list.head())
-    browser.quit()
+    browser.quit() 
+    print("done scraping, now writing")
+    db_import.saveProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , update='proxy-list.download'
+        , df_proxy_list=df_proxy_list
+        )
 
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
