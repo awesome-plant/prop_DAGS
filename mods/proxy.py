@@ -153,7 +153,6 @@ def getProxy_proxy_list():
     import pandas as pd 
 
     url='https://www.proxy-list.download/SOCKS4'
-
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -177,13 +176,14 @@ def getProxy_proxy_list():
     browser.quit() 
     print("done scraping, now writing")
     saveProxies(
-            ps_user="postgres"
-            , ps_pass="root"
-            , ps_host="172.22.114.65"
-            , ps_port="5432"
-            , ps_db="scrape_db"
-            ,df_proxy_list=df_proxy_list
-            )
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , update='proxy-list.download'
+        , df_proxy_list=df_proxy_list
+        )
 
 def getProxy_proxynova():
     from selenium.webdriver.chrome.options import Options
