@@ -51,7 +51,7 @@ def getProxy_openproxy():
     #now we get the proxies themselves
     for proxy_page in proxy_list:
         print("scraping page:", proxy_page)
-        browser.get('openproxy.space')
+        browser.get(proxy_page)
         browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         #get subpage urls 
         browser.implicitly_wait(10)
@@ -59,7 +59,7 @@ def getProxy_openproxy():
         s_scrape = browser.find_element_by_css_selector("textarea") 
         for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
-            website.append(proxy_page)
+            website.append('openproxy.space')
             dt_.append(datetime.datetime.now())
     #now write to df 
     df_proxy_list = pd.DataFrame(
