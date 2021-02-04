@@ -173,8 +173,17 @@ def getProxy_proxy_list():
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['webage']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
-    print(df_proxy_list.head())
+    # print(df_proxy_list.head())
     browser.quit() 
+    print("done scraping, now writing")
+    saveProxies(
+            ps_user="postgres"
+            , ps_pass="root"
+            , ps_host="172.22.114.65"
+            , ps_port="5432"
+            , ps_db="scrape_db"
+            ,df_proxy_list=df_proxy_list
+            )
 
 def getProxy_proxynova():
     from selenium.webdriver.chrome.options import Options
@@ -223,6 +232,8 @@ def getProxy_proxynova():
     browser.quit()
 
 def SaveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
+    sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+    import db_import as db_import #local file
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
     print('test')
 
