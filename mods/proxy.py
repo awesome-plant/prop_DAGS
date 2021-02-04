@@ -7,7 +7,6 @@ sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import db_import as db_import
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 # import db_import as db_import #local file
-# 
 
 def getProxy_openproxy():
     from selenium.webdriver.chrome.options import Options
@@ -39,7 +38,7 @@ def getProxy_openproxy():
     time.sleep(5)
     ListlinkerHref = browser.find_elements_by_xpath("//*[@href]")
     proxylist=[] #stores IPs 
-    webpage=[] #
+    website=[] #
     proxy_list=[] #stores IP pages 
     dt_=[]
     count=0
@@ -60,14 +59,14 @@ def getProxy_openproxy():
         s_scrape = browser.find_element_by_css_selector("textarea") 
         for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
-            webpage.append(proxy_page)
+            website.append(proxy_page)
             dt_.append(datetime.datetime.now())
 
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage,dt_]), 
-        columns=['proxy','webpage','scrape_dt'])
+        np.column_stack([proxylist, website,dt_]), 
+        columns=['proxy','website','scrape_dt'])
     print(df_proxy_list.head())
 
 def getProxy_proxyscrape():
@@ -127,18 +126,18 @@ def getProxy_proxyscrape():
     time.sleep(5)
     s_scrape = browser.find_element_by_css_selector("textarea") 
     proxylist=[] #stores IPs 
-    webpage=[] #
+    website=[] #
     dt_=[]
     # count=0
     for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
-            webpage.append('proxy-list.download')
+            website.append('proxy-list.download')
             dt_.append(datetime.datetime.now())
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage,dt_]), 
-        columns=['proxy','webpage','scrape_dt'])
+        np.column_stack([proxylist, website,dt_]), 
+        columns=['proxy','website','scrape_dt'])
     print(df_proxy_list.head())
     browser.quit() 
 
@@ -172,12 +171,12 @@ def getProxy_proxy_list():
     s_scrape.click() #download as txt file 
     time.sleep(15) #allow file to download
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
-    df_proxy_list['webage']='proxy-list.download'
+    df_proxy_list['website']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
     # print(df_proxy_list.head())
     browser.quit() 
     print("done scraping, now writing")
-    saveProxies(
+    db_import.saveProxies(
         ps_user="postgres"
         , ps_pass="root"
         , ps_host="172.22.114.65"
@@ -215,32 +214,23 @@ def getProxy_proxynova():
     table = browser.find_element_by_id("tbl_proxy_list")
 
     proxylist=[]
-    webpage=[]
+    website=[]
     dt_=[]
     for a in table.text.splitlines():
         if '.' in a: 
             a_split= a.split(" ")
             proxylist.append(a_split[0] + ":" + a_split[1])
-            webpage.append('proxynova.com')
+            website.append('proxynova.com')
             dt_.append(datetime.datetime.now())
 
     print("done scraping")
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, webpage,dt_]), 
-        columns=['proxy','webpage','scrape_dt'])
+        np.column_stack([proxylist, website,dt_]), 
+        columns=['proxy','website','scrape_dt'])
 
     print(df_proxy_list.head())
     browser.quit()
-
-def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
-     #local file
-    # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
-    #this section does 2 things 
-    # 1. remove list of existing proxies for said host - move raw to hist
-    # 2. insert new proxies into table
-    print('test')
-
 
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
