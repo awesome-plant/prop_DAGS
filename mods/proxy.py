@@ -5,6 +5,9 @@ import os
 import sys
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import db_import as db_import
+import requests
+import pandas as pd
+# import mods.proxy as proxy
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 # import db_import as db_import #local file
 
@@ -280,6 +283,7 @@ def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs):
 
 def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     #queries and returns total number of rows in db 
+    # amt = proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
     try: 
         with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
             with conn.cursor() as cur:
@@ -290,6 +294,40 @@ def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     except Exception as e: 
         print("error on get next proxy:", e)
     return proxy_count
+
+def testProxy(sql_start, sql_size):
+    
+    #gets list of proxies from batch size 
+    check_proxy_list = db_import.getProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , sql_start=sql_start
+        , sql_size=sql_size
+        )
+    check_proxy_list['status'] = check_proxy_list.apply(lambda x: testProxy(proxy=x['proxy'],timeout=3))
+
+def testProxy(proxy, timeout, **kwargs):
+    # def here returns proxy, confirmed with different whatismyip return 
+    #return true when dif
+    url='https://ident.me/'
+    q=requests.get(url)
+    _actualIP=q.text
+    _newIP=_actualIP
+    result=False
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
+    try:
+        r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+        _newIP = r.text
+    except: 
+        pass
+    if _actualIP !=_newIP:
+        result=True
+    # print("proxy:", proxy, "- result:", result)
+    return result
 
 if __name__ == '__main__':
     if sys.argv[1] =='openproxy':
@@ -304,3 +342,8 @@ if __name__ == '__main__':
     elif sys.argv[1] =='proxynova':
         print("running proxynova")
         getProxy_proxynova()
+    elif sys.argv[1] =='test_proxy':
+        print("testing proxies")
+        testProxy(sys.argv[2], sys.argv[3])
+
+    

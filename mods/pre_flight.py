@@ -29,27 +29,7 @@ def preFlightProxy(timeout, **kwargs):
         print("error on preflight getProxy:", e)
     return df_proxies[df_proxies['result']], result
 
-def testProxy(proxy, timeout, **kwargs):
-    # def here returns proxy, confirmed with different whatismyip return 
-    #return true when dif
-    url='https://ident.me/'
-    q=requests.get(url)
-    _actualIP=q.text
-    _newIP=_actualIP
-    result=False
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
-    try:
-        r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
-        _newIP = r.text
-        # print("realIP is: ", _actualIP, " - proxy IP is:", _newIP)
-    except: 
-        # print('proxy error:', e)
-        pass
-    if _actualIP !=_newIP:
-        result=True
-    # print("proxy:", proxy, "- result:", result)
-    return result
+
 
 def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     result=False

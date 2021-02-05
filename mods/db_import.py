@@ -117,3 +117,10 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
     except Exception as e:
         print("error on reflight impProxy:", e)
     return result
+
+def getProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
+    import pandas as pd
+    #queries db and returns list of all proxies within paramaters 
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+        check_proxy_list=pd.read_sql_query("SELECT proxy FROM sc_land.sc_proxy_raw limit " + str(sql_size) + " offset " + str(sql_start), conn)
+    return check_proxy_list 
