@@ -278,6 +278,19 @@ def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs):
         print("error on get next proxy:", e)
     return proxy, status
 
+def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
+    #queries and returns total number of rows in db 
+    try: 
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+            with conn.cursor() as cur:
+                cur.execute("select count(*) from sc_land.sc_proxy_raw")
+                result = cur.fetchone()
+        print("proxy count:", result[0])
+        proxy_count=result[0]
+    except Exception as e: 
+        print("error on get next proxy:", e)
+    return proxy_count
+
 if __name__ == '__main__':
     if sys.argv[1] =='openproxy':
         print("running openproxy")

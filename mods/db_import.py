@@ -51,12 +51,28 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         
         with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
             with conn.cursor() as cur:
-                cur.execute("insert into sc_land.SC_PROXY_HIS (proxy, website, scrape_dt) SELECT proxy, website, scrape_dt FROM sc_land.sc_proxy_raw except SELECT proxy, website, scrape_dt FROM sc_land.sc_proxy_his;")
+                cur.execute("""insert into sc_land.SC_PROXY_HIS 
+                                (proxy, website, scrape_dt) 
+                                SELECT proxy, website, scrape_dt 
+                                FROM sc_land.sc_proxy_raw 
+                                except 
+                                SELECT proxy, website, scrape_dt 
+                                FROM sc_land.sc_proxy_his
+                            """)
                 conn.commit()
                 cur.execute("delete from sc_land.sc_proxy_raw where website= %(website)s",
                         {
                             'website': df_proxy_list['website'].drop_duplicates().to_string(index=False).strip()
                         })
+                conn.commit()
+                # https://stackoverflow.com/questions/18390574/how-to-delete-duplicate-rows-in-sql-server
+                # delete duplicates 
+                cur.execute("""
+                            delete from sc_land.sc_proxy_raw a 
+                            	using sc_land.sc_proxy_raw b 
+                            	where a. table_id > b.table_id 
+                            	and a.proxy = b.proxy   
+                            """)
                 conn.commit()
         engine = create_engine('postgresql://' + ps_user + ':' + ps_pass + '@' + ps_host + ':' + ps_port + '/' + ps_db)
         df_proxy_list.to_sql(
@@ -93,7 +109,7 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
             name='sc_proxy_raw'
             ,schema='sc_land'
             ,con=engine
-            ,method=db_import.psql_insert_copy
+            ,method=psql_insert_copy
             ,if_exists='append'
             ,index=False
             )
