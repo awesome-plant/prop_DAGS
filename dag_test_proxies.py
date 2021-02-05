@@ -51,14 +51,14 @@ with DAG(
 ) as dag:
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
-    for i in range(0, math.ceil(proxy_count/batch_size)):
+    for sql_start in range(0, math.ceil(proxy_count/batch_size)):
         proxy_test = KubernetesPodOperator(
             namespace='airflow'
-            , name="proxies-test_b_" + str(i)
-            , task_id="proxies-test_b_" + str(i)
+            , name="proxies-test_b_" + str(sql_start)
+            , task_id="proxies-test_b_" + str(sql_start)
             , image="babadillo12345/airflow-plant:scrape_worker-1.1"
             , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py proxy_list"]  
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py check_Proxy " + str(sql_start) + str(batch_size)]  
             , image_pull_policy="IfNotPresent"
             , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
             , labels={"foo": "bar"}
@@ -69,13 +69,13 @@ with DAG(
             )
         sitemap_starter >> proxy_test >> sitemap_ender
 
-for i in range(0, math.ceil(proxy_count/batch_size)):
-    print("""
-    SELECT proxy
-    FROM sc_land.sc_proxy_raw 
-    limit """ + str(batch_size) + """ 
-    offset """ + str(i*batch_size) + """ 
-    """)
+# for i in range(0, math.ceil(proxy_count/batch_size)):
+#     print("""
+#     SELECT proxy
+#     FROM sc_land.sc_proxy_raw 
+#     limit """ + str(batch_size) + """ 
+#     offset """ + str(i*batch_size) + """ 
+#     """)
 
 
 # with DAG(

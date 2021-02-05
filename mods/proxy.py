@@ -295,9 +295,7 @@ def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
         print("error on get next proxy:", e)
     return proxy_count
 
-def testProxy(sql_start, sql_size):
-    
-    #gets list of proxies from batch size 
+def checkProxy(sql_start, sql_size):
     check_proxy_list = db_import.getProxies(
         ps_user="postgres"
         , ps_pass="root"
@@ -307,7 +305,17 @@ def testProxy(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
-    check_proxy_list['status'] = check_proxy_list.apply(lambda x: testProxy(proxy=x['proxy'],timeout=3))
+    #now we check they work
+    check_proxy_list['status'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3) )
+    #now we remove the blanks
+    db_import.updateProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , proxy_list = check_proxy_list[check_proxy_list['status']==False]
+        )
 
 def testProxy(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
@@ -342,8 +350,8 @@ if __name__ == '__main__':
     elif sys.argv[1] =='proxynova':
         print("running proxynova")
         getProxy_proxynova()
-    elif sys.argv[1] =='test_proxy':
-        print("testing proxies")
-        testProxy(sys.argv[2], sys.argv[3])
+    elif sys.argv[1] =='check_Proxy':
+        print("checking proxies")
+        checkProxy(sys.argv[2], sys.argv[3])
 
     
