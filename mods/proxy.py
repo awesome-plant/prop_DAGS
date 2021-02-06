@@ -339,6 +339,7 @@ def testProxy(proxy, timeout, **kwargs):
     return result
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
     parser.add_argument('-mod') #module
     parser.add_argument('-st') #sql limit
     parser.add_argument('-si') #sql offset
