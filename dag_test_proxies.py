@@ -3,6 +3,8 @@ import sys
 import os
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db_import
+import mods.proxy as proxy
+import math
 import logging
 import datetime
 from airflow import models
@@ -37,8 +39,6 @@ default_args = {
     }
 
 #get current proxies in db
-import mods.proxy as proxy
-import math
 batch_size=100
 proxy_count=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
