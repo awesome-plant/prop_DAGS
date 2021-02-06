@@ -54,6 +54,7 @@ with DAG(
 ) as dag:
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
+    split_new = DummyOperator(task_id='dummy_splitter_' + str(batch_g_size))
     # proxy_test = KubernetesPodOperator(
         #     namespace='airflow'
         #     , name="proxies-test_b_" + str(0)
