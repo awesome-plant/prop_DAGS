@@ -40,6 +40,9 @@ default_args = {
 
 #get current proxies in db
 batch_size=100
+batch_g_size=10 #used to remove that pod timeout error 
+cur_batch=0
+batch_split=1
 proxy_count=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
 with DAG(
@@ -52,38 +55,46 @@ with DAG(
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
     # proxy_test = KubernetesPodOperator(
-    #     namespace='airflow'
-    #     , name="proxies-test_b_" + str(0)
-    #     , task_id="proxies-test_b_" + str(0)
-    #     , image="babadillo12345/airflow-plant:scrape_worker-1.1"
-    #     , cmds=["bash", "-cx"]
-    #     , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(0) + " -si " + str(100)]  
-    #     , image_pull_policy="IfNotPresent"
-    #     , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
-    #     , labels={"foo": "bar"}
-    #     , volumes=[volume]
-    #     , volume_mounts=[volume_mount]
-    #     , is_delete_operator_pod=True
-    #     , in_cluster=True
-    #     )
-    # sitemap_starter >> proxy_test >> sitemap_ender
+        #     namespace='airflow'
+        #     , name="proxies-test_b_" + str(0)
+        #     , task_id="proxies-test_b_" + str(0)
+        #     , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+        #     , cmds=["bash", "-cx"]
+        #     , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(0) + " -si " + str(100)]  
+        #     , image_pull_policy="IfNotPresent"
+        #     , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+        #     , labels={"foo": "bar"}
+        #     , volumes=[volume]
+        #     , volume_mounts=[volume_mount]
+        #     , is_delete_operator_pod=True
+        #     , in_cluster=True
+        #     )
+        # sitemap_starter >> proxy_test >> sitemap_ender
+
     for sql_start in range(0, math.ceil(proxy_count/batch_size)): 
-        proxy_test = KubernetesPodOperator(
-            namespace='airflow'
-            , name="proxies-test_b_" + str(sql_start)
-            , task_id="proxies-test_b_" + str(sql_start)
-            , image="babadillo12345/airflow-plant:scrape_worker-1.1"
-            , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(0) + " -si " + str(100)]  
-            , image_pull_policy="IfNotPresent"
-            , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
-            , labels={"foo": "bar"}
-            , volumes=[volume]
-            , volume_mounts=[volume_mount]
-            , is_delete_operator_pod=True
-            , in_cluster=True
-            )
+        if sql_start >= cur_batch:
+            split_old=split_new
+            split_new = DummyOperator(task_id='dummy_splitter_' + str(batch_split))
+            cur_batch+=batch_g_size 
+            proxy_test = KubernetesPodOperator(
+                namespace='airflow'
+                , name="proxies-test_b_" + str(sql_start)
+                , task_id="proxies-test_b_" + str(sql_start)
+                , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+                , cmds=["bash", "-cx"]
+                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(0) + " -si " + str(100)]  
+                , image_pull_policy="IfNotPresent"
+                , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+                , labels={"foo": "bar"}
+                , volumes=[volume]
+                , volume_mounts=[volume_mount]
+                , is_delete_operator_pod=True
+                , in_cluster=True
+                )
+            batch_split+=1
         sitemap_starter >> proxy_test >> sitemap_ender
+
+        
 
 # for i in range(0, math.ceil(proxy_count/batch_size)):
 #     print("""
