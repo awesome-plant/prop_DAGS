@@ -52,14 +52,14 @@ proxy_count = 14390
 batch_size = 100
 split_new="split_" + str(group)
 
-for sql_start in range(0, math.ceil(proxy_count/batch_size)):
-    if count == batch_g_size:
-        split_old = split_new
-        count=0 
-        group+=1
-        split_new="split_" + str(group)
-    print("i is:", str(sql_start), "- g is:", str(group), "- c is: ", str(count), "- order is: " + split_old + " >> job_" + str(sql_start) + " >> " + split_new)
-    count+=1
+# for sql_start in range(0, math.ceil(proxy_count/batch_size)):
+#     if count == batch_g_size:
+#         split_old = split_new
+#         count=0 
+#         group+=1
+#         split_new="split_" + str(group)
+#     print("i is:", str(sql_start), "- g is:", str(group), "- c is: ", str(count), "- order is: " + split_old + " >> job_" + str(sql_start) + " >> " + split_new)
+#     count+=1
 
 with DAG(
     dag_id='dag_test_proxies',
