@@ -7,6 +7,7 @@ sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import db_import as db_import
 import requests
 import pandas as pd
+import argparse #add flags here
 # import mods.proxy as proxy
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 # import db_import as db_import #local file
@@ -338,20 +339,25 @@ def testProxy(proxy, timeout, **kwargs):
     return result
 
 if __name__ == '__main__':
-    if sys.argv[1] =='openproxy':
+    parser.add_argument('-mod') #module
+    parser.add_argument('-st') #sql limit
+    parser.add_argument('-si') #sql offset
+    args = vars(parser.parse_args())
+    if args['mod'] =='openproxy': #args['mod'] =='openproxy':
         print("running openproxy")
         getProxy_openproxy()
-    elif sys.argv[1] =='proxyscrape':
+    elif args['mod'] =='proxyscrape':
         print("running proxyscrape")
         getProxy_proxyscrape()
-    elif sys.argv[1] =='proxy_list':
+    elif args['mod'] =='proxy_list':
         print("running proxy_list")
         getProxy_proxy_list()
-    elif sys.argv[1] =='proxynova':
+    elif args['mod'] =='proxynova':
         print("running proxynova")
         getProxy_proxynova()
-    elif sys.argv[1] =='check_Proxy':
+    elif args['mod'] =='check_Proxy':
         print("checking proxies")
-        checkProxy(sys.argv[2], sys.argv[3])
+        checkProxy(args['st'], args['si'])
+            # sys.argv[2], sys.argv[3])
 
     

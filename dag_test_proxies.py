@@ -51,23 +51,39 @@ with DAG(
 ) as dag:
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
-    for sql_start in range(0, math.ceil(proxy_count/batch_size)):
-        proxy_test = KubernetesPodOperator(
-            namespace='airflow'
-            , name="proxies-test_b_" + str(sql_start)
-            , task_id="proxies-test_b_" + str(sql_start)
-            , image="babadillo12345/airflow-plant:scrape_worker-1.1"
-            , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py check_Proxy " + str(sql_start) + str(batch_size)]  
-            , image_pull_policy="IfNotPresent"
-            , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
-            , labels={"foo": "bar"}
-            , volumes=[volume]
-            , volume_mounts=[volume_mount]
-            , is_delete_operator_pod=True
-            , in_cluster=True
-            )
-        sitemap_starter >> proxy_test >> sitemap_ender
+    proxy_test = KubernetesPodOperator(
+        namespace='airflow'
+        , name="proxies-test_b_" + str(0)
+        , task_id="proxies-test_b_" + str(0)
+        , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+        , cmds=["bash", "-cx"]
+        , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py --mod check_Proxy --st " + str(0) + " --si " + str(100)]  
+        , image_pull_policy="IfNotPresent"
+        , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+        , labels={"foo": "bar"}
+        , volumes=[volume]
+        , volume_mounts=[volume_mount]
+        , is_delete_operator_pod=True
+        , in_cluster=True
+        )
+    sitemap_starter >> proxy_test >> sitemap_ender
+    # for sql_start in range(0, math.ceil(proxy_count/batch_size)):
+    #     proxy_test = KubernetesPodOperator(
+    #         namespace='airflow'
+    #         , name="proxies-test_b_" + str(sql_start)
+    #         , task_id="proxies-test_b_" + str(sql_start)
+    #         , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+    #         , cmds=["bash", "-cx"]
+    #         , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py check_Proxy " + str(sql_start) + str(batch_size)]  
+    #         , image_pull_policy="IfNotPresent"
+    #         , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+    #         , labels={"foo": "bar"}
+    #         , volumes=[volume]
+    #         , volume_mounts=[volume_mount]
+    #         , is_delete_operator_pod=True
+    #         , in_cluster=True
+    #         )
+        # sitemap_starter >> proxy_test >> sitemap_ender
 
 # for i in range(0, math.ceil(proxy_count/batch_size)):
 #     print("""
