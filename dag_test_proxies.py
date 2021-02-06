@@ -50,8 +50,6 @@ group = 1
 count= 0 
 proxy_count = 14390
 batch_size = 100
-split_new="split_" + str(group)
-
 # for sql_start in range(0, math.ceil(proxy_count/batch_size)):
 #     if count == batch_g_size:
 #         split_old = split_new
@@ -68,7 +66,8 @@ with DAG(
     start_date=days_ago(1),
     tags=['example'],
 ) as dag:
-    split_old = DummyOperator(task_id='dummy_splitter_' + str(group) )
+    split_old = DummyOperator(task_id='dummy_starter')
+    split_new = DummyOperator(task_id='dummy_splitter_' + str(group) )
     for sql_start in range(0, math.ceil(proxy_count/batch_size)):
         if count == batch_g_size:
             split_old = split_new
