@@ -67,7 +67,7 @@ with DAG(
     #     , in_cluster=True
     #     )
     # sitemap_starter >> proxy_test >> sitemap_ender
-    for sql_start in range(0, math.ceil(proxy_count/batch_size)):
+    for sql_start in range(0, math.ceil(proxy_count/batch_size)): 
         proxy_test = KubernetesPodOperator(
             namespace='airflow'
             , name="proxies-test_b_" + str(sql_start)
