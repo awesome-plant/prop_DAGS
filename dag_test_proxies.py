@@ -40,7 +40,7 @@ default_args = {
 
 #get current proxies in db
 batch_size=100
-batch_g_size=10 #used to remove that pod timeout error 
+batch_g_size=15 #used to remove that pod timeout error 
 proxy_count=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
 with DAG(
@@ -52,14 +52,14 @@ with DAG(
 ) as dag:
     group=1 
     count=0 
-    split_old = DummyOperator(task_id='dummy_starter')
-    split_new = DummyOperator(task_id='dummy_splitter_' + str(group) )
+    split_old = DummyOperator(task_id='dummy_starter',trigger_rule='all_done')
+    split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done' )
     for sql_start in range(0, math.ceil(proxy_count/batch_size)):
         if count == batch_g_size:
             split_old = split_new
             count=0 
             group+=1
-            split_new = DummyOperator(task_id='dummy_splitter_' + str(group))
+            split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done')
         proxy_test = KubernetesPodOperator(
                 namespace='airflow'
                 , name="proxies-test_b_" + str(sql_start)

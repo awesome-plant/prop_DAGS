@@ -321,21 +321,24 @@ def checkProxy(sql_start, sql_size):
 def testProxy(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
-    url='https://ident.me/'
-    q=requests.get(url)
-    _actualIP=q.text
-    _newIP=_actualIP
     result=False
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
     try:
-        r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
-        _newIP = r.text
+        url='https://ident.me/'
+        q=requests.get(url)
+        _actualIP=q.text
+        _newIP=_actualIP
+        headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+        proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
+        try:
+            r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+            _newIP = r.text
+        except: 
+            pass
+        if _actualIP !=_newIP:
+            result=True
+        # print("proxy:", proxy, "- result:", result)
     except: 
         pass
-    if _actualIP !=_newIP:
-        result=True
-    # print("proxy:", proxy, "- result:", result)
     return result
 
 if __name__ == '__main__':
