@@ -328,16 +328,16 @@ def testProxy(proxy, timeout, **kwargs):
         try:
             r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
             _newIP = r.text
-            if _actualIP !=_newIP:
+            if _actualIP !=_newIP: #IP masked
                 try: 
-                    url='https://www.realestate.com.au/'
-                    r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+                    site_url='https://www.realestate.com.au/'
+                    r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
+                    print("IP:", proxy, "-capable of scraping:",site_url)
                     result=True
                 except:
                     pass
         except: 
             pass
-        # print("proxy:", proxy, "- result:", result)
     except: 
         pass
     return result
