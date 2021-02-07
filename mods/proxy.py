@@ -340,6 +340,7 @@ def testProxy(proxy, timeout, **kwargs):
             pass
     except: 
         pass
+    if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
     return result
 
 if __name__ == '__main__':
