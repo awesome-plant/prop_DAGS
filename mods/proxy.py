@@ -304,7 +304,9 @@ def checkProxy(sql_start, sql_size):
         )
     #now we check they work
     check_proxy_list['status'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3) )
-    #now we remove the blanks
+    with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
+        print(check_proxy_list)
+    #now we write results 
     db_import.updateProxies(
         ps_user="postgres"
         , ps_pass="root"
@@ -332,7 +334,7 @@ def testProxy(proxy, timeout, **kwargs):
                 try: 
                     site_url='https://www.realestate.com.au/'
                     r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
-                    print("IP:", proxy, "-capable of scraping:",site_url)
+                    # print("IP:", proxy, "-capable of scraping:",site_url)
                     result=True
                 except:
                     pass
@@ -340,7 +342,7 @@ def testProxy(proxy, timeout, **kwargs):
             pass
     except: 
         pass
-    if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
+    # if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
     return result
 
 if __name__ == '__main__':
