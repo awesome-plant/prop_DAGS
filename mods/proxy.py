@@ -273,10 +273,6 @@ def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs):
                     conn.commit()
         print("proxy used is:", result[0])
         proxy=result[0]
-        # proxy={ 
-        #     'http' : 'http://' + result[0]
-        #     ,'https' : 'https://' + result[0]
-        # }
         status=True
     except Exception as e: 
         print("error on get next proxy:", e)
@@ -332,10 +328,15 @@ def testProxy(proxy, timeout, **kwargs):
         try:
             r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
             _newIP = r.text
+            if _actualIP !=_newIP:
+                try: 
+                    url='https://www.realestate.com.au/'
+                    r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+                    result=True
+                except:
+                    pass
         except: 
             pass
-        if _actualIP !=_newIP:
-            result=True
         # print("proxy:", proxy, "- result:", result)
     except: 
         pass
