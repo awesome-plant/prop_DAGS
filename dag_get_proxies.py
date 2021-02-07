@@ -52,7 +52,7 @@ with DAG(
             , task_id="get_prox-" + mod
             , image="babadillo12345/airflow-plant:scrape_worker-1.1"
             , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py --mod " + mod]  
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod " + mod]  
             , image_pull_policy="IfNotPresent"
             , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
             , labels={"foo": "bar"}
