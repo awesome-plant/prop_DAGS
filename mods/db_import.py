@@ -125,9 +125,9 @@ def getProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
 
-def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list):
+def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken
     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
         with conn.cursor() as cur:
-            proxy_list['proxy'].apply(lambda x: cur.execute("update sc_land.sc_proxy_raw set status = 'broken' where proxy = %(proxy)s", { 'proxy': x }) )
+            proxy_list['proxy'].apply(lambda x: cur.execute("update sc_land.sc_proxy_raw set status = '%(value)s' where proxy = %(proxy)s", { 'proxy': x, 'value': value }) )
             conn.commit()

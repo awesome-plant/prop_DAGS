@@ -314,6 +314,16 @@ def checkProxy(sql_start, sql_size):
         , ps_port="5432"
         , ps_db="scrape_db"
         , proxy_list = check_proxy_list[check_proxy_list['status']==False]
+        , value='broken'
+        )
+    db_import.updateProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , proxy_list = check_proxy_list[check_proxy_list['status']==True]
+        , value='works'
         )
 
 def testProxy(proxy, timeout, **kwargs):
