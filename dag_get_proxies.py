@@ -61,4 +61,4 @@ with DAG(
             , is_delete_operator_pod=True
             , in_cluster=True
             )
-    sitemap_starter >> proxy_mod >> sitemap_ender 
+        sitemap_starter >> proxy_mod >> sitemap_ender 
