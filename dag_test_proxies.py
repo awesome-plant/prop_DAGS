@@ -41,15 +41,13 @@ default_args = {
 #get current proxies in db
 batch_size=100
 batch_g_size=10 #used to remove that pod timeout error 
-cur_batch=0
-batch_split=1
+# cur_batch=0
+# batch_split=1
 proxy_count=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
-
 group = 1 
-
 count= 0 
-proxy_count = 14390
-batch_size = 100
+# proxy_count = 14390
+# batch_size = 100
 # for sql_start in range(0, math.ceil(proxy_count/batch_size)):
 #     if count == batch_g_size:
 #         split_old = split_new
@@ -90,4 +88,4 @@ with DAG(
                 , in_cluster=True
             )
         split_old >> proxy_test >> split_new
-    count+=1
+        count+=1
