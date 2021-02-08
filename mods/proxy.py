@@ -47,10 +47,13 @@ def getProxy_openproxy():
     dt_=[]
     count=0
     #get proxy pages
+    l_dt_val=['hour', 'minute', 'second'] #only get < 24h pages 
     for proxy_page in ListlinkerHref:
-        if "FRESH" in proxy_page.text :
-            print(count, proxy_page.get_attribute("href"))
-            proxy_list.append(proxy_page.get_attribute("href"))
+        if len(proxy_page.text) > 0: 
+            for a in (proxy_page.text).splitlines():
+                if any(val in a for val in l_dt_val):
+                    print(count, proxy_page.get_attribute("href"))
+                    proxy_list.append(proxy_page.get_attribute("href"))
         count+=1
     #now we get the proxies themselves
     for proxy_page in proxy_list:
