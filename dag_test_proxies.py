@@ -66,7 +66,7 @@ with DAG(
                 , task_id="proxies-test_b_" + str(sql_start)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.1"
                 , cmds=["bash", "-cx"]
-                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && echo SELECT proxy FROM sc_land.sc_proxy_raw order by table_id limit " + str(sql_size) + " offset " + str(sql_start*batch_size) + " && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(sql_start*batch_size) + " -si " + str(batch_size)]  
+                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && echo SELECT proxy FROM sc_land.sc_proxy_raw order by table_id limit " + str(batch_size) + " offset " + str(sql_start*batch_size) + " && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(sql_start*batch_size) + " -si " + str(batch_size)]  
                 , image_pull_policy="IfNotPresent"
                 , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
                 , labels={"foo": "bar"}
