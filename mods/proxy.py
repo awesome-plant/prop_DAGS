@@ -323,7 +323,7 @@ def checkProxy(sql_start, sql_size):
         , ps_port="5432"
         , ps_db="scrape_db"
         , proxy_list = check_proxy_list[check_proxy_list['status']==True]
-        , value='works'
+        , value='ready'
         )
 
 def testProxy(proxy, timeout, **kwargs):

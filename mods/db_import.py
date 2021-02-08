@@ -39,7 +39,7 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
     # 2. insert new proxies into table
     print('move from raw to his')
     print("importing roughly")
-    df_proxy_list['status']='ready'
+    df_proxy_list['status']='scraped'
     print(df_proxy_list.head())
 
     try:
