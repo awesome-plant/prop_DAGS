@@ -69,7 +69,7 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
                 # delete duplicates 
                 cur.execute("""delete from sc_land.sc_proxy_raw a 
                             	using sc_land.sc_proxy_raw b 
-                            	where a. table_id > b.table_id 
+                            	where a.table_id > b.table_id 
                             	and a.proxy = b.proxy   
                             """)
                 conn.commit()
