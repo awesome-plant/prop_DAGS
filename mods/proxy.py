@@ -96,7 +96,7 @@ def getProxy_proxyscrape():
     import numpy as np
     import pandas as pd 
 
-    url='https://proxyscrape.com/free-proxy-list'#'https://api.proxyscrape.com/v2/?request=share&protocol=socks4&timeout=400&country=all&simplified=true'
+    url='https://proxyscrape.com/free-proxy-list'
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -307,7 +307,10 @@ def checkProxy(sql_start, sql_size):
         )
     #now we check they work
     check_proxy_list['status'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3) )
+    check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: proxyerror(proxy=x,timeout=3) )
+
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
+        print("proxy list cols:", check_proxy_list.dtypes)
         print(check_proxy_list)
     #now we write results 
     db_import.updateProxies(
@@ -357,6 +360,35 @@ def testProxy(proxy, timeout, **kwargs):
         pass
     # if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
     return result
+
+def proxyerror(proxy, timeout, **kwargs):
+    # def here returns proxy, confirmed with different whatismyip return 
+    #return true when dif
+    result=''
+    try:
+        url='https://ident.me/'
+        q=requests.get(url)
+        _actualIP=q.text
+        _newIP=_actualIP
+        headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+        proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
+        try:
+            r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+            _newIP = r.text
+            if _actualIP !=_newIP: #IP masked
+                try: 
+                    site_url='https://www.realestate.com.au/'
+                    r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
+                    # print("IP:", proxy, "-capable of scraping:",site_url)
+                    result=True
+                except Exception as e:
+                    result='error: ' + str(e)
+        except: 
+            pass
+    except: 
+        pass
+    # if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
+    return result  
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
