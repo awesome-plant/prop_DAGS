@@ -295,6 +295,32 @@ def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
         print("error on get next proxy:", e)
     return proxy_count
 
+def get_myIP():
+    #returns current IP, uses selenium to avoid timeout risks
+    import re #used to strip html 
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+
+    url='https://ident.me/'
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+    my_ip = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
+
+    browser.quit()
+    return my_ip
+
 def checkProxy(sql_start, sql_size):
     check_proxy_list = db_import.getProxies(
         ps_user="postgres"
@@ -305,9 +331,11 @@ def checkProxy(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
+    myIP=get_myIP
+    print("myIP is:", myIP)
     #now we check they work
-    check_proxy_list['status'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3) )
-    check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: proxyerror(proxy=x,timeout=3) )
+    check_proxy_list['status'],check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3, my_ip=myIP) )
+    # check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: proxyerror(proxy=x,timeout=3) )
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
         print("proxy list cols:", check_proxy_list.dtypes)
@@ -332,34 +360,29 @@ def checkProxy(sql_start, sql_size):
         , value='ready'
         )
 
-def testProxy(proxy, timeout, **kwargs):
+def testProxy(proxy, timeout, my_ip, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     result=False
+    error=None
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
+    url='https://ident.me/'
     try:
-        url='https://ident.me/'
-        q=requests.get(url)
-        _actualIP=q.text
-        _newIP=_actualIP
-        headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-        proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
-        try:
-            r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
-            _newIP = r.text
-            if _actualIP !=_newIP: #IP masked
-                try: 
-                    site_url='https://www.realestate.com.au/'
-                    r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
-                    # print("IP:", proxy, "-capable of scraping:",site_url)
-                    result=True
-                except:
-                    pass
-        except: 
-            pass
-    except: 
-        pass
-    # if result==True: print("IP:", proxy, "-capable of scraping:",site_url)
-    return result
+        r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
+        _newIP = r.text
+        if my_ip !=_newIP: #IP masked
+            try: 
+                site_url='https://www.realestate.com.au/'
+                r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
+                result=True
+            except Exception as e:
+                error = url + '-' + str(e) 
+        else: error = url + '-no IP mask'
+    except Exception as e: 
+        error = url + '-' + str(e) 
+    print("proxy:", proxy, '-result:', result, '-error:', error)
+    return result, error
 
 def proxyerror(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
