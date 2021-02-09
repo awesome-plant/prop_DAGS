@@ -332,9 +332,9 @@ def checkProxy(sql_start, sql_size):
         , sql_size=sql_size
         )
     myIP=get_myIP
-    print("myIP is:", myIP)
+    print("myIP is:", str(myIP))
     #now we check they work
-    check_proxy_list['status'],check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3, my_ip=myIP) )
+    check_proxy_list['status'],check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3, my_ip=str(myIP)) )
     # check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: proxyerror(proxy=x,timeout=3) )
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
