@@ -18,6 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 
+
 def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwargs):
     _time=time.time()
     XMLsaveFile="XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d')
