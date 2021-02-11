@@ -375,7 +375,7 @@ def checkProxy(sql_start, sql_size):
 def testProxy(proxy, timeout, my_ip, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
-    result=False
+    status=False
     error=None
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
@@ -387,7 +387,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
             try: 
                 site_url='https://www.realestate.com.au/'
                 r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
-                result=True
+                status=True
             except Exception as e:
                 error = url + '-' + str(e) 
         else: error = url + '-no IP mask'
