@@ -332,31 +332,6 @@ def refreshIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
         except Exception as e: 
             print("error on get proxy:", e)
 
-def get_myIP():
-    #returns current IP, uses selenium to avoid timeout risks
-    import re #used to strip html 
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    url='https://ident.me/'
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_prefs = {}
-    chrome_options.experimental_options["prefs"] = chrome_prefs
-    chrome_prefs["profile.default_content_settings"] = {"images": 2}
-    chrome_options.add_argument("--disable-popup-blocking")
-    browser = webdriver.Chrome(options=chrome_options)
-    browser.get(url)
-    my_ip = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
-    browser.quit()
-    print(my_ip)
-    return my_ip
-
 def checkProxy(sql_start, sql_size):
     check_proxy_list = db_import.getProxies(
         ps_user="postgres"
@@ -367,30 +342,14 @@ def checkProxy(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
-
-    #returns current IP, uses selenium to avoid timeout risks
-    import re #used to strip html 
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver import ActionChains
-    url='https://ident.me/'
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_prefs = {}
-    chrome_options.experimental_options["prefs"] = chrome_prefs
-    chrome_prefs["profile.default_content_settings"] = {"images": 2}
-    chrome_options.add_argument("--disable-popup-blocking")
-    browser = webdriver.Chrome(options=chrome_options)
-    browser.get(url)
-    myIP = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
-    browser.quit()
- 
-    print("myIP is:", str(myIP))
+    myIP=db_import.getCurrentIP( 
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+    )
+    print("current IP is:", str(myIP))
     #now we check they work
     l_proxy=[]
     l_status=[]
