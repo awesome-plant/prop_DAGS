@@ -372,6 +372,8 @@ def checkProxy(sql_start, sql_size):
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
         print(check_proxy_list[['proxy','status','error']])
+    
+    print(str((sql_size),"proxies checked, -worked:", check_proxy_list[check_proxy_list['error'].isnull()].shape[0], "-failed:", check_proxy_list[check_proxy_list['error'].notnull()].shape[0])
     #now we write results 
     db_import.updateProxies(
         ps_user="postgres"
@@ -379,7 +381,7 @@ def checkProxy(sql_start, sql_size):
         , ps_host="172.22.114.65"
         , ps_port="5432"
         , ps_db="scrape_db"
-        , proxy_list = check_proxy_list[check_proxy_list['status']==False]
+        , proxy_list = check_proxy_list[check_proxy_list['error'].notnull()]
         , value='broken'
         )
     db_import.updateProxies(
@@ -388,7 +390,7 @@ def checkProxy(sql_start, sql_size):
         , ps_host="172.22.114.65"
         , ps_port="5432"
         , ps_db="scrape_db"
-        , proxy_list = check_proxy_list[check_proxy_list['status']==True]
+        , proxy_list = check_proxy_list[check_proxy_list['error'].isnull()]
         , value='ready'
         )
 
