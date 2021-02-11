@@ -7,6 +7,7 @@ sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import db_import as db_import
 import requests
 import pandas as pd
+import numpy as np
 import argparse #add flags here
 # import mods.proxy as proxy
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
@@ -334,12 +335,23 @@ def checkProxy(sql_start, sql_size):
     myIP=get_myIP
     print("myIP is:", str(myIP))
     #now we check they work
-    check_proxy_list['status'],check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: testProxy(proxy=x,timeout=3, my_ip=str(myIP)) )
-    # check_proxy_list['error'] = check_proxy_list['proxy'].apply(lambda x: proxyerror(proxy=x,timeout=3) )
+    l_proxy=[]
+    l_status=[]
+    l_error=[]
+    for index, row in check_proxy_list.iterrows(): #dont judge me 
+        print(row['proxy'])
+        status= error=''
+        status, error = testProxy(proxy=row['proxy'],timeout=3, my_ip=myIP)
+        l_proxy.append(row['proxy'])
+        l_status.append(status)
+        l_error.append(error)
+
+    check_proxy_list = pd.DataFrame(
+            np.column_stack([l_proxy, l_status,l_error]), 
+            columns=['proxy','status','error'])
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
-        print("proxy list cols:", check_proxy_list.dtypes)
-        print(check_proxy_list)
+        print(check_proxy_list[['proxy','status']])
     #now we write results 
     db_import.updateProxies(
         ps_user="postgres"
@@ -381,8 +393,8 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
         else: error = url + '-no IP mask'
     except Exception as e: 
         error = url + '-' + str(e) 
-    print("proxy:", proxy, '-result:', result, '-error:', error)
-    return result, error
+    # print("proxy:", proxy, '-result:', result, '-error:', error)
+    return np.array([status, error])
 
 def proxyerror(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
