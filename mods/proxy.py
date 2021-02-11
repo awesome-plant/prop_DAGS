@@ -374,9 +374,9 @@ def checkProxy(sql_start, sql_size):
         print(check_proxy_list[['proxy','status','error']])
     
     print(
-        str((sql_size),"proxies checked, -worked:"
-        , check_proxy_list[check_proxy_list['error'].isnull()].shape[0]
-        , "-failed:", check_proxy_list[check_proxy_list['error'].notnull()].shape[0])
+        str(sql_size)
+        ,"proxies checked, -worked:", str(check_proxy_list[check_proxy_list['error'].isnull()].shape[0])
+        , "-failed:", str(check_proxy_list[check_proxy_list['error'].notnull()].shape[0])
         )
     #now we write results 
     db_import.updateProxies(
