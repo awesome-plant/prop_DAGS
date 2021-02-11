@@ -134,5 +134,5 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
                 status = %(value)s 
                 error = %(error)s
                 where proxy = %(proxy)s"""
-                , { 'proxy': x['proxy'], 'value': value, 'error', x['error'] }) )
+                , { 'proxy': x['proxy'], 'value': value, 'error': x['error'] }) )
             conn.commit()
