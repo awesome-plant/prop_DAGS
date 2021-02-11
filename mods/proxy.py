@@ -305,7 +305,6 @@ def get_myIP():
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver import ActionChains
-
     url='https://ident.me/'
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -318,8 +317,8 @@ def get_myIP():
     browser = webdriver.Chrome(options=chrome_options)
     browser.get(url)
     my_ip = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
-
     browser.quit()
+    print(my_ip)
     return my_ip
 
 def checkProxy(sql_start, sql_size):
@@ -332,7 +331,29 @@ def checkProxy(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
-    myIP=get_myIP
+
+    #returns current IP, uses selenium to avoid timeout risks
+    import re #used to strip html 
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    url='https://ident.me/'
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+    myIP = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
+    browser.quit()
+ 
     print("myIP is:", str(myIP))
     #now we check they work
     l_proxy=[]
@@ -350,7 +371,7 @@ def checkProxy(sql_start, sql_size):
             columns=['proxy','status','error'])
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
-        print(check_proxy_list[['proxy','status']])
+        print(check_proxy_list[['proxy','status','error']])
     #now we write results 
     db_import.updateProxies(
         ps_user="postgres"
