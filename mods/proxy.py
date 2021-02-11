@@ -319,18 +319,15 @@ def refreshIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
     browser.get(url)
     my_ip = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
     browser.quit()
-    print(my_ip)
+    print("ip is:", my_ip)
 
     if len(my_ip) > 0: #write to db
-        try: 
-            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
-                with conn.cursor() as cur:
-                    cur.execute("truncate sc_land.sc_cur_ip")
-                    conn.commit()
-                    cur.execute("insert into sc_land.sc_cur_ip (cur_ip) VALUES('%(my_ip)c')", { 'cur_ip': my_ip })
-                    conn.commit()
-        except Exception as e: 
-            print("error on get proxy:", e)
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+            with conn.cursor() as cur:
+                cur.execute("truncate sc_land.sc_cur_ip")
+                conn.commit()
+                cur.execute("insert into sc_land.sc_cur_ip (cur_ip) VALUES(%(my_ip)c)", { 'cur_ip': my_ip })
+                conn.commit()
 
 def checkProxy(sql_start, sql_size):
     check_proxy_list = db_import.getProxies(
