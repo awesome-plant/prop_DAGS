@@ -55,8 +55,8 @@ with DAG(
     # split_old = DummyOperator(task_id='dummy_starter',trigger_rule='all_done')
     split_old = KubernetesPodOperator(
                 namespace='airflow'
-                , name="refresh_ip_" + 0
-                , task_id="refresh_ip_" + 0
+                , name="refresh_ip_" + str(0)
+                , task_id="refresh_ip_" + str(0)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.1"
                 , cmds=["bash", "-cx"]
                 , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod refresh_ip"]  
