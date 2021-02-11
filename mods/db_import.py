@@ -129,7 +129,7 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken
     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
         with conn.cursor() as cur:
-            proxy_listapply(lambda x: cur.execute("""
+            proxy_list.apply(lambda x: cur.execute("""
                 update sc_land.sc_proxy_raw set 
                 status = %(value)s 
                 error = %(error)s
