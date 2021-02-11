@@ -296,6 +296,42 @@ def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
         print("error on get next proxy:", e)
     return proxy_count
 
+def refreshIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
+    # gets current IP and writes to db
+    #get current IP 
+    import re #used to strip html 
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
+    url='https://ident.me/'
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(options=chrome_options)
+    browser.get(url)
+    my_ip = re.sub('<[^<]+?>', '', browser.page_source) #strip html 
+    browser.quit()
+    print(my_ip)
+
+    if len(my_ip) > 0: #write to db
+        try: 
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("truncate sc_land.sc_cur_ip")
+                    conn.commit()
+                    cur.execute("insert into sc_land.sc_cur_ip (cur_ip) VALUES('%(my_ip)c')", { 'cur_ip': my_ip })
+                    conn.commit()
+        except Exception as e: 
+            print("error on get proxy:", e)
+
 def get_myIP():
     #returns current IP, uses selenium to avoid timeout risks
     import re #used to strip html 
@@ -472,6 +508,9 @@ if __name__ == '__main__':
     elif args['mod'] =='check_Proxy':
         print("checking proxies")
         checkProxy(args['st'], args['si'])
-            # sys.argv[2], sys.argv[3])
+    elif args['mod']=='refresh_ip':
+        print("refreshing IP")
+        refreshIP( ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db" )
+
 
     
