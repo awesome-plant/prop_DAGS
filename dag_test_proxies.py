@@ -56,10 +56,15 @@ with DAG(
     split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done' )
     
     for sql_start in range(0, math.ceil(proxy_count/batch_size)):
-        refresh_ip = KubernetesPodOperator(
+        if count == batch_g_size:
+            split_old = split_new
+            count=0 
+            group+=1
+            split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done')
+            refresh_ip = KubernetesPodOperator(
                 namespace='airflow'
-                , name="refresh_ip_" + str(sql_start)
-                , task_id="refresh_ip_" + str(sql_start)
+                , name="refresh_ip_" + str(group)
+                , task_id="refresh_ip_" + str(group)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.1"
                 , cmds=["bash", "-cx"]
                 , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod refresh_ip"]  
@@ -71,11 +76,6 @@ with DAG(
                 , is_delete_operator_pod=True
                 , in_cluster=True
             )
-        if count == batch_g_size:
-            split_old = split_new
-            count=0 
-            group+=1
-            split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done')
         proxy_test = KubernetesPodOperator(
                 namespace='airflow'
                 , name="proxies-test_b_" + str(sql_start)
