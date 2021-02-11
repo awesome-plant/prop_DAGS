@@ -326,7 +326,7 @@ def refreshIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
             with conn.cursor() as cur:
                 cur.execute("truncate sc_land.sc_cur_ip")
                 conn.commit()
-                cur.execute("insert into sc_land.sc_cur_ip (cur_ip) VALUES(%(my_ip)c)", { 'cur_ip': my_ip })
+                cur.execute("insert into sc_land.sc_cur_ip (cur_ip) VALUES(%(my_ip)c)", { 'my_ip': my_ip })
                 conn.commit()
 
 def checkProxy(sql_start, sql_size):
