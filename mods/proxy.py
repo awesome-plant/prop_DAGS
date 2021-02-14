@@ -309,7 +309,7 @@ def getProxy_proxyscan():
         , ps_host="172.22.114.65"
         , ps_port="5432"
         , ps_db="scrape_db"
-        , update='proxy-list.download'
+        , update='proxyscan'
         , df_proxy_list=df_proxy_list
         )
 
