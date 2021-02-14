@@ -48,7 +48,7 @@ def getProxy_openproxy():
     dt_=[]
     count=0
     #get proxy pages
-    l_dt_val=['day','hour', 'minute', 'second'] #only get < 24h pages 
+    l_dt_val=['hour', 'minute', 'second'] #only get < 24h pages 
     for proxy_page in ListlinkerHref:
         if len(proxy_page.text) > 0: 
             for a in (proxy_page.text).splitlines():
