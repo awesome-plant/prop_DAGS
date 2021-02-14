@@ -408,7 +408,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
                 status=True
             except Exception as e:
                 error = url + '-' + str(e) 
-        else: error = url + '-no IP mask'
+        else: error = url + '-no IP mask -' + _newIP)
     except Exception as e: 
         error = url + '-' + str(e) 
     # print("proxy:", proxy, '-result:', result, '-error:', error)
