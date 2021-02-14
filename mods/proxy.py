@@ -511,20 +511,20 @@ if __name__ == '__main__':
     parser.add_argument('-st') #sql limit
     parser.add_argument('-si') #sql offset
     args = vars(parser.parse_args())
-    if args['mod'] =='openproxy': #args['mod'] =='openproxy':
-        print("running openproxy")
+    if args['mod'] =='open_proxy': #args['mod'] =='openproxy':
+        print("running open_proxy")
         getProxy_openproxy()
-    elif args['mod'] =='proxyscrape':
-        print("running proxyscrape")
+    elif args['mod'] =='proxy_scrape':
+        print("running proxy_scrape")
         getProxy_proxyscrape()
     elif args['mod'] =='proxy_list':
         print("running proxy_list")
         getProxy_proxy_list()
-    elif args['mod'] =='proxynova':
-        print("running proxynova")
+    elif args['mod'] =='proxy_nova':
+        print("running proxy_nova")
         getProxy_proxynova()
-    elif args['mod'] =='proxyscan':
-        print("running proxyscan")
+    elif args['mod'] =='proxy_scan':
+        print("running proxy_scan")
         getProxy_proxyscan()
     elif args['mod'] =='check_Proxy':
         print("checking proxies")
