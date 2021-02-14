@@ -261,23 +261,32 @@ def getProxy_proxynova():
         )
 
 def getProxy_proxyscan():
-    from selenium import webdriver
-    from selenium.webdriver.common.action_chains import ActionChains
+    #docker script
     from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.keys import Keys
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver import ActionChains
     import time 
-    import re
     import numpy as np
-    import pandas as pd 
-    import datetime 
+    import pandas as pd
+    import datetime  
+    import lxml
 
-    ping=300
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     url='https://www.proxyscan.io/'
+    ping=300
 
     chrome_options = Options()
-    chrome_options.add_argument("--disable-popup-blocking")
-    browser = webdriver.Chrome(executable_path=r"C:\Users\chapo\Downloads\chromedriver.exe", chrome_options=chrome_options)
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    browser = webdriver.Chrome(options=chrome_options)
+
     browser.get(url)
     #click buttons 
     browser.find_element_by_id("pingText").send_keys(str(ping))
