@@ -462,10 +462,10 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
     url='https://ident.me/'
     try:
         with requests.Session() as session:
-            retry = requests.packages.urllib3.util.retry.Retry(connect=1, backoff_factor=0.5)
-            adapter = requests.adapters.HTTPAdapter(max_retries=retry)
-            session.mount('http://', adapter)
-            session.mount('https://', adapter)
+            # retry = requests.packages.urllib3.util.retry.Retry(connect=1, backoff_factor=0.5)
+            # adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+            # session.mount('http://', adapter)
+            # session.mount('https://', adapter)
             session.headers.update(headers)
             r = session.get(url, proxies=proxies, timeout=timeout)
         # r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
