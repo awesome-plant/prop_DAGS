@@ -260,6 +260,59 @@ def getProxy_proxynova():
         , df_proxy_list=df_proxy_list
         )
 
+def getProxy_proxyscan():
+    from selenium import webdriver
+    from selenium.webdriver.common.action_chains import ActionChains
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.keys import Keys
+    import time 
+    import re
+    import numpy as np
+    import pandas as pd 
+    import datetime 
+
+    ping=300
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+    url='https://www.proxyscan.io/'
+
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-popup-blocking")
+    browser = webdriver.Chrome(executable_path=r"C:\Users\chapo\Downloads\chromedriver.exe", chrome_options=chrome_options)
+    browser.get(url)
+    #click buttons 
+    browser.find_element_by_id("pingText").send_keys(str(ping))
+    ActionChains(browser).move_to_element(browser.find_element_by_id("anonymous")).click().perform()
+    ActionChains(browser).move_to_element(browser.find_element_by_id("elite")).click().perform()
+    #scroll to bottom of page
+    sc_stat=False
+    ph=0 #page height
+    while sc_stat==False:
+        if browser.execute_script("return window.pageYOffset") <= browser.execute_script("return document.documentElement.scrollHeight"): 
+            ph = browser.execute_script("return window.pageYOffset")
+            browser.execute_script("window.scrollTo(0,document.documentElement.scrollHeight)")
+            time.sleep(1)
+            if ph == browser.execute_script("return window.pageYOffset"): 
+                sc_stat=True 
+    #get table 
+    table_MN = pd.read_html(browser.page_source)
+    filtered = table_MN[0][table_MN[0]['Anonymity']!='Transparent']
+    df_proxy_list=pd.DataFrame()
+    df_proxy_list['proxy'] = filtered['Ip Address'].astype(str) + ":" + filtered['Port'].astype(str)
+    df_proxy_list['website']='proxyscan'
+    df_proxy_list['scrape_dt']=datetime.datetime.now()
+
+    browser.quit() 
+    print("done scraping, now writing")
+    db_import.saveProxies(
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+        , update='proxy-list.download'
+        , df_proxy_list=df_proxy_list
+        )
+
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
     status=False
     proxy=''
@@ -461,6 +514,9 @@ if __name__ == '__main__':
     elif args['mod'] =='proxynova':
         print("running proxynova")
         getProxy_proxynova()
+    elif args['mod'] =='proxyscan':
+        print("running proxyscan")
+        getProxy_proxyscan()
     elif args['mod'] =='check_Proxy':
         print("checking proxies")
         checkProxy(args['st'], args['si'])

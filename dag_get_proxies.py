@@ -34,7 +34,7 @@ default_args = {
 }
 
 #iterate to run 
-l_proxy_mods=["openproxy","proxyscrape","proxy_list","proxy_nova"]
+l_proxy_mods=["openproxy","proxyscrape","proxy_list","proxy_nova","proxyscan"]
 
 with DAG(
     dag_id='dag_get_proxies',
