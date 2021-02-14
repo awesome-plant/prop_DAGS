@@ -458,7 +458,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
     status=False
     error=None
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    proxies= { 'http': 'http://' + proxy}#, 'https': 'https://' + proxy } 
+    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
     url='https://ident.me/'
     try:
         r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
