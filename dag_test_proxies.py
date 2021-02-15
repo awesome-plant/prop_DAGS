@@ -106,6 +106,7 @@ with DAG(
                 , volume_mounts=[volume_mount]
                 , is_delete_operator_pod=True
                 , in_cluster=True
+                ,trigger_rule='all_done'
             )
         proxy_test = KubernetesPodOperator(
                 namespace='airflow'
@@ -121,6 +122,7 @@ with DAG(
                 , volume_mounts=[volume_mount]
                 , is_delete_operator_pod=True
                 , in_cluster=True
+                ,trigger_rule='all_done'
             )
         split_old >> proxy_test >> split_new
         count+=1
