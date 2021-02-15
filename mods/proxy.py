@@ -455,32 +455,46 @@ def checkProxy(sql_start, sql_size):
 def testProxy(proxy, timeout, my_ip, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver import ActionChains
+    from selenium.webdriver.common.proxy import Proxy, ProxyType
     status=False
     error=None
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
-    proxies= { 'http': 'http://' + proxy, 'https': 'https://' + proxy } 
-    url='https://ident.me/'
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    browser = webdriver.Chrome(options=chrome_options)
+
+    prox = Proxy()
+    prox.proxy_type = ProxyType.MANUAL
+    prox.http_proxy = proxy
+    prox.socks_proxy = proxy
+    prox.ssl_proxy = proxy
+    url='http://ident.me/'
+
     try:
-        with requests.Session() as session:
-            # retry = requests.packages.urllib3.util.retry.Retry(connect=1, backoff_factor=0.5)
-            # adapter = requests.adapters.HTTPAdapter(max_retries=retry)
-            # session.mount('http://', adapter)
-            # session.mount('https://', adapter)
-            session.headers.update(headers)
-            r = session.get(url, proxies=proxies, timeout=timeout)
-        # r = requests.get(url, headers=headers, proxies=proxies, timeout=timeout)
-        _newIP = r.text
+        browser.set_page_load_timeout(timeout)
+        browser.get(url)
+        _newIP = browser.find_element_by_tag_name("body").text
         if my_ip !=_newIP: #IP masked
             try: 
                 site_url='https://www.realestate.com.au/'
-                r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
+                browser.get(site_url)
+                # r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
                 status=True
             except Exception as e:
                 error = url + '-' + str(e) 
         else: error = url + '-no IP mask -' + _newIP
     except Exception as e: 
         error = url + '-' + str(e) 
-    # print("proxy:", proxy, '-result:', result, '-error:', error)
+
+    browser.quit() 
     return np.array([status, error])
 
 def proxyerror(proxy, timeout, **kwargs):
