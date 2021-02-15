@@ -67,6 +67,7 @@ with DAG(
                 , volume_mounts=[volume_mount]
                 , is_delete_operator_pod=True
                 , in_cluster=True
+                ,trigger_rule='all_done'
             )
     split_new = KubernetesPodOperator(
                 namespace='airflow'
@@ -82,6 +83,7 @@ with DAG(
                 , volume_mounts=[volume_mount]
                 , is_delete_operator_pod=True
                 , in_cluster=True
+                ,trigger_rule='all_done'
             )
     
     for sql_start in range(0, math.ceil(proxy_count/batch_size)):
