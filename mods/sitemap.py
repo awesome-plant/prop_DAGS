@@ -15,29 +15,35 @@ def site_ScrapeParentURL():
     import datetime 
     import numpy as np
 
-    proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
+    scrape_status=False
+    while scrape_status==False #do until done
+        try:
+            proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--proxy-server=http://" + proxies)
-    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-    chrome_prefs = {}
-    chrome_options.experimental_options["prefs"] = chrome_prefs
-    # chrome_prefs["profile.default_content_settings"] = {"images": 2}
-    browser = webdriver.Chrome(options=chrome_options)
-    prox = Proxy()
-    prox.proxy_type = ProxyType.MANUAL
-    prox.http_proxy = proxies
-    prox.socks_proxy = proxies
-    prox.ssl_proxy = proxies
-    site_url='https://www.realestate.com.au/xml-sitemap/'
-    browser.get(site_url)
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--proxy-server=http://" + proxies)
+            chrome_options.add_argument('--blink-settings=imagesEnabled=false')
+            chrome_prefs = {}
+            chrome_options.experimental_options["prefs"] = chrome_prefs
+            # chrome_prefs["profile.default_content_settings"] = {"images": 2}
+            browser = webdriver.Chrome(options=chrome_options)
+            prox = Proxy()
+            prox.proxy_type = ProxyType.MANUAL
+            prox.http_proxy = proxies
+            prox.socks_proxy = proxies
+            prox.ssl_proxy = proxies
+            site_url='https://www.realestate.com.au/xml-sitemap/'
+            browser.get(site_url)
 
-    root = etree.fromstring(browser.page_source)
-    body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
-    browser.quit()
+            root = etree.fromstring(browser.page_source)
+            body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+            browser.quit()
+            scrape_status=True
+        except Exception as e:
+            print("prox:", str(proxies), "-error:", str(e))
 
     #header link ref
     XML_H_Dataset=pd.DataFrame({ 
