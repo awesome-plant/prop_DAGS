@@ -78,20 +78,24 @@ def site_ScrapeParentURL():
     XML_S_Dataset = pd.DataFrame(
         np.column_stack([l_suffix, l_filename, l_filetype, l_lastmod, l_filesize_kb, l_storageclass]), 
         columns=['suffix','s_filename', 'filetype', 'lastmod', 's_filesize_kb', 'storageclass'])
+        
+    print('first')
+    print(XML_S_Dataset.head())
     XML_S_Dataset['lastmod']=pd.to_datetime(XML_S_Dataset['lastmod'])
     XML_S_Dataset['s_filesize_kb']=pd.to_numeric(XML_S_Dataset['s_filesize_kb'])
 
+    print('second')
+    print(XML_S_Dataset.head())
     fileID=db_import.getFileID()
     XML_S_Dataset['h_fileid']=fileID
     XML_H_Dataset['h_fileid']=fileID
     XML_S_Dataset['h_fileid']=pd.to_numeric(XML_S_Dataset['h_fileid'])
     XML_H_Dataset['h_fileid']=pd.to_numeric(XML_H_Dataset['h_fileid'])
-    print("inserting into tables: sc_source_header, sc_source_file")
 
-    print("XML_H_Dataset")
-    print(XML_H_Dataset.head())
-    print("XML_S_Dataset")
+    print('third')
     print(XML_S_Dataset.head())
+
+    print("inserting into tables: sc_source_header, sc_source_file")
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_header', df_insert=XML_H_Dataset)
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_file', df_insert=XML_S_Dataset)
     print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxies))
