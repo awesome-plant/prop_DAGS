@@ -488,7 +488,10 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
             try: 
                 site_url='https://www.realestate.com.au/'
                 browser.get(site_url)
-                # r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
+                if len(browser.page_source) > 50: 
+                    #returned proper front page
+                    status=True  #holy shit it actually worked
+                else: error = url + '-bot blocked -' + _newIP
                 status=True                
             except Exception as e:
                 error = url + '-' + str(e) 
