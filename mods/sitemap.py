@@ -88,6 +88,10 @@ def site_ScrapeParentURL():
     XML_H_Dataset['h_fileid']=pd.to_numeric(XML_H_Dataset['h_fileid'])
     print("inserting into tables: sc_source_header, sc_source_file")
 
+    print("XML_H_Dataset")
+    print(XML_H_Dataset.head())
+    print("XML_S_Dataset")
+    print(XML_S_Dataset.head())
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_header', df_insert=XML_H_Dataset)
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_file', df_insert=XML_S_Dataset)
     print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxies))
