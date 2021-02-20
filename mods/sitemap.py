@@ -84,7 +84,7 @@ def site_ScrapeParentURL():
 
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_header', df_insert=XML_H_Dataset)
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_file', df_insert=XML_S_Dataset)
-    print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxy))
+    print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxies))
 
 
 # def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
