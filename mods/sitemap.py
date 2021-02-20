@@ -15,6 +15,14 @@ def site_ScrapeParentURL():
     import datetime 
     import numpy as np
 
+    #header link ref
+    XML_H_Dataset=pd.DataFrame({ 
+        'external_ip': str(proxies)
+        , 'h_filename': str("XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d'))
+        , 'scrape_dt': (datetime.datetime.now())
+        },index=[0]
+    )
+
     scrape_status=False
     while scrape_status==False: #do until done
         try:
@@ -41,18 +49,11 @@ def site_ScrapeParentURL():
             root = etree.fromstring(browser.page_source)
             body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
             browser.quit()
-            scrape_status=True
+            if len(browser.page_source) > 39: #actually worked
+                scrape_status=True
+            else: print("bot blocked ip:", str(proxies))
         except Exception as e:
             print("prox:", str(proxies), "-error:", str(e))
-
-    #header link ref
-    XML_H_Dataset=pd.DataFrame({ 
-        'external_ip': str(proxies)
-        , 'h_filename': str("XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d'))
-        , 'scrape_dt': (datetime.datetime.now())
-        },index=[0]
-    )
-
     #now we read/parse the xml
     l_suffix=[]
     l_filename=[]
@@ -78,7 +79,7 @@ def site_ScrapeParentURL():
     XML_S_Dataset = pd.DataFrame(
         np.column_stack([l_suffix, l_filename, l_filetype, l_lastmod, l_filesize_kb, l_storageclass]), 
         columns=['suffix','s_filename', 'filetype', 'lastmod', 's_filesize_kb', 'storageclass'])
-        
+
     print('first')
     print(XML_S_Dataset.head())
     XML_S_Dataset['lastmod']=pd.to_datetime(XML_S_Dataset['lastmod'])
