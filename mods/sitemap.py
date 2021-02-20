@@ -16,7 +16,7 @@ def site_ScrapeParentURL():
     import numpy as np
 
     scrape_status=False
-    while scrape_status==False #do until done
+    while scrape_status==False: #do until done
         try:
             proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
 
