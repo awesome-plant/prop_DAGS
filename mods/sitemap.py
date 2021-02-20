@@ -1,8 +1,8 @@
 import os
 import sys
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
-import mods.db_import as db_import
-import mods.proxy as proxy 
+import db_import as db_import
+import proxy as proxy 
 import argparse #add flags here
 
 def site_ScrapeParentURL():  
