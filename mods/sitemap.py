@@ -223,8 +223,7 @@ def site_ScrapeParentURL():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-mod') #module
-    # parser.add_argument('-st') #sql limit
-    # parser.add_argument('-si') #sql offset
+    args = vars(parser.parse_args())
     if args['mod'] =='scrape_parent': #args['mod'] =='openproxy':
         print("running scrape_url")
         site_ScrapeParentURL()
