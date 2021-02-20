@@ -15,14 +15,13 @@ def site_ScrapeParentURL():
     import datetime 
     import numpy as np
 
-    baseurl='https://www.realestate.com.au/xml-sitemap/'
-    proxy=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
+    proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--proxy-server=http://" + proxy)
+    chrome_options.add_argument("--proxy-server=http://" + proxies)
     chrome_options.add_argument('--blink-settings=imagesEnabled=false')
     chrome_prefs = {}
     chrome_options.experimental_options["prefs"] = chrome_prefs
@@ -30,9 +29,9 @@ def site_ScrapeParentURL():
     browser = webdriver.Chrome(options=chrome_options)
     prox = Proxy()
     prox.proxy_type = ProxyType.MANUAL
-    prox.http_proxy = proxy
-    prox.socks_proxy = proxy
-    prox.ssl_proxy = proxy
+    prox.http_proxy = proxies
+    prox.socks_proxy = proxies
+    prox.ssl_proxy = proxies
     site_url='https://www.realestate.com.au/xml-sitemap/'
     browser.get(site_url)
 
@@ -42,7 +41,7 @@ def site_ScrapeParentURL():
 
     #header link ref
     XML_H_Dataset=pd.DataFrame({ 
-        'external_ip': str(proxy)
+        'external_ip': str(proxies)
         , 'h_filename': str("XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d'))
         , 'scrape_dt': (datetime.datetime.now())
         },index=[0]
