@@ -15,14 +15,6 @@ def site_ScrapeParentURL():
     import datetime 
     import numpy as np
 
-    #header link ref
-    XML_H_Dataset=pd.DataFrame({ 
-        'external_ip': str(proxies)
-        , 'h_filename': str("XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d'))
-        , 'scrape_dt': (datetime.datetime.now())
-        },index=[0]
-    )
-
     scrape_status=False
     while scrape_status==False: #do until done
         try:
@@ -55,6 +47,15 @@ def site_ScrapeParentURL():
         except Exception as e:
             print("prox:", str(proxies), "-error:", str(e))
     #now we read/parse the xml
+
+    #header link ref
+    XML_H_Dataset=pd.DataFrame({ 
+        'external_ip': str(proxies)
+        , 'h_filename': str("XML_scrape_" + (datetime.datetime.now()).strftime('%Y-%m-%d'))
+        , 'scrape_dt': (datetime.datetime.now())
+        },index=[0]
+    )
+
     l_suffix=[]
     l_filename=[]
     l_filetype=[]
