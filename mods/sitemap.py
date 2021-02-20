@@ -19,7 +19,6 @@ def site_ScrapeParentURL():
     while scrape_status==False: #do until done
         try:
             proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
-
             chrome_options = Options()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
@@ -46,6 +45,7 @@ def site_ScrapeParentURL():
             else: print("bot blocked ip:", str(proxies))
         except Exception as e:
             print("prox:", str(proxies), "-error:", str(e))
+            browser.quit()
     #now we read/parse the xml
 
     #header link ref
