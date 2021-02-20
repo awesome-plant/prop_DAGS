@@ -323,26 +323,26 @@ def getProxy_proxyscan():
         )
 
 def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
-    status=False
+    # status=False
     proxy=''
-    try: 
-        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
-            with conn.cursor() as cur:
-                cur.execute("select proxy from sc_land.sc_proxy_raw where status ='ready' order by table_id limit 1")
-                result = cur.fetchone()
-                if update==True:
-                    cur.execute("update sc_land.sc_proxy_raw set status = 'used' where proxy = %(proxy)s",
-                        {
-                            'proxy': result[0]
-                        }
-                    )
-                    conn.commit()
-        print("proxy used is:", result[0])
-        proxy=result[0]
-        status=True
-    except Exception as e: 
-        print("error on get next proxy:", e)
-    return proxy, status
+    # try: 
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+        with conn.cursor() as cur:
+            cur.execute("select proxy from sc_land.sc_proxy_raw where status ='ready' order by table_id limit 1")
+            result = cur.fetchone()
+            if update==True:
+                cur.execute("update sc_land.sc_proxy_raw set status = 'used' where proxy = %(proxy)s",
+                    {
+                        'proxy': result[0]
+                    }
+                )
+                conn.commit()
+    print("proxy used is:", result[0])
+    proxy=result[0]
+    # status=True
+    # except Exception as e: 
+    #     print("error on get next proxy:", e)
+    return proxy #, status
 
 def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     #queries and returns total number of rows in db 
@@ -467,9 +467,10 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--proxy-server=http://" + proxy)
+    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
     chrome_prefs = {}
     chrome_options.experimental_options["prefs"] = chrome_prefs
-    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    # chrome_prefs["profile.default_content_settings"] = {"images": 2}
     browser = webdriver.Chrome(options=chrome_options)
 
     prox = Proxy()
@@ -488,7 +489,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
                 site_url='https://www.realestate.com.au/'
                 browser.get(site_url)
                 # r = requests.get(site_url, headers=headers, proxies=proxies, timeout=timeout)
-                status=True
+                status=True                
             except Exception as e:
                 error = url + '-' + str(e) 
         else: error = url + '-no IP mask -' + _newIP

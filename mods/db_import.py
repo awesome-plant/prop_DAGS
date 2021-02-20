@@ -32,6 +32,16 @@ def psql_insert_copy(table, conn, keys, data_iter):
             table_name, columns)
         cur.copy_expert(sql=sql, file=s_buf)
 
+def insertData(ps_user, ps_pass, ps_host, ps_port, ps_db, table, df_insert):
+    engine = create_engine('postgresql://' + ps_user + ':' + ps_pass + '@' + ps_host + ':' + ps_port + '/' + ps_db)
+        df_insert.to_sql(
+            name=table
+            ,schema='sc_land'
+            ,con=engine
+            ,method=psql_insert_copy
+            ,if_exists='append'
+            ,index=False
+            )
 def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
     #this section does 2 things 
@@ -86,6 +96,13 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         print("finished importing new proxies from:", df_proxy_list['website'].drop_duplicates().to_string(index=False).strip())
     except Exception as e:
         print("error on reflight impProxy:", e)
+
+def getFileID():
+    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT coalesce(max(H_FILEID), 0) + 1 as h_fileid from sc_land.SC_SOURCE_HEADER")
+    h_fileid = cursor.fetchone() #next iteration of file ID 
+    return h_fileid[0]
 
 def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     result=False
