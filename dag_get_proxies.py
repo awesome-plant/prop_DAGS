@@ -30,7 +30,8 @@ volume = Volume(
 )
 
 default_args = {
-    'owner': 'airflow',
+    'owner': 'airflow'
+    ,'retries': 1
 }
 
 #iterate to run 
@@ -50,7 +51,7 @@ with DAG(
             namespace='airflow'
             , name="get_prox-" + mod
             , task_id="get_prox-" + mod
-            , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+            , image="babadillo12345/airflow-plant:scrape_worker-1.2"
             , cmds=["bash", "-cx"]
             , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod " + mod]  
             , image_pull_policy="IfNotPresent"

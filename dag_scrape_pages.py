@@ -34,8 +34,9 @@ volume = Volume(
     )
 
 default_args = {
-    'owner': 'airflow',
-    }
+    'owner': 'airflow'
+    ,'retries': 1
+}
 
 
 batch_size=150
@@ -63,7 +64,7 @@ with DAG(
                 namespace='airflow'
                 , name="proxies-test_b_" + str(sql_start)
                 , task_id="proxies-test_b_" + str(sql_start)
-                , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+                , image="babadillo12345/airflow-plant:scrape_worker-1.2"
                 , cmds=["bash", "-cx"]
                 , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(sql_start) + " -si " + str(batch_size)]  
                 , image_pull_policy="IfNotPresent"

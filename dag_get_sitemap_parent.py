@@ -59,7 +59,7 @@ with DAG(
             namespace='airflow'
             , name="get_smp-" + mod
             , task_id="get_smp-" + mod
-            , image="babadillo12345/airflow-plant:scrape_worker-1.1"
+            , image="babadillo12345/airflow-plant:scrape_worker-1.2"
             , cmds=["bash", "-cx"]
             , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/sitemap.py -mod " + mod]  
             , image_pull_policy="IfNotPresent"

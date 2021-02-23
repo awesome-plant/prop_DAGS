@@ -453,6 +453,39 @@ def checkProxy(sql_start, sql_size):
         )
 
 def testProxy(proxy, timeout, my_ip, **kwargs):
+    import requests 
+    from fake_useragent import UserAgent
+    ua = UserAgent()
+    headers={ 'User-Agent': ua.random  } 
+    proxies= { 'https': 'https://{}'.format(proxy)}#, 'https:': 'http://{}'.format(proxy),}
+    url='https://ident.me/'
+
+    error=''
+    status=False
+    loopcount=0
+    scrape=False
+    try:
+        r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout )
+        if my_ip !=r.text: #IP masked
+            site_url='https://www.realestate.com.au/'
+            r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
+            while scrape==False:
+                if len(r.text) > 50: 
+                    headers={ 'User-Agent': ua.random  } 
+                    r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
+                    status=True  #holy shit it actually worked
+                    loopcount+=1
+                    scrape=True
+                elif loopcount > 5: 
+                    error = site_url + '-bot blocked -' + r.text
+            status=True                
+        else: error = url + '-no IP mask -' + r.text
+    except Exception as e: 
+        error = url + '-' + str(e) 
+    
+    return np.array([status, error])
+    
+def dnu():
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     from selenium.webdriver.chrome.options import Options
