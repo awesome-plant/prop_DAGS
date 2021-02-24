@@ -453,7 +453,7 @@ def checkProxy(sql_start, sql_size):
         )
 
 def testProxy(proxy, timeout, my_ip, **kwargs):
-# def here returns proxy, confirmed with different whatismyip return 
+    # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     from selenium.webdriver.chrome.options import Options
     from selenium import webdriver
@@ -501,6 +501,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
 
     browser.quit() 
     return np.array([status, error])
+    
 def dnu():
     import requests 
     from fake_useragent import UserAgent
