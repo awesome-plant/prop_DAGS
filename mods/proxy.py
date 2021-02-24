@@ -415,7 +415,7 @@ def checkProxy(sql_start, sql_size):
     l_error=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error = testProxy(proxy=row['proxy'],timeout=5, my_ip=myIP)
+        status, error = testProxy_requests(proxy=row['proxy'],timeout=5, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
@@ -452,7 +452,7 @@ def checkProxy(sql_start, sql_size):
         , value='ready'
         )
 
-def testProxy(proxy, timeout, my_ip, **kwargs):
+def testProxy_selenium(proxy, timeout, my_ip, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     from selenium.webdriver.chrome.options import Options
@@ -501,8 +501,8 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
 
     browser.quit() 
     return np.array([status, error])
-    
-def dnu():
+
+def testProxy_requests(proxy, timeout, my_ip, **kwargs):
     import requests 
     from fake_useragent import UserAgent
     ua = UserAgent()
@@ -512,22 +512,22 @@ def dnu():
 
     error=''
     status=False
-    loopcount=0
-    scrape=False
+    # loopcount=0
+    # scrape=False
     try:
         r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout )
         if my_ip !=r.text: #IP masked
             site_url='https://www.realestate.com.au/'
             r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
-            while scrape==False:
-                if len(r.text) > 50: 
-                    headers={ 'User-Agent': ua.random  } 
-                    r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
-                    status=True  #holy shit it actually worked
-                    loopcount+=1
-                    scrape=True
-                elif loopcount > 5: 
-                    error = site_url + '-bot blocked -' + r.text
+            # while scrape==False:
+            #     if len(r.text) > 50: 
+            #         headers={ 'User-Agent': ua.random  } 
+            #         r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
+            #         status=True  #holy shit it actually worked
+            #         loopcount+=1
+            #         scrape=True
+            #     elif loopcount > 5: 
+            #         error = site_url + '-bot blocked -' + r.text
             status=True                
         else: error = url + '-no IP mask -' + r.text
     except Exception as e: 
