@@ -453,6 +453,55 @@ def checkProxy(sql_start, sql_size):
         )
 
 def testProxy(proxy, timeout, my_ip, **kwargs):
+# def here returns proxy, confirmed with different whatismyip return 
+    #return true when dif
+    from selenium.webdriver.chrome.options import Options
+    from selenium import webdriver
+    from selenium.webdriver import ActionChains
+    from selenium.webdriver.common.proxy import Proxy, ProxyType
+    status=False
+    error=None
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--proxy-server=http://" + proxy)
+    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    # chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    browser = webdriver.Chrome(options=chrome_options)
+
+    prox = Proxy()
+    prox.proxy_type = ProxyType.MANUAL
+    prox.http_proxy = proxy
+    prox.socks_proxy = proxy
+    prox.ssl_proxy = proxy
+    url='http://ident.me/'
+
+    try:
+        browser.set_page_load_timeout(timeout)
+        browser.get(url)
+        _newIP = browser.find_element_by_tag_name("body").text
+        if my_ip !=_newIP: #IP masked
+            try: 
+                site_url='https://www.realestate.com.au/'
+                browser.get(site_url)
+                if len(browser.page_source) > 50: 
+                    #returned proper front page
+                    status=True  #holy shit it actually worked
+                else: error = url + '-bot blocked -' + _newIP
+                status=True                
+            except Exception as e:
+                error = url + '-' + str(e) 
+        else: error = url + '-no IP mask -' + _newIP
+    except Exception as e: 
+        error = url + '-' + str(e) 
+
+    browser.quit() 
+    return np.array([status, error])
+def dnu():
     import requests 
     from fake_useragent import UserAgent
     ua = UserAgent()
@@ -485,7 +534,7 @@ def testProxy(proxy, timeout, my_ip, **kwargs):
     
     return np.array([status, error])
     
-def dnu():
+
     # def here returns proxy, confirmed with different whatismyip return 
     #return true when dif
     from selenium.webdriver.chrome.options import Options
