@@ -42,6 +42,7 @@ def insertData(ps_user, ps_pass, ps_host, ps_port, ps_db, table, df_insert):
         ,if_exists='append'
         ,index=False
         )
+        
 def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
     #this section does 2 things 

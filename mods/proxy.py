@@ -46,6 +46,7 @@ def getProxy_openproxy():
     website=[] #
     proxy_list=[] #stores IP pages 
     dt_=[]
+    IP_Type=[]
     count=0
     #get proxy pages
     l_dt_val=['hour', 'minute', 'second'] #only get < 24h pages 
@@ -65,14 +66,27 @@ def getProxy_openproxy():
         browser.implicitly_wait(10)
         time.sleep(5)
         s_scrape = browser.find_element_by_css_selector("textarea") 
+        #get proxy type
+        nextline=False
+        types=''
+        for line in (browser.find_element_by_class_name("pa").text).splitlines():
+            if nextline==True: 
+                types=line
+                nextline=False
+            elif line=='Protocols': 
+                nextline=True
+        print(types, proxy_page)
+        ip_types=';'.join(re.findall('[A-Z][^A-Z]*', types) )
+
         for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
             website.append('openproxy.space')
             dt_.append(datetime.datetime.now())
+            IP_Type.append(ip_types)
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, website,dt_]), 
-        columns=['proxy','website','scrape_dt'])
+        np.column_stack([proxylist, website,dt_,IP_Type]), 
+        columns=['proxy','website','scrape_dt','proxy_type'])
     browser.quit() 
     print("done scraping, now writing")
     db_import.saveProxies(
@@ -144,15 +158,17 @@ def getProxy_proxyscrape():
     proxylist=[] #stores IPs 
     website=[] #
     dt_=[]
+    IP_Type=[]
     # count=0
     for IP in (s_scrape.text).splitlines(): #add to list 
             proxylist.append(IP)
             website.append('proxyscrape.com')
             dt_.append(datetime.datetime.now())
+            IP_Type.append('Socks4')
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, website,dt_]), 
-        columns=['proxy','website','scrape_dt'])
+        np.column_stack([proxylist, website,dt_,IP_Type]), 
+        columns=['proxy','website','scrape_dt','proxy_type'])
     browser.quit() 
     print("done scraping, now writing")
     db_import.saveProxies(
@@ -197,6 +213,7 @@ def getProxy_proxy_list():
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['website']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
+    df_proxy_list['proxy_type']='Socks4'
     # print(df_proxy_list.head())
     browser.quit() 
     print("done scraping, now writing")
@@ -238,16 +255,18 @@ def getProxy_proxynova():
     proxylist=[]
     website=[]
     dt_=[]
+    IP_Type=[]
     for a in table.text.splitlines():
         if '.' in a: 
             a_split= a.split(" ")
             proxylist.append(a_split[0] + ":" + a_split[1])
             website.append('proxynova.com')
             dt_.append(datetime.datetime.now())
+            IP_Type.append('Http')
     #now write to df 
     df_proxy_list = pd.DataFrame(
-        np.column_stack([proxylist, website,dt_]), 
-        columns=['proxy','website','scrape_dt'])
+        np.column_stack([proxylist, website,dt_,IP_Type]), 
+        columns=['proxy','website','scrape_dt','proxy_type'])
     browser.quit() 
     print("done scraping, now writing")
     db_import.saveProxies(
@@ -274,7 +293,6 @@ def getProxy_proxyscan():
     import datetime  
     import lxml
 
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
     url='https://www.proxyscan.io/'
     ping=300
 
@@ -309,6 +327,7 @@ def getProxy_proxyscan():
     df_proxy_list['proxy'] = filtered['Ip Address'].astype(str) + ":" + filtered['Port'].astype(str)
     df_proxy_list['website']='proxyscan'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
+    df_proxy_list['proxy_type']=filtered['Type']
 
     browser.quit() 
     print("done scraping, now writing")
@@ -488,10 +507,10 @@ def testProxy_selenium(proxy, timeout, my_ip, **kwargs):
             try: 
                 site_url='https://www.realestate.com.au/'
                 browser.get(site_url)
-                if len(browser.page_source) > 50: 
-                    #returned proper front page
-                    status=True  #holy shit it actually worked
-                else: error = url + '-bot blocked -' + _newIP
+                # if len(browser.page_source) > 50: 
+                #     #returned proper front page
+                #     status=True  #holy shit it actually worked
+                # else: error = url + '-bot blocked -' + _newIP
                 status=True                
             except Exception as e:
                 error = url + '-' + str(e) 
