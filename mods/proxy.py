@@ -24,6 +24,7 @@ def getProxy_openproxy():
     import datetime 
     import numpy as np
     import pandas as pd 
+    import re 
     #docker script
     chrome_options = Options()
     chrome_options.add_argument("--headless")
