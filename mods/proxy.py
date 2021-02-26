@@ -449,8 +449,8 @@ def checkProxy(sql_start, sql_size):
     
     print(
         str(sql_size)
-        ,"proxies checked, -worked:", str(check_proxy_list[check_proxy_list['error'].isnull()].shape[0])
-        , "-failed:", str(check_proxy_list[(check_proxy_list['error'] == True)].shape[0])
+        ,"proxies checked, -worked:", str((check_proxy_list['status'] == True)].isnull()].shape[0])
+        , "-failed:", str(check_proxy_list[(check_proxy_list['status'] == False)].shape[0])
         )
     #now we write results 
     db_import.updateProxies(
@@ -459,7 +459,7 @@ def checkProxy(sql_start, sql_size):
         , ps_host="172.22.114.65"
         , ps_port="5432"
         , ps_db="scrape_db"
-        , proxy_list = check_proxy_list[(check_proxy_list['error'] == True)]
+        , proxy_list = check_proxy_list[(check_proxy_list['status'] == True)]
         , value='broken'
         )
     db_import.updateProxies(
@@ -524,9 +524,9 @@ def testProxy_selenium(proxy, timeout, my_ip, **kwargs):
 
 def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     import requests 
-    from fake_useragent import UserAgent
-    ua = UserAgent()
-    headers={ 'User-Agent': ua.random  } 
+    # from fake_useragent import UserAgent
+    # ua = UserAgent()
+    headers={ 'User-Agent': db_import.getHeader(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table_id=random.randint(1,250))  } 
     proxies={}
 
     for pt in proxy_type.split(';'): #build dict dynamically 

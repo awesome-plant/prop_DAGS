@@ -150,6 +150,13 @@ def getCurrentIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
                 result = cur.fetchone() #next iteration of file ID 
     return result[0]
 
+def getHeader(ps_user, ps_pass, ps_host, ps_port, ps_db, table_id):
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT browser FROM sc_land.browsers where table_id =%(table_id)s", {'table_id': table_id})
+                result = cur.fetchone() #next iteration of file ID 
+    return result[0]
+
 def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken.
     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
