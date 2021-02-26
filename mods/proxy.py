@@ -449,7 +449,7 @@ def checkProxy(sql_start, sql_size):
     
     print(
         str(sql_size)
-        ,"proxies checked, -worked:", str(check_proxy_list[(check_proxy_list['status'] == True)].shape[0]
+        ,"proxies checked, -worked:", str(check_proxy_list[(check_proxy_list['status'] == True)].shape[0])
         , "-failed:", str(check_proxy_list[(check_proxy_list['status'] == False)].shape[0])
         )
     #now we write results 
