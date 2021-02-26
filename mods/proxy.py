@@ -328,7 +328,7 @@ def getProxy_proxyscan():
     df_proxy_list['proxy'] = filtered['Ip Address'].astype(str) + ":" + filtered['Port'].astype(str)
     df_proxy_list['website']='proxyscan'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
-    df_proxy_list['proxy_type']=filtered['Type'].str.lower()
+    df_proxy_list['proxy_type']=filtered['Type'].replace(',',';', regex=True).str.lower()
 
     browser.quit() 
     print("done scraping, now writing")
