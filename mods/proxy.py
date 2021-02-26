@@ -450,7 +450,7 @@ def checkProxy(sql_start, sql_size):
     print(
         str(sql_size)
         ,"proxies checked, -worked:", str(check_proxy_list[check_proxy_list['error'].isnull()].shape[0])
-        , "-failed:", str(check_proxy_list[check_proxy_list['error'].notnull()].shape[0])
+        , "-failed:", str(check_proxy_list[(check_proxy_list['error'] == True)].shape[0])
         )
     #now we write results 
     db_import.updateProxies(
@@ -459,7 +459,7 @@ def checkProxy(sql_start, sql_size):
         , ps_host="172.22.114.65"
         , ps_port="5432"
         , ps_db="scrape_db"
-        , proxy_list = check_proxy_list[check_proxy_list['error'].notnull()]
+        , proxy_list = check_proxy_list[(check_proxy_list['error'] == True)]
         , value='broken'
         )
     db_import.updateProxies(
@@ -546,14 +546,14 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
             site_url='https://www.realestate.com.au/'
             r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
             # while scrape==False:
-            #     if len(r.text) > 50: 
-            #         headers={ 'User-Agent': ua.random  } 
-            #         r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
-            #         status=True  #holy shit it actually worked
-            #         loopcount+=1
-            #         scrape=True
-            #     elif loopcount > 5: 
-            #         error = site_url + '-bot blocked -' + r.text
+                #     if len(r.text) > 50: 
+                #         headers={ 'User-Agent': ua.random  } 
+                #         r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
+                #         status=True  #holy shit it actually worked
+                #         loopcount+=1
+                #         scrape=True
+                #     elif loopcount > 5: 
+                #         error = site_url + '-bot blocked -' + r.text
             status=True                
         else: error = url + '-no IP mask -' + r.text
     except Exception as e: 
