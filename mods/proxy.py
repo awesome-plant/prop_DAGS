@@ -8,6 +8,7 @@ import db_import as db_import
 import requests
 import pandas as pd
 import numpy as np
+import random 
 import argparse #add flags here
 # import mods.proxy as proxy
 # sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
