@@ -435,7 +435,7 @@ def checkProxy(sql_start, sql_size):
     l_error=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error = testProxy_selenium(proxy=row['proxy'],timeout=5, my_ip=myIP)
+        status, error = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=5, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
@@ -522,12 +522,18 @@ def testProxy_selenium(proxy, timeout, my_ip, **kwargs):
     browser.quit() 
     return np.array([status, error])
 
-def testProxy_requests(proxy, timeout, my_ip, **kwargs):
+def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     import requests 
     from fake_useragent import UserAgent
     ua = UserAgent()
     headers={ 'User-Agent': ua.random  } 
-    proxies= { 'https': 'https://{}'.format(proxy)}#, 'https:': 'http://{}'.format(proxy),}
+    proxies={}
+
+    for pt in proxy_type.split(';'): #build dict dynamically 
+        if pt =='http': proxies.update({pt : pt + '://' + proxy})
+        elif pt =='https': proxies.update({pt : pt + '://' + proxy})
+        elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + proxy, 'https' : pt + '://' + proxy,})
+
     url='https://ident.me/'
 
     error=''
