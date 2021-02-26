@@ -83,7 +83,7 @@ def getProxy_openproxy():
             proxylist.append(IP)
             website.append('openproxy.space')
             dt_.append(datetime.datetime.now())
-            IP_Type.append(ip_types)
+            IP_Type.append(ip_types.lower())
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_,IP_Type]), 
@@ -165,7 +165,7 @@ def getProxy_proxyscrape():
             proxylist.append(IP)
             website.append('proxyscrape.com')
             dt_.append(datetime.datetime.now())
-            IP_Type.append('Socks4')
+            IP_Type.append('socks4')
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_,IP_Type]), 
@@ -214,7 +214,7 @@ def getProxy_proxy_list():
     df_proxy_list = pd.read_csv('Proxy List.txt',sep="\t", names=['proxy']) #import to df 
     df_proxy_list['website']='proxy-list.download'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
-    df_proxy_list['proxy_type']='Socks4'
+    df_proxy_list['proxy_type']='socks4'
     # print(df_proxy_list.head())
     browser.quit() 
     print("done scraping, now writing")
@@ -263,7 +263,7 @@ def getProxy_proxynova():
             proxylist.append(a_split[0] + ":" + a_split[1])
             website.append('proxynova.com')
             dt_.append(datetime.datetime.now())
-            IP_Type.append('Http')
+            IP_Type.append('http')
     #now write to df 
     df_proxy_list = pd.DataFrame(
         np.column_stack([proxylist, website,dt_,IP_Type]), 
@@ -328,7 +328,7 @@ def getProxy_proxyscan():
     df_proxy_list['proxy'] = filtered['Ip Address'].astype(str) + ":" + filtered['Port'].astype(str)
     df_proxy_list['website']='proxyscan'
     df_proxy_list['scrape_dt']=datetime.datetime.now()
-    df_proxy_list['proxy_type']=filtered['Type']
+    df_proxy_list['proxy_type']=filtered['Type'].str.lower()
 
     browser.quit() 
     print("done scraping, now writing")

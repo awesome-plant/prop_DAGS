@@ -139,7 +139,7 @@ def getProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
-        check_proxy_list=pd.read_sql_query("SELECT proxy FROM sc_land.sc_proxy_raw order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
+        check_proxy_list=pd.read_sql_query("SELECT proxy, proxy_type FROM sc_land.sc_proxy_raw order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
 
