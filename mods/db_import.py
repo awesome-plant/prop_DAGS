@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from psycopg2 import Error
 import csv
 from io import StringIO
+import random 
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-sql-method
 def psql_insert_copy(table, conn, keys, data_iter):
     """
