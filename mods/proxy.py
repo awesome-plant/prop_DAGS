@@ -437,7 +437,7 @@ def checkProxy(sql_start, sql_size):
     l_req_time=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=30, my_ip=myIP)
+        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=11, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
@@ -529,8 +529,8 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     import requests 
     import time
     import math
-    # from fake_useragent import UserAgent
-    # ua = UserAgent()
+    time.sleep(2) #forced sleep just in case 
+    #not using useragent due to throughput issues 
     headers={ 'User-Agent': db_import.getHeader(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table_id=random.randint(1,250))  } 
     proxies={}
 
@@ -540,17 +540,16 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
         elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + proxy, 'https' : pt + '://' + proxy,})
 
     url='https://ident.me/'
-
     error=''
     status=False
     # loopcount=0
     # scrape=False
     try:
         start_time = time.time()
-        r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout )
+        r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout,verify=False )
         if my_ip !=r.text: #IP masked
             site_url='https://www.realestate.com.au/'
-            r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
+            r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout,verify=False )
             # while scrape==False:
                 #     if len(r.text) > 50: 
                 #         headers={ 'User-Agent': ua.random  } 
