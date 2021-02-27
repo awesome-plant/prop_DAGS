@@ -434,16 +434,18 @@ def checkProxy(sql_start, sql_size):
     l_proxy=[]
     l_status=[]
     l_error=[]
+    l_req_time=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=5, my_ip=myIP)
+        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=30, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
+        l_req_time.append(req_time)
 
     check_proxy_list = pd.DataFrame(
-            np.column_stack([l_proxy, l_status,l_error]), 
-            columns=['proxy','status','error'])
+        np.column_stack([l_proxy, l_status,l_error,l_req_time]), 
+        columns=['proxy','status','error','req_time'])
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
         print(check_proxy_list[['proxy','status','error']])
@@ -525,6 +527,8 @@ def testProxy_selenium(proxy, timeout, my_ip, **kwargs):
 
 def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     import requests 
+    import time
+    import math
     # from fake_useragent import UserAgent
     # ua = UserAgent()
     headers={ 'User-Agent': db_import.getHeader(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table_id=random.randint(1,250))  } 
@@ -542,6 +546,7 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     # loopcount=0
     # scrape=False
     try:
+        start_time = time.time()
         r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout )
         if my_ip !=r.text: #IP masked
             site_url='https://www.realestate.com.au/'
@@ -560,57 +565,7 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     except Exception as e: 
         error = url + '-' + str(e) 
     
-    return np.array([status, error])
-    
-
-    # def here returns proxy, confirmed with different whatismyip return 
-    #return true when dif
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver import ActionChains
-    from selenium.webdriver.common.proxy import Proxy, ProxyType
-    status=False
-    error=None
-
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--proxy-server=http://" + proxy)
-    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-    chrome_prefs = {}
-    chrome_options.experimental_options["prefs"] = chrome_prefs
-    # chrome_prefs["profile.default_content_settings"] = {"images": 2}
-    browser = webdriver.Chrome(options=chrome_options)
-
-    prox = Proxy()
-    prox.proxy_type = ProxyType.MANUAL
-    prox.http_proxy = proxy
-    prox.socks_proxy = proxy
-    prox.ssl_proxy = proxy
-    url='http://ident.me/'
-
-    try:
-        browser.set_page_load_timeout(timeout)
-        browser.get(url)
-        _newIP = browser.find_element_by_tag_name("body").text
-        if my_ip !=_newIP: #IP masked
-            try: 
-                site_url='https://www.realestate.com.au/'
-                browser.get(site_url)
-                if len(browser.page_source) > 50: 
-                    #returned proper front page
-                    status=True  #holy shit it actually worked
-                else: error = url + '-bot blocked -' + _newIP
-                status=True                
-            except Exception as e:
-                error = url + '-' + str(e) 
-        else: error = url + '-no IP mask -' + _newIP
-    except Exception as e: 
-        error = url + '-' + str(e) 
-
-    browser.quit() 
-    return np.array([status, error])
+    return np.array([status, error, math.ceil(time.time() - start_time)])
 
 def proxyerror(proxy, timeout, **kwargs):
     # def here returns proxy, confirmed with different whatismyip return 
