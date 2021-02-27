@@ -169,7 +169,7 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
                     ,error = %(error)s 
                     ,req_time =%(req_time)s
                     where proxy = %(proxy)s"""
-                    , { 'proxy': x['proxy'], 'value': value, 'error': x['error'], x['req_time'] }
+                    , { 'proxy': x['proxy'], 'value': value, 'error': x['error'], 'req_time': x['req_time'] }
                     ), axis=1 
             )
             conn.commit()
