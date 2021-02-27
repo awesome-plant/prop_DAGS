@@ -61,7 +61,7 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         # 3. import df to raw 
         #connection details here 
         
-        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
             with conn.cursor() as cur:
                 cur.execute("""insert into sc_land.SC_PROXY_HIS 
                                 (proxy, website, scrape_dt) 
@@ -100,7 +100,7 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         print("error on reflight impProxy:", e)
 
 def getFileID():
-    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db")
+    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db",connect_timeout=120)
     cursor = connection.cursor()
     cursor.execute("SELECT coalesce(max(H_FILEID), 0) + 1 as h_fileid from sc_land.SC_SOURCE_HEADER")
     h_fileid = cursor.fetchone() #next iteration of file ID 
@@ -116,7 +116,7 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
         # 3. import df to raw 
         #connection details here 
         
-        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
             with conn.cursor() as cur:
                 cur.execute("insert into sc_land.SC_PROXY_HIS (proxy, scrape_dt, status) select proxy, now(), status from sc_land.sc_proxy_raw")
                 conn.commit()
@@ -139,20 +139,20 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
 def getProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
         check_proxy_list=pd.read_sql_query("SELECT proxy, proxy_type FROM sc_land.sc_proxy_raw order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
 
 def getCurrentIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT cur_ip FROM sc_land.sc_cur_ip")
                 result = cur.fetchone() #next iteration of file ID 
     return result[0]
 
 def getHeader(ps_user, ps_pass, ps_host, ps_port, ps_db, table_id):
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT browser FROM sc_land.browsers where table_id =%(table_id)s", {'table_id': table_id})
                 result = cur.fetchone() #next iteration of file ID 
@@ -160,7 +160,7 @@ def getHeader(ps_user, ps_pass, ps_host, ps_port, ps_db, table_id):
 
 def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken.
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
         with conn.cursor() as cur:
             proxy_list.apply(lambda x: 
                 cur.execute("""
