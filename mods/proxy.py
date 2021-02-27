@@ -448,7 +448,7 @@ def checkProxy(sql_start, sql_size):
         columns=['proxy','status','error','req_time'])
 
     with pd.option_context('display.max_rows', len(check_proxy_list), 'display.max_columns', None):  # more options can be specified also
-        print(check_proxy_list[['proxy','status','error']])
+        print(check_proxy_list[['proxy','status','error','req_time']])
     
     print(
         str(sql_size)
