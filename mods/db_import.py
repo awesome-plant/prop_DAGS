@@ -167,8 +167,9 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
                     update sc_land.sc_proxy_raw 
                     set status = %(value)s 
                     ,error = %(error)s 
+                    ,req_time =%(req_time)s
                     where proxy = %(proxy)s"""
-                    , { 'proxy': x['proxy'], 'value': value, 'error': x['error'] }
+                    , { 'proxy': x['proxy'], 'value': value, 'error': x['error'], x['req_time'] }
                     ), axis=1 
             )
             conn.commit()
