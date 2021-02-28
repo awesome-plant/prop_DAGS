@@ -51,7 +51,7 @@ def getProxy_openproxy():
     IP_Type=[]
     count=0
     #get proxy pages
-    l_dt_val=['hour', 'minute', 'second'] #only get < 24h pages 
+    l_dt_val=['week','day','hour', 'minute', 'second'] #only get < 24h pages 
     for proxy_page in ListlinkerHref:
         if len(proxy_page.text) > 0: 
             for a in (proxy_page.text).splitlines():
@@ -437,7 +437,7 @@ def checkProxy(sql_start, sql_size):
     l_req_time=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=11, my_ip=myIP)
+        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=5, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
