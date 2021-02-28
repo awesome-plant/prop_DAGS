@@ -531,7 +531,7 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     import math
     time.sleep(2) #forced sleep just in case 
     #not using useragent due to throughput issues 
-    headers={ 'User-Agent': getHeader(random.randint(1,250))  } 
+    headers={ 'User-Agent': getHeader(random.randint(0,249))  } 
     proxies={}
 
     for pt in proxy_type.split(';'): #build dict dynamically 
