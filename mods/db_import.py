@@ -106,6 +106,27 @@ def getFileID():
     h_fileid = cursor.fetchone() #next iteration of file ID 
     return h_fileid[0]
 
+def getDBProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
+    #gets single proxy and prox_type, updates as 'used' to stop duplication
+    proxy=proxy_type=''
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+        with conn.cursor() as cur:
+            cur.execute("select proxy, proxy_type from sc_land.sc_proxy_raw where status ='nope' order by table_id limit 1")
+            result = cur.fetchone()
+            if update=='used' or update=='sitemap':
+                cur.execute("update sc_land.sc_proxy_raw set status = %(status)s where proxy = %(proxy)s",
+                    {
+                        'proxy': result[0]
+                        ,'status': update
+                    }
+                )
+                conn.commit()
+    print("proxy used is:", result)
+    if result is not None: 
+        proxy=result[0]
+        proxy_type=result[1]
+    return proxy, proxy_type 
+
 def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     result=False
     try:

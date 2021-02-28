@@ -343,28 +343,6 @@ def getProxy_proxyscan():
         , df_proxy_list=df_proxy_list
         )
 
-def getProxy(ps_user, ps_pass, ps_host, ps_port, ps_db, update, **kwargs): 
-    # status=False
-    proxy=''
-    # try: 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
-        with conn.cursor() as cur:
-            cur.execute("select proxy from sc_land.sc_proxy_raw where status ='ready' order by table_id limit 1")
-            result = cur.fetchone()
-            if update==True:
-                cur.execute("update sc_land.sc_proxy_raw set status = 'used' where proxy = %(proxy)s",
-                    {
-                        'proxy': result[0]
-                    }
-                )
-                conn.commit()
-    print("proxy used is:", result[0])
-    proxy=result[0]
-    # status=True
-    # except Exception as e: 
-    #     print("error on get next proxy:", e)
-    return proxy #, status
-
 def getProxyCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
     #queries and returns total number of rows in db 
     # amt = proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
@@ -550,15 +528,6 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
         if my_ip !=r.text: #IP masked
             site_url='https://www.realestate.com.au/'
             r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout,verify=False )
-            # while scrape==False:
-                #     if len(r.text) > 50: 
-                #         headers={ 'User-Agent': ua.random  } 
-                #         r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout )
-                #         status=True  #holy shit it actually worked
-                #         loopcount+=1
-                #         scrape=True
-                #     elif loopcount > 5: 
-                #         error = site_url + '-bot blocked -' + r.text
             status=True                
         else: error = url + '-no IP mask -' + r.text
     except Exception as e: 

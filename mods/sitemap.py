@@ -6,48 +6,65 @@ import proxy as proxy
 import argparse #add flags here
 
 def site_ScrapeParentURL():  
-    from selenium.webdriver.chrome.options import Options
-    from selenium import webdriver
-    from selenium.webdriver import ActionChains
-    from selenium.webdriver.common.proxy import Proxy, ProxyType
+    # from selenium.webdriver.chrome.options import Options
+    # from selenium import webdriver
+    # from selenium.webdriver import ActionChains
+    # from selenium.webdriver.common.proxy import Proxy, ProxyType
     from lxml import etree
     import pandas as pd
     import datetime 
     import numpy as np
+    import random
+    import requests 
+    import time 
 
     scrape_status=False
+    site_url='https://www.realestate.com.au/xml-sitemap/'
+    timeout=5
+    loopcount=0
+    prox, proxy_type = proxy.getDBProxy(
+                ps_user="postgres"
+                , ps_pass="root"
+                , ps_host="172.22.114.65"
+                , ps_port="5432"
+                , ps_db="scrape_db"
+                , update='sitemap'
+                ) 
+    proxies={}
+    for pt in proxy_type.split(';'): #build dict dynamically 
+        if pt =='http': proxies.update({pt : pt + '://' + prox})
+        elif pt =='https': proxies.update({pt : pt + '://' + prox})
+        elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
     while scrape_status==False: #do until done
         try:
-            proxies=proxy.getProxy("postgres", "root", "172.22.114.65", "5432", "scrape_db", True)
-            chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--proxy-server=http://" + proxies)
-            chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-            chrome_prefs = {}
-            chrome_options.experimental_options["prefs"] = chrome_prefs
-            # chrome_prefs["profile.default_content_settings"] = {"images": 2}
-            browser = webdriver.Chrome(options=chrome_options)
-            prox = Proxy()
-            prox.proxy_type = ProxyType.MANUAL
-            prox.http_proxy = proxies
-            prox.socks_proxy = proxies
-            prox.ssl_proxy = proxies
-            site_url='https://www.realestate.com.au/xml-sitemap/'
-            browser.get(site_url)
-
-            root = etree.fromstring(browser.page_source)
-            body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
-            browser.quit()
-            if len(browser.page_source) > 39: #actually worked
+            if loopcount>=10: #could be a proxy issue 
+                print("10 failures, new IP time")
+                loopcount=0
+                prox, proxy_type = proxy.getDBProxy(
+                ps_user="postgres"
+                , ps_pass="root"
+                , ps_host="172.22.114.65"
+                , ps_port="5432"
+                , ps_db="scrape_db"
+                , update='sitemap'
+                ) 
+                proxies={}
+                for pt in proxy_type.split(';'): #build dict dynamically 
+                    if pt =='http': proxies.update({pt : pt + '://' + prox})
+                    elif pt =='https': proxies.update({pt : pt + '://' + prox})
+                    elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
+            loopcount+=1 
+            headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
+            r = requests.get(site_url, proxies=proxies,headers=headers, timeout=timeout,verify=False)
+            if len(r.text) > 50:
                 scrape_status=True
-            else: print("bot blocked ip:", str(proxies))
+                root = etree.fromstring(r.text)
+                body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+            elif len(r.text) < 50: 
+                print("bot blocked IP:",proxy, "lc:", str(loopcount))
         except Exception as e:
-            print("prox:", str(proxies), "-error:", str(e))
-            browser.quit()
+            print("prox:", str(proxies), "-error:", str(e) )
     #now we read/parse the xml
-
     #header link ref
     XML_H_Dataset=pd.DataFrame({ 
         'external_ip': str(proxies)
@@ -101,7 +118,6 @@ def site_ScrapeParentURL():
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_header', df_insert=XML_H_Dataset)
     db_import.insertData(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db", table='sc_source_file', df_insert=XML_S_Dataset)
     print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxies))
-
 
 # def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
 #     print('gz file:', ScrapeFile)
