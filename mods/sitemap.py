@@ -22,7 +22,7 @@ def site_ScrapeParentURL():
     site_url='https://www.realestate.com.au/xml-sitemap/'
     timeout=5
     loopcount=0
-    prox, proxy_type = proxy.getDBProxy(
+    prox, proxy_type = db_import.getDBProxy(
                 ps_user="postgres"
                 , ps_pass="root"
                 , ps_host="172.22.114.65"
@@ -40,7 +40,7 @@ def site_ScrapeParentURL():
             if loopcount>=10: #could be a proxy issue 
                 print("10 failures, new IP time")
                 loopcount=0
-                prox, proxy_type = proxy.getDBProxy(
+                prox, proxy_type = db_import.getDBProxy(
                 ps_user="postgres"
                 , ps_pass="root"
                 , ps_host="172.22.114.65"
