@@ -126,6 +126,8 @@ def site_ScrapeChildUrl(sql_start, sql_size):
     import random
     import requests 
     import time 
+    import gzip
+    import shutil 
     #passes value to db 
     child_pages_list = db_import.getChildPages(
         ps_user="postgres"
@@ -136,13 +138,13 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
-    myIP=db_import.getCurrentIP( 
-        ps_user="postgres"
-        , ps_pass="root"
-        , ps_host="172.22.114.65"
-        , ps_port="5432"
-        , ps_db="scrape_db"
-    )
+    # myIP=db_import.getCurrentIP( 
+        #     ps_user="postgres"
+        #     , ps_pass="root"
+        #     , ps_host="172.22.114.65"
+        #     , ps_port="5432"
+        #     , ps_db="scrape_db"
+        # )
 
     #get proxy to use 
     scrape_status=False
@@ -163,7 +165,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         elif pt =='https': proxies.update({pt : pt + '://' + prox})
         elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
 
-    print(child_pages_list)
+    # print(child_pages_list)
     #iterate to get each link 
     for index, row in child_pages_list.iterrows(): #dont judge me 
         print("getting: ",index, row['s_filename'])
@@ -198,8 +200,77 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
                 scrape_status=False
 
-    print("done")
+        open(row['s_filename'], 'wb').write(r.content)
+        with gzip.open(row['s_filename'], 'rb') as f_in:
+            with open(row['s_filename'][:-3], 'wb') as f_out: 
+                shutil.copyfileobj(f_in, f_out)
+        tree = etree.parse(row['s_filename'][:-3])
+ 
+        body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
+        _count=1
+        #now we parse and read, using lists instead of df since its A BUNCH faster
+        list_lastmod=[]
+        list_url=[]
+        list_state=[]
+        list_proptype=[]
+        list_suburb=[]
+        list_propid=[]
+        for element in body:
+            #     print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
+            list_lastmod.append(element[1].text)
+            list_url.append(element[0].text)
+            _splitval=''
+            if '-nsw-' in element[0].text: _splitval='-nsw-'
+            # elif '+nsw+' in element[0].text: _splitval='+nsw+' 
+            elif '-qld-' in element[0].text: _splitval='-qld-'
+            # elif '+qld+' in element[0].text:  _splitval='+qld+'  
+            elif '-tas-' in element[0].text: _splitval='-tas-'
+            # elif '+tas+' in element[0].text: _splitval='+tas+'
+            elif '-act-' in element[0].text: _splitval='-act-'
+            # elif '+act+' in element[0].text: _splitval='+act+'
+            elif '-sa-' in element[0].text: _splitval='-sa-'
+            # elif '+sa+' in element[0].text: _splitval='+sa+'
+            elif '-nt-' in element[0].text: _splitval='-nt-'
+            # elif '+nt+' in element[0].text: _splitval='+nt+'
+            elif '-wa-' in element[0].text: _splitval='-wa-'
+            # elif '+wa+' in element[0].text: _splitval='+wa+'
+            elif '-vic-' in element[0].text: _splitval='-vic-'
+            # elif '+vic+' in element[0].text: _splitval='+vic+'
 
+            if _splitval !='':
+                list_state.append(_splitval.replace('-','').replace('+',''))
+                list_proptype.append( (element[0].text).split(_splitval)[0].replace('https://www.realestate.com.au/property-','').replace('+', ' ') )
+                list_suburb.append( (element[0].text).split(_splitval)[1].replace('https://www.realestate.com.au/property-','').replace((element[0].text).split('-')[-1],'').replace('-',' ').replace('+', ' ').strip() )
+            else: 
+                list_state.append('')
+                list_proptype.append('')
+                list_suburb.append('')
+            list_propid.append( (element[0].text).split('-')[-1] )
+
+        XML_gz_Dataset = pd.DataFrame(
+            np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
+            columns=['lastmod', 'url', 'proptype', 'state', 'suburb', 'prop_id'])
+
+        XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
+        # print("total xml time:", time.time() - _time)
+
+        XML_gz_Dataset['s_fileid']=row['s_fileid']
+        XML_gz_Dataset['scrape_dt']=(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+        XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
+        XML_gz_Dataset['external_ip']=prox
+
+        #time to insert  
+        db_import.insertData(
+            ps_user="postgres"
+            , ps_pass="root"
+            , ps_host="172.22.114.65"
+            , ps_port="5432"
+            , ps_db="scrape_db"
+            , table='sc_property_links'
+            , df_insert=XML_gz_Dataset
+            )
+        print("inserted:",row['s_filename'])
+    
 
         # status, error, req_time = getChild_XML(s_filename=row['s_filename'], s_fileid=row['s_fileid'],timeout=5, my_ip=myIP)
             # l_proxy.append(row['proxy'])
@@ -207,6 +278,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
             # l_error.append(error)
             # l_req_time.append(req_time)
     
+    print("done with all of them")
 # def getChild_XML(s_filename, s_fileid, timeout, my_ip):
 
 
