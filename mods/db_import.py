@@ -172,13 +172,6 @@ def getCurrentIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
                 result = cur.fetchone() #next iteration of file ID 
     return result[0]
 
-# def getHeader(ps_user, ps_pass, ps_host, ps_port, ps_db, table_id):
-#     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
-#             with conn.cursor() as cur:
-#                 cur.execute("SELECT browser FROM sc_land.browsers where table_id =%(table_id)s", {'table_id': table_id})
-#                 result = cur.fetchone() #next iteration of file ID 
-#     return result[0]
-
 def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken.
     with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
@@ -194,3 +187,25 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
                     ), axis=1 
             )
             conn.commit()
+
+def getChildPages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
+    #same as get proxies
+    import pandas as pd
+    #queries db and returns list of all proxies within paramaters 
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+        child_page_list=pd.read_sql_query("select s_filename, s_fileid from sc_land.v_source_file order by table_id " + str(sql_size) + " offset " + str(sql_start), conn)
+        print("got row list, start:", str(sql_start), 'length:', str(sql_size))
+    return child_page_list
+
+def getChildPagesCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
+    #queries and returns total number of rows in db 
+    try: 
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db) as conn:
+            with conn.cursor() as cur:
+                cur.execute("select count(*) from sc_land.v_source_file")
+                result = cur.fetchone()
+        print("child pages count:", result[0])
+        proxy_count=result[0]
+    except Exception as e: 
+        print("error on get next child pages:", e)
+    return proxy_count
