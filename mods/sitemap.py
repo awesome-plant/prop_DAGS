@@ -60,10 +60,11 @@ def site_ScrapeParentURL():
                 scrape_status=True
                 root = etree.fromstring(r.text)
                 body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+                print('body is:', str(body))
             elif len(r.text) < 50: 
                 print("bot blocked IP:",proxy, "lc:", str(loopcount))
         except Exception as e:
-            print("prox:", str(proxies), "-error:", str(e) )
+            print("prox:", str(proxies), "lc:",str(loopcount), str("-error:", str(e) )
     #now we read/parse the xml
     #header link ref
     XML_H_Dataset=pd.DataFrame({ 
