@@ -191,10 +191,10 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
                 # s_filename, s_fileid
                 r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,verify=False, allow_redirects=True)
-                if len(r.text) > 50:
-                    scrape_status=True
-                    root = etree.fromstring(r.content)
-                    body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+                # if len(r.text) > 50:
+                #     scrape_status=True
+                #     root = etree.fromstring(r.content)
+                #     body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
                 # elif len(r.text) < 50: 
                 #     print("bot blocked IP:",proxy, "lc:", str(loopcount))
                 #     headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
