@@ -61,7 +61,7 @@ with DAG(
     group=1 
     count=0 
     split_old = DummyOperator(task_id='dummy_starter',trigger_rule='all_done')
-    split_new = DummyOperator(task_id='dummy_splitter_' + str(group),trigger_rule='all_done')
+    split_new = DummyOperator(task_id='dummy_splitter_' + str(0),trigger_rule='all_done')
     for mod in l_proxy_mods:
         for sql_start in range(0, math.ceil(CP_count/batch_size)):
             if count == batch_g_size:
