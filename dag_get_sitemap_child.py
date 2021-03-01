@@ -72,8 +72,8 @@ with DAG(
 
             smp_mod = KubernetesPodOperator(
                 namespace='airflow'
-                , name="get_smp-" + mod
-                , task_id="get_smp-" + mod
+                , name="get_smp-" + mod + "_" + str(sql_start)
+                , task_id="get_smp-" + mod + "_" + str(sql_start)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.2"
                 , cmds=["bash", "-cx"]
                 , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/sitemap.py -mod " + mod + " -st " + str(sql_start*batch_size) + " -si " + str(batch_size)]  
