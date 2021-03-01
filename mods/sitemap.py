@@ -163,8 +163,10 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         elif pt =='https': proxies.update({pt : pt + '://' + prox})
         elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
 
+    print(child_pages_list)
     #iterate to get each link 
     for index, row in child_pages_list.iterrows(): #dont judge me 
+        print(index, row['s_filename'])
         time.sleep(2) #forced sleep just in case 
         #not using useragent due to throughput issues 
         headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
@@ -195,7 +197,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
                 scrape_status=False
 
-
+    print("done")
 
 
         # status, error, req_time = getChild_XML(s_filename=row['s_filename'], s_fileid=row['s_fileid'],timeout=5, my_ip=myIP)
