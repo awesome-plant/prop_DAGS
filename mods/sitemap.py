@@ -58,6 +58,7 @@ def site_ScrapeParentURL():
                 body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
             elif len(r.text) < 50: 
                 print("bot blocked IP:",proxy, "lc:", str(loopcount))
+                headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
         except Exception as e:
             print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
             scrape_status=False
@@ -118,6 +119,13 @@ def site_ScrapeParentURL():
     print("inserts completed, fileid:", str(fileID), "-proxy:", str(proxies))
 
 def site_ScrapeChildUrl(sql_start, sql_size): 
+    from lxml import etree
+    import pandas as pd
+    import datetime 
+    import numpy as np
+    import random
+    import requests 
+    import time 
     #passes value to db 
     child_pages_list = db_import.getChildPages(
         ps_user="postgres"
@@ -128,7 +136,82 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
+    myIP=db_import.getCurrentIP( 
+        ps_user="postgres"
+        , ps_pass="root"
+        , ps_host="172.22.114.65"
+        , ps_port="5432"
+        , ps_db="scrape_db"
+    )
+
+    #get proxy to use 
+    scrape_status=False
+    site_url='https://www.realestate.com.au/xml-sitemap/'
+    timeout=5
+    loopcount=0
+    prox, proxy_type = db_import.getDBProxy(
+                ps_user="postgres"
+                , ps_pass="root"
+                , ps_host="172.22.114.65"
+                , ps_port="5432"
+                , ps_db="scrape_db"
+                , update='sitemap'
+                ) 
+    proxies={}
+    for pt in proxy_type.split(';'): #build dict dynamically 
+        if pt =='http': proxies.update({pt : pt + '://' + prox})
+        elif pt =='https': proxies.update({pt : pt + '://' + prox})
+        elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
+
+    #iterate to get each link 
+    for index, row in child_pages_list.iterrows(): #dont judge me 
+        time.sleep(2) #forced sleep just in case 
+        #not using useragent due to throughput issues 
+        headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
+        
+        while scrape_status==False: #do until done
+            try:
+                if loopcount>=10: #could be a proxy issue 
+                    print("10 failures, new IP time")
+                    loopcount=0
+                    prox, proxy_type = db_import.getDBProxy(
+                    ps_user="postgres"
+                    , ps_pass="root"
+                    , ps_host="172.22.114.65"
+                    , ps_port="5432"
+                    , ps_db="scrape_db"
+                    , update='sitemap'
+                    ) 
+                    proxies={}
+                    for pt in proxy_type.split(';'): #build dict dynamically 
+                        if pt =='http': proxies.update({pt : pt + '://' + prox})
+                        elif pt =='https': proxies.update({pt : pt + '://' + prox})
+                        elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
+                loopcount+=1 
+                headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
+                # s_filename, s_fileid
+                r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,verify=False, allow_redirects=True)
+                if len(r.text) > 50:
+                    scrape_status=True
+                    root = etree.fromstring(r.content)
+                    body=root.xpath('//ns:Contents',namespaces={'ns':"http://s3.amazonaws.com/doc/2006-03-01/"})
+                # elif len(r.text) < 50: 
+                #     print("bot blocked IP:",proxy, "lc:", str(loopcount))
+                #     headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
+            except Exception as e:
+                print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
+                scrape_status=False
+
+
+
+
+        # status, error, req_time = getChild_XML(s_filename=row['s_filename'], s_fileid=row['s_fileid'],timeout=5, my_ip=myIP)
+            # l_proxy.append(row['proxy'])
+            # l_status.append(status)
+            # l_error.append(error)
+            # l_req_time.append(req_time)
     
+# def getChild_XML(s_filename, s_fileid, timeout, my_ip):
 
 
 # def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, **kwargs):
