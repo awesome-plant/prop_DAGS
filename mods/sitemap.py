@@ -166,7 +166,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
     print(child_pages_list)
     #iterate to get each link 
     for index, row in child_pages_list.iterrows(): #dont judge me 
-        print(index, row['s_filename'])
+        print("getting: ",index, row['s_filename'])
         time.sleep(2) #forced sleep just in case 
         #not using useragent due to throughput issues 
         headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
