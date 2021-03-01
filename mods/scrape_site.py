@@ -30,7 +30,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
     # time.sleep(random.randint(1,10))
     # ua = UserAgent()
     #headers = {'User-Agent':str(ua.random)}
-    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+    headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
     if useProxy != '':
         print("using previous proxy:", useProxy)
         r_proxy=useProxy
@@ -39,16 +39,7 @@ def SaveScrape(baseurl, PageSaveFolder, ScrapeFile, Scrapewait, useProxy, **kwar
         if prox_status==False: 
             print('error getting proxy, quitting')
             sys.exit() 
-        
 
-    # https://stackoverflow.com/questions/23013220/max-retries-exceeded-with-url-in-requests
-    
-    # session = requests.Session()
-    # retry = Retry(connect=5, backoff_factor=0.5)
-    # adapter = HTTPAdapter(max_retries=retry)
-    # session.mount('http://', adapter)
-    # session.mount('https://', adapter)
-    # session.get(baseurl)
     _pass=False    
     _loopcount=0
     while _pass==False:
