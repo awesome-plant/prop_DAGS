@@ -44,7 +44,7 @@ default_args = {
 }
 
 #get current proxies in db
-batch_size=5
+batch_size=20
 batch_g_size=5 #used to remove that pod timeout error 
 CP_count=db_import.getChildPagesCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
