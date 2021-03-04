@@ -526,8 +526,8 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
         start_time = time.time()
         r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout,verify=False )
         if my_ip !=r.text: #IP masked
-            site_url='https://www.realestate.com.au/'
-            r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout,verify=False )
+            # site_url='https://www.realestate.com.au/'
+            # r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout,verify=False )
             status=True                
         else: error = url + '-no IP mask -' + r.text
     except Exception as e: 

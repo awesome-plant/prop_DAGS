@@ -76,7 +76,7 @@ with DAG(
                 , task_id="get_smp-" + mod + "_" + str(sql_start)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.2"
                 , cmds=["bash", "-cx"]
-                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/sitemap.py -mod " + mod + " -st " + str(sql_start*batch_size) + " -si " + str(batch_size)]  
+                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/realestate.py -mod " + mod + " -st " + str(sql_start*batch_size) + " -si " + str(batch_size)]  
                 , image_pull_policy="IfNotPresent"
                 , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
                 , labels={"foo": "bar"}
