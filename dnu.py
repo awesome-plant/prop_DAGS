@@ -47,10 +47,13 @@ chrome_prefs = {}
 chrome_options.experimental_options["prefs"] = chrome_prefs
 chrome_prefs["profile.default_content_settings"] = {"images": 2}
 browser = webdriver.Chrome(options=chrome_options)
+print("loaded chrome")
 
 browser.get(site_url)
+print("loaded page")
 time.sleep(5)
 page = browser.page_source
+print("loaded html")
 browser.quit()
 
 all_json = extract_json_objects(page)
@@ -62,7 +65,7 @@ for result in all_json:
         longest=len(result)
         _max=result
     long_count+=1
-
+print("loaded json")
 
 #save vales to dir to be safe
 with open(cat + '_' + prop_id + '.html','x') as file: #html
@@ -200,7 +203,7 @@ try:
 except: 
     _agn_agent_id=''
 
-
+print("loaded vars")
 _result = pd.DataFrame([{
     'ad_sub': _ad_sub
     ,'ad_post': _ad_post
@@ -228,5 +231,5 @@ _result = pd.DataFrame([{
     ,'agn_agent_id': _agn_agent_id
 }])
 _result.to_csv('test.csv')
-
+print("loaded csv")
 print("My program took", time.time() - start_time, "to run")
