@@ -523,12 +523,15 @@ def scrape_pages(sql_start, sql_size):
             os.mkdir("/opt/airflow/logs/XML_save_folder/scrape_saves/" + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)) #make folder
         #check if cookie is still active 
         if cook_reauid=='' and cook_bm_aksd=='':
+            print('cookie needed, selenium:', time.time()-start_time)
             webpage, cook_reauid, cook_bm_aksd = selenium_get_cookies(
                 site_url=row['url']
                 , timeout=30
                 , sleep_time=random.randint(1,9)
                 )
+            print('cookie acquired, selenium:', time.time()-start_time))
         elif cook_reauid !='' and cook_bm_aksd !='': #cookies exist, regular scrape
+            print('cookie ready, webhook:', time.time()-start_time))
             webpage = webScrape_page(
                 site_url=row['url']
                 , timeout=30
@@ -536,6 +539,7 @@ def scrape_pages(sql_start, sql_size):
                 , cook_bm_aksd=cook_bm_aksd
                 , cook_reauid=cook_reauid
                 )
+            print('cookie acquired, webhook:', time.time()-start_time))
         #now we parse the webpage
         if webpage != 'Bot': #actually returned something 
             _result = parse_request(
@@ -545,6 +549,7 @@ def scrape_pages(sql_start, sql_size):
                 ,prop_id=str(row['prop_id'])
                 )
         elif webpage == 'Bot': #write something here so i know it failed
+            cook_reauid= cook_bm_aksd=''
             _result = pd.DataFrame([{
                 'ad_sub': 'Bot'
                 ,'ad_post': 'Bot'
@@ -573,6 +578,7 @@ def scrape_pages(sql_start, sql_size):
             }])
         #compile
         _combined = _combined.append(_result, ignore_index=True) #sue me
+        print('completed i:', str(index), 'length:', time.time() - _start_time )
     #all links checked, now we write
     _combined.to_csv("/opt/airflow/logs/XML_save_folder/scrape_saves/combined" + str(sql_start) + "_" + str(sql_size) + ".csv")
     print("length:", str(sql_size), "-runtime:", time.time() - _start_time, "-avg time:", str( (time.time() - _start_time)/sql_size) )
