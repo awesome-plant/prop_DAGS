@@ -515,7 +515,7 @@ def scrape_pages(sql_start, sql_size):
         , sql_start=sql_start
         , sql_size=sql_size
         )
-    cook_reauid, cook_bm_aksd=''
+    cook_reauid=cook_bm_aksd=''
     _combined=pd.DataFrame()
     for index, row in prop_scrape_list.iterrows(): #dont judge me
         _result=''
