@@ -44,8 +44,8 @@ chrome_options.add_argument("--disable-popup-blocking")
 chrome_options.add_argument("--window-size=1420,1080")
 chrome_options.add_argument('--disable-blink-features=AutomationControlled')
 chrome_prefs = {}
-chrome_options.experimental_options["prefs"] = chrome_prefs
-chrome_prefs["profile.default_content_settings"] = {"images": 2}
+prefs = {"profile.managed_default_content_settings.images": 2}
+chrome_options.add_experimental_option("prefs", prefs)
 browser = webdriver.Chrome(options=chrome_options)
 print("loaded chrome")
 
