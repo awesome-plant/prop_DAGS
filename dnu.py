@@ -1,3 +1,9 @@
+import sys
+import os
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import db_import as db_import 
+import proxy as proxy 
+import scrape_site as scrape_site
 site_url='https://www.realestate.com.au/sold/property-residential+land-nt-acacia+hills-201194009'
 timeout=5
 sleep_time=4
@@ -7,7 +13,7 @@ import json
 import pandas as pd
 start_time = time.time()
 # timeout=30    # cat='Sold'    # prop_id='131116802'    # site_url='https://www.realestate.com.au/sold/property-house-nsw-cootamundra-131116802'
-prox, proxy_type = workProxy()
+prox, proxy_type = scrape_site.workProxy()
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--headless")
