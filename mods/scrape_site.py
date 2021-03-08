@@ -14,6 +14,7 @@ import gzip
 import shutil
 import psycopg2
 from sqlalchemy import create_engine
+import json
 from json import JSONDecoder
 import argparse #add flags here
 
