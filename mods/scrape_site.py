@@ -529,7 +529,7 @@ def scrape_pages(sql_start, sql_size):
                 , timeout=30
                 , sleep_time=random.randint(1,9)
                 )
-            print('cookie acquired, selenium:', time.time()-start_time))
+            print('cookie acquired, selenium:', time.time()-start_time)
         elif cook_reauid !='' and cook_bm_aksd !='': #cookies exist, regular scrape
             print('cookie ready, webhook:', time.time()-start_time))
             webpage = webScrape_page(
