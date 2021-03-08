@@ -194,7 +194,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 loopcount+=1 
                 headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
                 # s_filename, s_fileid
-                r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,, allow_redirects=True)
+                r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,allow_redirects=True)
                 scrape_status=True
             except Exception as e:
                 print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )

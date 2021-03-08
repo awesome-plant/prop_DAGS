@@ -101,23 +101,30 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
 
 def cleanProxies(ps_user, ps_pass, ps_host, ps_port, ps_db):
     print("final cleanup at the end")
-    
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
-        with conn.cursor() as cur:
-            cur.execute("select count(*) from sc_land.sc_proxy_raw")
-            result = cur.fetchone()
-        old_count=result[0]
-        print("original count:", old_count)
+    update_status=False
+    rc=0
+    while update_status==False:
+        try:
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("select count(*) from sc_land.sc_proxy_raw")
+                    result = cur.fetchone()
+                old_count=result[0]
+                print("original count:", old_count)
 
-        with conn.cursor() as cur:
-            cur.execute("delete from sc_land.sc_proxy_raw a using sc_land.sc_proxy_raw b where a.table_id > b.table_id and a.proxy = b.proxy ")
-            conn.commit()
-        with conn.cursor() as cur:
-            cur.execute("select count(*) from sc_land.sc_proxy_raw")
-            result = cur.fetchone()
-        new_count=result[0]
-        print("new count:", new_count)
-        print('proxies removed:', str(int(old_count) - int(new_count)) )
+                with conn.cursor() as cur:
+                    cur.execute("delete from sc_land.sc_proxy_raw a using sc_land.sc_proxy_raw b where a.table_id > b.table_id and a.proxy = b.proxy ")
+                    conn.commit()
+                with conn.cursor() as cur:
+                    cur.execute("select count(*) from sc_land.sc_proxy_raw")
+                    result = cur.fetchone()
+                new_count=result[0]
+                print("new count:", new_count)
+                print('proxies removed:', str(int(old_count) - int(new_count)) )
+        except Exception as e: 
+            update_status=False
+            rc+=1
+            print("retry:", str(rc), '-error:', str(e))   
 
 def getFileID():
     connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db",connect_timeout=120)
@@ -194,19 +201,28 @@ def getCurrentIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
 
 def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     #updates proxy as broken.
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
-        with conn.cursor() as cur:
-            proxy_list.apply(lambda x: 
-                cur.execute("""
-                    update sc_land.sc_proxy_raw 
-                    set status = %(value)s 
-                    ,error = %(error)s 
-                    ,req_time =%(req_time)s
-                    where proxy = %(proxy)s"""
-                    , { 'proxy': x['proxy'], 'value': value, 'error': x['error'], 'req_time': x['req_time'] }
-                    ), axis=1 
-            )
-            conn.commit()
+    update_status=False
+    rc=0
+    while update_status==False:
+        try:
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+                with conn.cursor() as cur:
+                    proxy_list.apply(lambda x: 
+                        cur.execute("""
+                            update sc_land.sc_proxy_raw 
+                            set status = %(value)s 
+                            ,error = %(error)s 
+                            ,req_time =%(req_time)s
+                            where proxy = %(proxy)s"""
+                            , { 'proxy': x['proxy'], 'value': value, 'error': x['error'], 'req_time': x['req_time'] }
+                            ), axis=1 
+                    )
+                    conn.commit()
+            update_status=True
+        except Exception as e: 
+            update_status=False
+            rc+=1
+            print("retry:", str(rc), '-error:', str(e))
 
 def getChildPages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     #same as get proxies
