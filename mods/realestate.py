@@ -281,30 +281,6 @@ def site_ScrapeChildUrl(sql_start, sql_size):
     print("done with all of them")
 # def getChild_XML(s_filename, s_fileid, timeout, my_ip):
 
-def site_ScrapePageUrl(sql_start, sql_size): 
-    #now for the moment we've aaaaall been waiting for baby
-    from lxml import etree
-    import pandas as pd
-    import datetime 
-    import numpy as np
-    import random
-    import requests 
-    import time 
-    #passes value to db 
-    scrape_pages_list = db_import.getScrapePages(
-        ps_user="postgres"
-        , ps_pass="root"
-        , ps_host="172.22.114.65"
-        , ps_port="5432"
-        , ps_db="scrape_db"
-        , sql_start=sql_start
-        , sql_size=sql_size
-        )
-    
-    for index, row in scrape_pages_list.iterrows():
-        
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-mod') #module
