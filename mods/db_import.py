@@ -99,6 +99,26 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
     except Exception as e:
         print("error on reflight impProxy:", e)
 
+def cleanProxies(ps_user, ps_pass, ps_host, ps_port, ps_db):
+    print("final cleanup at the end")
+    
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+        with conn.cursor() as cur:
+            cur.execute("select count(*) from sc_land.sc_proxy_raw")
+            result = cur.fetchone()
+        old_count=result[0]
+        print("original count:", old_count)
+
+        with conn.cursor() as cur:
+            cur.execute("delete from sc_land.sc_proxy_raw a using sc_land.sc_proxy_raw b where a.table_id > b.table_id and a.proxy = b.proxy ")
+            conn.commit()
+        with conn.cursor() as cur:
+            cur.execute("select count(*) from sc_land.sc_proxy_raw")
+            result = cur.fetchone()
+        new_count=result[0]
+        print("new count:", new_count)
+        print('proxies removed:', str(int(old_count) - int(new_count)) )
+
 def getFileID():
     connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db",connect_timeout=120)
     cursor = connection.cursor()

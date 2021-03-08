@@ -848,6 +848,8 @@ if __name__ == '__main__':
     elif args['mod']=='refresh_ip':
         print("refreshing IP")
         refreshIP( ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db" )
-
+    elif args['mod']=='cleanup_proxy':
+        print('cleaning up proxy')
+        db_import.cleanProxies( ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db" )
 
     

@@ -46,6 +46,21 @@ with DAG(
 ) as dag:
     sitemap_starter = DummyOperator(task_id='dummy_starter' )
     sitemap_ender = DummyOperator(task_id='dummy_ender' )
+    proxy_cleanup=KubernetesPodOperator(
+            namespace='airflow'
+            , name="cleanup_prox"
+            , task_id="cleanup_prox"
+            , image="babadillo12345/airflow-plant:scrape_worker-1.2"
+            , cmds=["bash", "-cx"]
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod cleanup_proxy"]  
+            , image_pull_policy="IfNotPresent"
+            , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+            , labels={"foo": "bar"}
+            , volumes=[volume]
+            , volume_mounts=[volume_mount]
+            , is_delete_operator_pod=True
+            , in_cluster=True
+            )
     for mod in l_proxy_mods:
         proxy_mod = KubernetesPodOperator(
             namespace='airflow'
@@ -62,4 +77,4 @@ with DAG(
             , is_delete_operator_pod=True
             , in_cluster=True
             )
-        sitemap_starter >> proxy_mod >> sitemap_ender 
+        sitemap_starter >> proxy_mod >> proxy_cleanup >> sitemap_ender 
