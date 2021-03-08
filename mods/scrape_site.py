@@ -523,15 +523,15 @@ def scrape_pages(sql_start, sql_size):
             os.mkdir("/opt/airflow/logs/XML_save_folder/scrape_saves/" + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)) #make folder
         #check if cookie is still active 
         if cook_reauid=='' and cook_bm_aksd=='':
-            print('cookie needed, selenium:', time.time()-start_time)
+            print('cookie needed, selenium:', time.time()-_start_time)
             webpage, cook_reauid, cook_bm_aksd = selenium_get_cookies(
                 site_url=row['url']
                 , timeout=30
                 , sleep_time=random.randint(1,9)
                 )
-            print('cookie acquired, selenium:', time.time()-start_time)
+            print('cookie acquired, selenium:', time.time()-_start_time)
         elif cook_reauid !='' and cook_bm_aksd !='': #cookies exist, regular scrape
-            print('cookie ready, webhook:', time.time()-start_time))
+            print('cookie ready, webhook:', time.time()-_start_time)
             webpage = webScrape_page(
                 site_url=row['url']
                 , timeout=30
@@ -539,7 +539,7 @@ def scrape_pages(sql_start, sql_size):
                 , cook_bm_aksd=cook_bm_aksd
                 , cook_reauid=cook_reauid
                 )
-            print('cookie acquired, webhook:', time.time()-start_time))
+            print('cookie acquired, webhook:', time.time()-_start_time)
         #now we parse the webpage
         if webpage != 'Bot': #actually returned something 
             _result = parse_request(
