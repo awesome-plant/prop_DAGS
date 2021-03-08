@@ -31,7 +31,7 @@ timeout=30
 cat='Sold'
 prop_id='131116802'
 site_url='https://www.realestate.com.au/sold/property-house-nsw-cootamundra-131116802'
-proxy='104.139.74.25:34368'#, 'socks4'
+proxy='203.170.67.17:4145'#, 'socks4'
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--headless")
