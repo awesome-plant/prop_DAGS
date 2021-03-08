@@ -235,6 +235,7 @@ def selenium_get_cookies(site_url,timeout, sleep_time):
             scrape_status=True
         except Exception as e: 
             print('error: ', str(e))
+            browser.quit()
 
     print("selenium headers s:", time.time() - start_time)
 
