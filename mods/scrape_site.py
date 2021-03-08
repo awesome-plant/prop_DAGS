@@ -327,6 +327,7 @@ def webScrape_page(site_url,timeout, sleep_time, cook_reauid, cook_bm_aksd):
         except Exception as e: 
             print(prox, e)
             scrape_status='False'
+    return webpage
 
 def parse_request(webpage,write_folder,cat,prop_id):
     all_json = extract_json_objects(webpage)

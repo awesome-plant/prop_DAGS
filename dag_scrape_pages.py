@@ -42,7 +42,7 @@ default_args = {
 
 batch_size=150
 batch_g_size=10 #used to remove that pod timeout error 
-proxy_count=scrape_site.getChildPagesCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
+proxy_count=scrape_site.getpropScrapeCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
 with DAG(
     dag_id='dag_scrape_pages',
