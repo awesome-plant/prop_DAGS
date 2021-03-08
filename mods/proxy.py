@@ -524,10 +524,10 @@ def testProxy_requests(proxy, proxy_type, timeout, my_ip, **kwargs):
     # scrape=False
     try:
         start_time = time.time()
-        r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout,verify=False )
+        r = requests.get(url, proxies=proxies,headers=headers, timeout=timeout, )
         if my_ip !=r.text: #IP masked
             # site_url='https://www.realestate.com.au/'
-            # r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout,verify=False )
+            # r = requests.get(site_url, proxies=proxies, headers=headers, timeout=timeout, )
             status=True                
         else: error = url + '-no IP mask -' + r.text
     except Exception as e: 

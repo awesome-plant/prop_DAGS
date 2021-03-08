@@ -51,7 +51,7 @@ def site_ScrapeParentURL():
                     elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
             loopcount+=1 
             headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
-            r = requests.get(site_url, proxies=proxies,headers=headers, timeout=timeout,verify=False)
+            r = requests.get(site_url, proxies=proxies,headers=headers, timeout=timeout,)
             if len(r.text) > 50:
                 scrape_status=True
                 root = etree.fromstring(r.content)
@@ -194,7 +194,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 loopcount+=1 
                 headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
                 # s_filename, s_fileid
-                r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,verify=False, allow_redirects=True)
+                r = requests.get(site_url + row['s_filename'], proxies=proxies,headers=headers, timeout=timeout,, allow_redirects=True)
                 scrape_status=True
             except Exception as e:
                 print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
