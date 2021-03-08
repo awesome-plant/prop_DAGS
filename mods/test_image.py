@@ -5,7 +5,7 @@ import os
 
 def wait_time(sleep_time):
     print("start")
-    time.sleep(sleep_time)
+    time.sleep(int(sleep_time))
     print('fin')
 
 if __name__ == '__main__':
