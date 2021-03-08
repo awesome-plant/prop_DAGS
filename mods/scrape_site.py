@@ -1,5 +1,7 @@
 from lxml import etree
+import sys
 import os
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import time
 import datetime 
 import pandas as pd
@@ -12,7 +14,6 @@ import psycopg2
 import mods.db_import as db_import 
 import mods.proxy as proxy 
 from sqlalchemy import create_engine
-import sys
 from json import JSONDecoder
 import argparse #add flags here
 
