@@ -588,7 +588,7 @@ def scrape_pages(sql_start, sql_size):
         print('completed i:', str(index), 'length:', time.time() - _start_time )
     #all links checked, now we write
     _combined.to_csv("/opt/airflow/logs/XML_save_folder/scrape_saves/combined" + str(sql_start) + "_" + str(sql_size) + ".csv")
-    print("length:", str(sql_size), "-runtime:", time.time() - _start_time, "-avg time:", str( (time.time() - _start_time)/sql_size) )
+    print("length:", str(sql_size), "-runtime:", time.time() - _start_time, "-avg time:", str( (time.time() - _start_time)/int(sql_size)) )
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
