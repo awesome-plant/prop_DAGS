@@ -1,9 +1,9 @@
 import sys
 import os
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
-import db_import as db_import 
-import proxy as proxy 
-import scrape_site as scrape_site
+import mods.db_import as db_import 
+import mods.proxy as proxy 
+import mods.scrape_site as scrape_site
 site_url='https://www.realestate.com.au/sold/property-residential+land-nt-acacia+hills-201194009'
 timeout=5
 sleep_time=4
