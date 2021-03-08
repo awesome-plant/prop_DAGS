@@ -282,7 +282,7 @@ def workProxy():
             loopcount+=1 
             session = requests.Session()
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36','Accept-Language': 'en-US,en;q=0.5'}
-            r = session.get(site_url,proxies=proxies,headers=headers,timeout=timeout,,allow_redirects=True,cookies=session.cookies)
+            r = session.get(site_url,proxies=proxies,headers=headers,timeout=timeout,allow_redirects=True,cookies=session.cookies)
             if len(r.text) > 50:
                 scrape_status=True
         except Exception as e:
@@ -322,7 +322,7 @@ def webScrape_page(site_url,timeout, sleep_time, cook_reauid, cook_bm_aksd):
                 'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
                 ,'cookie' : 'bm_aksd=' + cook_reauid + ';reauid=' + cook_reauid
                 }
-            r = session.get(site_url,proxies=proxies,headers=headers,timeout=timeout,,allow_redirects=True)
+            r = session.get(site_url,proxies=proxies,headers=headers,timeout=timeout,allow_redirects=True)
             if 'detected some activity in your browser that looks suspicious' in r.text: #bot detected?
                 scrape_status='Bot'
                 webpage=''
