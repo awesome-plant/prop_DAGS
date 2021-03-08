@@ -54,7 +54,7 @@ with DAG(
             , task_id="test_image"
             , image="babadillo12345/airflow-plant:scrape_worker-1.2"
             , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/test_image.py -mod wait_time -sl 1000"]  
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/test_image.py -mod wait_time -sl 10000"]  
             , image_pull_policy="IfNotPresent"
             , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
             , labels={"foo": "bar"}
