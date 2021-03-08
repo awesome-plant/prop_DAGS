@@ -4,6 +4,7 @@ import os
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import mods.db_import as db_import
 import mods.proxy as proxy
+import mods.scrape_site as scrape_site
 import math
 import logging
 import datetime
@@ -41,7 +42,7 @@ default_args = {
 
 batch_size=150
 batch_g_size=10 #used to remove that pod timeout error 
-proxy_count=50000#=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
+proxy_count=scrape_site.getChildPagesCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
 with DAG(
     dag_id='dag_scrape_pages',
@@ -66,7 +67,7 @@ with DAG(
                 , task_id="proxies-test_b_" + str(sql_start)
                 , image="babadillo12345/airflow-plant:scrape_worker-1.2"
                 , cmds=["bash", "-cx"]
-                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/proxy.py -mod check_Proxy -st " + str(sql_start) + " -si " + str(batch_size)]  
+                , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/scrape_site.py -mod scrape_pages -st " + str(sql_start) + " -si " + str(batch_size)]  
                 , image_pull_policy="IfNotPresent"
                 , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
                 , labels={"foo": "bar"}
