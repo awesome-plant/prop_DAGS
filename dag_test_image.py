@@ -40,7 +40,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='dag_scrape_pages',
+    dag_id='dag_test_image',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),
