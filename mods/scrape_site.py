@@ -2,6 +2,8 @@ from lxml import etree
 import sys
 import os
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import db_import as db_import 
+import proxy as proxy 
 import time
 import datetime 
 import pandas as pd
@@ -11,8 +13,6 @@ import requests
 import gzip
 import shutil
 import psycopg2
-import mods.db_import as db_import 
-import mods.proxy as proxy 
 from sqlalchemy import create_engine
 from json import JSONDecoder
 import argparse #add flags here
