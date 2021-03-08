@@ -51,7 +51,7 @@ with DAG(
     image_test = KubernetesPodOperator(
             namespace='airflow'
             , name="test_image"
-            , task_id="test_image
+            , task_id="test_image"
             , image="babadillo12345/airflow-plant:scrape_worker-1.2"
             , cmds=["bash", "-cx"]
             , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/tets_image.py -mod wait_time -sl 1000"]  
