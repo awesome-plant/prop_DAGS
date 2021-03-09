@@ -247,7 +247,8 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 list_proptype.append('')
                 list_suburb.append('')
             list_propid.append( (element[0].text).split('-')[-1] )
-
+        #reset and write
+        XML_gz_Dataset = pd.DataFrame()
         XML_gz_Dataset = pd.DataFrame(
             np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
             columns=['lastmod', 'url', 'proptype', 'state', 'suburb', 'prop_id'])
