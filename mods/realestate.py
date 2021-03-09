@@ -216,7 +216,9 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         list_proptype=[]
         list_suburb=[]
         list_propid=[]
+        iter_count=0
         for element in body:
+            iter_count+=1 
             # print("looking at url:", element[0].text)
             list_lastmod.append(element[1].text)
             list_url.append(element[0].text)
@@ -252,7 +254,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         XML_gz_Dataset = pd.DataFrame(
             np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
             columns=['lastmod', 'url', 'proptype', 'state', 'suburb', 'prop_id'])
-
+        print('total rows in xml:', str(iter_count), '-total rows in df:', str(XML_gz_Dataset.shape[0]))
         XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
         # print("total xml time:", time.time() - _time)
 
