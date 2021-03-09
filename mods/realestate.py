@@ -168,6 +168,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
     # print(child_pages_list)
     #iterate to get each link 
     for index, row in child_pages_list.iterrows(): #dont judge me 
+        tree=body=''
         print("getting: ",index, row['s_filename'])
         time.sleep(2) #forced sleep just in case 
         #not using useragent due to throughput issues 
@@ -216,7 +217,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         list_suburb=[]
         list_propid=[]
         for element in body:
-            #     print("interval:", str(_count-1)," -total runtime:", time.time()-_time)
+            print("looking at url:", element[0].text)
             list_lastmod.append(element[1].text)
             list_url.append(element[0].text)
             _splitval=''
