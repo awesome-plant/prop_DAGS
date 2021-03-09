@@ -217,7 +217,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         list_suburb=[]
         list_propid=[]
         for element in body:
-            print("looking at url:", element[0].text)
+            # print("looking at url:", element[0].text)
             list_lastmod.append(element[1].text)
             list_url.append(element[0].text)
             _splitval=''

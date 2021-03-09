@@ -34,15 +34,23 @@ def psql_insert_copy(table, conn, keys, data_iter):
         cur.copy_expert(sql=sql, file=s_buf)
 
 def insertData(ps_user, ps_pass, ps_host, ps_port, ps_db, table, df_insert):
-    engine = create_engine('postgresql://' + ps_user + ':' + ps_pass + '@' + ps_host + ':' + ps_port + '/' + ps_db)
-    df_insert.to_sql(
-        name=table
-        ,schema='sc_land'
-        ,con=engine
-        ,method=psql_insert_copy
-        ,if_exists='append'
-        ,index=False
-        )
+    update_status=False
+    rc=0
+    while update_status==False:
+        try:
+            engine = create_engine('postgresql://' + ps_user + ':' + ps_pass + '@' + ps_host + ':' + ps_port + '/' + ps_db)
+            df_insert.to_sql(
+                name=table
+                ,schema='sc_land'
+                ,con=engine
+                ,method=psql_insert_copy
+                ,if_exists='append'
+                ,index=False
+                )
+        except Exception as e: 
+            update_status=False
+            rc+=1
+            print("retry:", str(rc), '-error:', str(e))   
         
 def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list):
     # df_proxies, "postgres", "root", "172.22.114.65", "5432", "scrape_db"
