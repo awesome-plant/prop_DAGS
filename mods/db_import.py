@@ -236,11 +236,21 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
 def getChildPages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     #same as get proxies
     import pandas as pd
-    #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
-        child_page_list=pd.read_sql_query("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
-        print("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start))
-    return child_page_list
+    print("final cleanup at the end")
+    update_status=False
+    rc=0
+    while update_status==False:
+        try:
+            #queries db and returns list of all proxies within paramaters 
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
+                child_page_list=pd.read_sql_query("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
+                print("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start))
+            update_status=True
+            return child_page_list
+        except Exception as e: 
+            update_status=False
+            rc+=1
+            print("retry:", str(rc), '-error:', str(e))   
 
 def getScrapePages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     #same as get proxies
