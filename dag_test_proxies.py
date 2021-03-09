@@ -45,7 +45,7 @@ batch_g_size=10 #used to remove that pod timeout error
 proxy_count=proxy.getProxyCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
 with DAG(
-    dag_id='dag_test_proxies',
+    dag_id='2.dag_test_proxies',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),

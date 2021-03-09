@@ -52,7 +52,7 @@ CP_count=db_import.getChildPagesCount(ps_user="postgres", ps_pass="root", ps_hos
 l_proxy_mods=["scrape_child"]
 
 with DAG(
-    dag_id='dag_get_sitemap_child',
+    dag_id='4.dag_get_sitemap_child',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),

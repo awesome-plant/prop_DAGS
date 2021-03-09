@@ -46,7 +46,7 @@ default_args = {
 l_proxy_mods=["scrape_parent"]
 
 with DAG(
-    dag_id='dag_get_sitemap_parent',
+    dag_id='3.dag_get_sitemap_parent',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),

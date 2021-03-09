@@ -38,7 +38,7 @@ default_args = {
 l_proxy_mods=["open_proxy","proxy_scrape","proxy_list","proxy_nova","proxy_scan"]
 
 with DAG(
-    dag_id='dag_get_proxies',
+    dag_id='1.dag_get_proxies',
     default_args=default_args,
     schedule_interval=None,
     start_date=days_ago(1),
