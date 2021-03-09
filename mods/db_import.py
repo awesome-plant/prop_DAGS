@@ -47,6 +47,7 @@ def insertData(ps_user, ps_pass, ps_host, ps_port, ps_db, table, df_insert):
                 ,if_exists='append'
                 ,index=False
                 )
+            update_status=True
         except Exception as e: 
             update_status=False
             rc+=1
@@ -69,7 +70,7 @@ def saveProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, update, df_proxy_list
         # 3. import df to raw 
         #connection details here 
         
-        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
             with conn.cursor() as cur:
                 cur.execute("""insert into sc_land.SC_PROXY_HIS 
                                 (proxy, website, scrape_dt) 
@@ -113,7 +114,7 @@ def cleanProxies(ps_user, ps_pass, ps_host, ps_port, ps_db):
     rc=0
     while update_status==False:
         try:
-            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
                 with conn.cursor() as cur:
                     cur.execute("select count(*) from sc_land.sc_proxy_raw")
                     result = cur.fetchone()
@@ -135,7 +136,7 @@ def cleanProxies(ps_user, ps_pass, ps_host, ps_port, ps_db):
             print("retry:", str(rc), '-error:', str(e))   
 
 def getFileID():
-    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db",connect_timeout=120)
+    connection = psycopg2.connect(user="postgres",password="root",host="172.22.114.65",port="5432",database="scrape_db",connect_timeout=30)
     cursor = connection.cursor()
     cursor.execute("SELECT coalesce(max(H_FILEID), 0) + 1 as h_fileid from sc_land.SC_SOURCE_HEADER")
     h_fileid = cursor.fetchone() #next iteration of file ID 
@@ -172,7 +173,7 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
         # 3. import df to raw 
         #connection details here 
         
-        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+        with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
             with conn.cursor() as cur:
                 cur.execute("insert into sc_land.SC_PROXY_HIS (proxy, scrape_dt, status) select proxy, now(), status from sc_land.sc_proxy_raw")
                 conn.commit()
@@ -195,13 +196,13 @@ def newProxyList(df_proxies, ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs
 def getProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
         check_proxy_list=pd.read_sql_query("SELECT proxy, proxy_type FROM sc_land.sc_proxy_raw order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
 
 def getCurrentIP(ps_user, ps_pass, ps_host, ps_port, ps_db):
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT cur_ip FROM sc_land.sc_cur_ip")
                 result = cur.fetchone() #next iteration of file ID 
@@ -213,7 +214,7 @@ def updateProxies(ps_user, ps_pass, ps_host, ps_port, ps_db, proxy_list, value):
     rc=0
     while update_status==False:
         try:
-            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
                 with conn.cursor() as cur:
                     proxy_list.apply(lambda x: 
                         cur.execute("""
@@ -236,7 +237,7 @@ def getChildPages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size
     #same as get proxies
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
         child_page_list=pd.read_sql_query("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("select s_filename, s_fileid from sc_land.v_source_file order by table_id limit " + str(sql_size) + " offset " + str(sql_start))
     return child_page_list
@@ -245,7 +246,7 @@ def getScrapePages(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_siz
     #same as get proxies
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
         child_page_list=pd.read_sql_query("SELECT url, prop_id FROM sc_land.sc_property_links order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return child_page_list
@@ -266,7 +267,7 @@ def getChildPagesCount(ps_user, ps_pass, ps_host, ps_port, ps_db, **kwargs):
 def getPropScrape(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size):
     import pandas as pd
     #queries db and returns list of all proxies within paramaters 
-    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=120) as conn:
+    with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
         check_proxy_list=pd.read_sql_query("SELECT URL, STATE, SUBURB, PROP_ID, filetype FROM sc_land.sc_prop_scrape order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
