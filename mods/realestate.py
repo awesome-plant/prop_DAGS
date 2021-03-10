@@ -145,7 +145,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         #     , ps_port="5432"
         #     , ps_db="scrape_db"
         # )
-
+    saveFolder='/opt/airflow/logs/XML_save_folder/sitemap/'
     #get proxy to use 
     scrape_status=False
     site_url='https://www.realestate.com.au/xml-sitemap/'
@@ -201,11 +201,12 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 print("prox:", str(proxies), "lc:",str(loopcount), "-error:", str(e) )
                 scrape_status=False
 
-        open(row['s_filename'], 'wb').write(r.content)
-        with gzip.open(row['s_filename'], 'rb') as f_in:
-            with open(row['s_filename'][:-3], 'wb') as f_out: 
+        with open(saveFolder + row['s_filename'], 'wb') as f:
+            f.write(r.content)
+        with gzip.open(saveFolder + row['s_filename'], 'rb') as f_in:
+            with open(saveFolder + row['s_filename'][:-3], 'wb') as f_out: 
                 shutil.copyfileobj(f_in, f_out)
-        tree = etree.parse(row['s_filename'][:-3])
+        tree = etree.parse(saveFolder + row['s_filename'][:-3])
  
         body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
         _count=1
@@ -273,7 +274,9 @@ def site_ScrapeChildUrl(sql_start, sql_size):
             , table='sc_property_links'
             , df_insert=XML_gz_Dataset
             )
-        print("inserted:",row['s_filename'])
+        
+        XML_gz_Dataset.to_csv(saveFolder + row['s_filename']) 
+        print("inserted:",saveFolder + row['s_filename'])
     
 
         # status, error, req_time = getChild_XML(s_filename=row['s_filename'], s_fileid=row['s_fileid'],timeout=5, my_ip=myIP)
