@@ -275,8 +275,8 @@ def site_ScrapeChildUrl(sql_start, sql_size):
             , df_insert=XML_gz_Dataset
             )
         
-        XML_gz_Dataset.to_csv(saveFolder + row['s_filename']) 
-        print("inserted:",saveFolder + row['s_filename'])
+        XML_gz_Dataset.to_csv(saveFolder + row['s_filename'][:-6]) 
+        print("inserted:",saveFolder + row['s_filename'][:-6])
     
 
         # status, error, req_time = getChild_XML(s_filename=row['s_filename'], s_fileid=row['s_fileid'],timeout=5, my_ip=myIP)
