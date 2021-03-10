@@ -164,9 +164,14 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         if pt =='http': proxies.update({pt : pt + '://' + prox})
         elif pt =='https': proxies.update({pt : pt + '://' + prox})
         elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
+    #lists to be used 
+    list_lastmod=[]
+    list_url=[]
+    list_state=[]
+    list_proptype=[]
+    list_suburb=[]
+    list_propid=[]
 
-    # print(child_pages_list)
-    #iterate to get each link 
     for index, row in child_pages_list.iterrows(): #dont judge me 
         tree=body=''
         print("getting: ",index, row['s_filename'])
@@ -211,12 +216,12 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         body=tree.xpath('//ns:url',namespaces={'ns':"http://www.sitemaps.org/schemas/sitemap/0.9"})
         _count=1
         #now we parse and read, using lists instead of df since its A BUNCH faster
-        list_lastmod=[]
-        list_url=[]
-        list_state=[]
-        list_proptype=[]
-        list_suburb=[]
-        list_propid=[]
+        list_lastmod.clear()
+        list_url.clear()
+        list_state.clear()
+        list_proptype.clear()
+        list_suburb.clear()
+        list_propid.clear()
         iter_count=0
         for element in body:
             iter_count+=1 
@@ -255,12 +260,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         XML_gz_Dataset = pd.DataFrame(
             np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
             columns=['lastmod', 'url', 'proptype', 'state', 'suburb', 'prop_id'])
-        list_lastmod.clear()
-        list_url.clear()
-        list_state.clear()
-        list_proptype.clear()
-        list_suburb.clear()
-        list_propid.clear()
+        
 
         print('total rows in xml:', str(iter_count), '-total rows in df:', str(XML_gz_Dataset.shape[0]))
         XML_gz_Dataset['lastmod']=pd.to_datetime(XML_gz_Dataset['lastmod'])
