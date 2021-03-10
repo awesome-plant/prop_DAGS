@@ -173,7 +173,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         time.sleep(2) #forced sleep just in case 
         #not using useragent due to throughput issues 
         headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
-        
+        print('scraping page:', site_url + row['s_filename'])
         while scrape_status==False: #do until done
             try:
                 if loopcount>=10: #could be a proxy issue 
@@ -251,7 +251,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
                 list_suburb.append('')
             list_propid.append( (element[0].text).split('-')[-1] )
         #reset and write
-        XML_gz_Dataset = pd.DataFrame()
+        XML_gz_Dataset = pd.DataFrame(None)
         XML_gz_Dataset = pd.DataFrame(
             np.column_stack([list_lastmod, list_url, list_proptype, list_state, list_suburb, list_propid]), 
             columns=['lastmod', 'url', 'proptype', 'state', 'suburb', 'prop_id'])
