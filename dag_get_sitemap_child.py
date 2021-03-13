@@ -86,6 +86,7 @@ with DAG(
                 , in_cluster=True
                 )
             split_old >> smp_mod >> split_new
+            count+=1
 
         child_cleanup=KubernetesPodOperator(
             namespace='airflow'
