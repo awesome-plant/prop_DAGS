@@ -281,3 +281,30 @@ def getPropScrape(ps_user, ps_pass, ps_host, ps_port, ps_db, sql_start, sql_size
         check_proxy_list=pd.read_sql_query("SELECT URL, STATE, SUBURB, PROP_ID, filetype FROM sc_land.sc_prop_scrape order by table_id limit " + str(sql_size) + " offset " + str(sql_start), conn)
         print("got row list, start:", str(sql_start), 'length:', str(sql_size))
     return check_proxy_list 
+
+def cleanupSiteMapChild(ps_user, ps_pass, ps_host, ps_port, ps_db):
+    print("final cleanup at the end")
+    update_status=False
+    rc=0
+    while update_status==False:
+        try:
+            with psycopg2.connect(user=ps_user,password=ps_pass,host=ps_host,port=ps_port,database=ps_db,connect_timeout=30) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("select count(*) from sc_land.sc_property_links")
+                    result = cur.fetchone()
+                old_count=result[0]
+                print("original count:", old_count)
+
+                with conn.cursor() as cur:
+                    cur.execute("delete from sc_land.sc_property_links a using sc_property_links.sc_proxy_raw b where a.table_id > b.table_id and a.url = b.url ")
+                    conn.commit()
+                with conn.cursor() as cur:
+                    cur.execute("select count(*) from sc_land.sc_property_links")
+                    result = cur.fetchone()
+                new_count=result[0]
+                print("new count:", new_count)
+                print('child pages removed:', str(int(old_count) - int(new_count)) )
+        except Exception as e: 
+            update_status=False
+            rc+=1
+            print("retry:", str(rc), '-error:', str(e))   

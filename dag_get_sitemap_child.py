@@ -44,7 +44,7 @@ default_args = {
 }
 
 #get current proxies in db
-batch_size=5
+batch_size=10
 batch_g_size=5 #used to remove that pod timeout error 
 CP_count=db_import.getChildPagesCount(ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db")
 
@@ -85,5 +85,21 @@ with DAG(
                 , is_delete_operator_pod=True
                 , in_cluster=True
                 )
-            split_old >> smp_mod >> split_new 
-            count+=1
+            split_old >> smp_mod >> split_new
+
+        child_cleanup=KubernetesPodOperator(
+            namespace='airflow'
+            , name="cleanup_smp-" + mod
+            , task_id="cleanup_smp-" + mod
+            , image="babadillo12345/airflow-plant:scrape_worker-1.2"
+            , cmds=["bash", "-cx"]
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/realestate.py -mod cleanup_proxy"]  
+            , image_pull_policy="IfNotPresent"
+            , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
+            , labels={"foo": "bar"}
+            , volumes=[volume]
+            , volume_mounts=[volume_mount]
+            , is_delete_operator_pod=True
+            , in_cluster=True
+            )
+        split_new >> child_cleanup
