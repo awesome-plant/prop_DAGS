@@ -308,3 +308,6 @@ if __name__ == '__main__':
     elif args['mod'] =='scrape_child':
         print("running child_url")
         site_ScrapeChildUrl(args['st'], args['si'])
+    elif args['mod'] =='cleanup_child':
+        print('running cleanup_child') 
+        db_import.cleanupSiteMapChild( ps_user="postgres", ps_pass="root", ps_host="172.22.114.65", ps_port="5432", ps_db="scrape_db" )
