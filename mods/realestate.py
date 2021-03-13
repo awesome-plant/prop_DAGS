@@ -179,6 +179,7 @@ def site_ScrapeChildUrl(sql_start, sql_size):
         #not using useragent due to throughput issues 
         headers={ 'User-Agent': proxy.getHeader(random.randint(0,249))  } 
         print('scraping page:', site_url + row['s_filename'])
+        scrape_status=False #force it to work 
         while scrape_status==False: #do until done
             try:
                 if loopcount>=10: #could be a proxy issue 
