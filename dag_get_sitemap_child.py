@@ -94,7 +94,7 @@ with DAG(
             , task_id="cleanup_smp-" + mod
             , image="babadillo12345/airflow-plant:scrape_worker-1.2"
             , cmds=["bash", "-cx"]
-            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/realestate.py -mod cleanup_proxy"]  
+            , arguments=["git clone https://github.com/awesome-plant/prop_DAGS.git && python prop_DAGS/mods/realestate.py -mod cleanup_child"]  
             , image_pull_policy="IfNotPresent"
             , resources={'limit_cpu' : '50m','limit_memory' : '512Mi'}  
             , labels={"foo": "bar"}
