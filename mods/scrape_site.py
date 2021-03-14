@@ -201,7 +201,7 @@ def extract_json_objects(text, decoder=JSONDecoder()):
         except ValueError:
             pos = match + 1
 
-def selenium_get_cookies(site_url,timeout, sleep_time):
+def selenium_get_cookies(site_url,timeout, sleep_time,prox):
     from selenium import webdriver
     import time 
     import json 
@@ -210,7 +210,8 @@ def selenium_get_cookies(site_url,timeout, sleep_time):
     scrape_status=False
     while scrape_status==False:
         try:
-            prox, proxy_type = workProxy()
+            if prox=='': 
+                prox, proxy_type = workProxy()
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument('--user-agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36')
@@ -232,15 +233,17 @@ def selenium_get_cookies(site_url,timeout, sleep_time):
             #get cookies used for traditional webscraping
             cook_reauid= browser.get_cookie('reauid')['value']
             cook_bm_aksd= browser.get_cookie('bm_aksd')['value']
+            cook_kmam_lapoz= browser.get_cookie('kmam_lapoz')['value']
             browser.quit()
             scrape_status=True
         except Exception as e: 
             print('error: ', str(e))
             browser.quit()
+            prox, proxy_type = workProxy()
 
     print("selenium headers s:", time.time() - start_time)
 
-    return webpage, cook_reauid, cook_bm_aksd
+    return webpage, cook_reauid, cook_bm_aksd, cook_kmam_lapoz, prox, proxy_type
 
 def workProxy():
     import requests 
@@ -321,7 +324,7 @@ def webScrape_page(site_url,timeout, sleep_time, cook_reauid, cook_bm_aksd):
             session = requests.Session()
             headers={
                 'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
-                ,'cookie' : 'bm_aksd=' + cook_reauid + ';reauid=' + cook_reauid
+                ,'cookie' : 'bm_aksd=' + cook_reauid + ';reauid=' + cook_reauid + ';kmam_lapoz=' + cook_kmam_lapoz
                 }
             r = session.get(site_url,proxies=proxies,headers=headers,timeout=timeout,allow_redirects=True)
             if 'detected some activity in your browser that looks suspicious' in r.text: #bot detected?
@@ -523,35 +526,38 @@ def scrape_pages(sql_start, sql_size):
         , sql_size=sql_size
         )
     cook_reauid=cook_bm_aksd=''
+    save_parent="/opt/airflow/logs/XML_save_folder/scrape_saves/"
     _combined=pd.DataFrame()
     for index, row in prop_scrape_list.iterrows(): #dont judge me
         _result=''
-        if os.path.exists("/opt/airflow/logs/XML_save_folder/scrape_saves/" + row['state'] + "_" + str(sql_start) + "_" + str(sql_size))==False: #save folder exists?
-            os.mkdir("/opt/airflow/logs/XML_save_folder/scrape_saves/" + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)) #make folder
+        if os.path.exists(save_parent + row['state'] + "_" + str(sql_start) + "_" + str(sql_size))==False: #save folder exists?
+            os.mkdir(save_parent + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)) #make folder
         #check if cookie is still active 
-        if cook_reauid=='' and cook_bm_aksd=='':
-            print('cookie needed, selenium:', time.time()-_start_time)
-            webpage, cook_reauid, cook_bm_aksd = selenium_get_cookies(
-                site_url=row['url']
-                , timeout=30
-                , sleep_time=random.randint(1,9)
-                )
-            print('cookie acquired, selenium:', time.time()-_start_time)
-        elif cook_reauid !='' and cook_bm_aksd !='': #cookies exist, regular scrape
-            print('cookie ready, webhook:', time.time()-_start_time)
-            webpage = webScrape_page(
-                site_url=row['url']
-                , timeout=30
-                , sleep_time=random.randint(1,9)
-                , cook_bm_aksd=cook_bm_aksd
-                , cook_reauid=cook_reauid
-                )
-            print('cookie acquired, webhook:', time.time()-_start_time)
+        # if cook_reauid=='' and cook_bm_aksd=='':
+        print('selenium:', time.time()-_start_time)
+        webpage, cook_reauid, cook_bm_aksd, cook_kmam_lapoz, prox, proxy_type = selenium_get_cookies(
+            site_url=row['url']
+            , timeout=30
+            , sleep_time=random.randint(1,9)
+            , prox=prox
+            )
+        print('selenium:', time.time()-_start_time)
+        # elif cook_reauid !='' and cook_bm_aksd !='' and cook_kmam_lapoz != '': #cookies exist, regular scrape
+        #     print('cookie ready, webhook:', time.time()-_start_time)
+        #     webpage = webScrape_page(
+        #         site_url=row['url']
+        #         , timeout=30
+        #         , sleep_time=random.randint(1,9)
+        #         , cook_bm_aksd=cook_bm_aksd
+        #         , cook_reauid=cook_reauid
+        #         , cook_kmam_lapoz=cook_kmam_lapoz
+        #         )
+        #     print('cookie acquired, webhook:', time.time()-_start_time)
         #now we parse the webpage
         if webpage != 'Bot': #actually returned something 
             _result = parse_request(
                 webpage=webpage
-                ,write_folder="/opt/airflow/logs/XML_save_folder/scrape_saves/" + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)
+                ,write_folder=save_parent + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)
                 ,cat=row['filetype']
                 ,prop_id=str(row['prop_id'])
                 )
