@@ -530,6 +530,12 @@ def scrape_pages(sql_start, sql_size):
     _combined=pd.DataFrame()
     for index, row in prop_scrape_list.iterrows(): #dont judge me
         _result=''
+        try: 
+            prox
+            proxy_type
+        except: 
+            prox=''
+            proxy_type=''
         if os.path.exists(save_parent + row['state'] + "_" + str(sql_start) + "_" + str(sql_size))==False: #save folder exists?
             os.mkdir(save_parent + row['state'] + "_" + str(sql_start) + "_" + str(sql_size)) #make folder
         #check if cookie is still active 
