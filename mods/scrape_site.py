@@ -201,7 +201,7 @@ def extract_json_objects(text, decoder=JSONDecoder()):
         except ValueError:
             pos = match + 1
 
-def selenium_get_cookies(site_url,timeout, sleep_time,prox):
+def selenium_get_cookies(site_url,timeout, sleep_time,prox, proxy_type):
     from selenium import webdriver
     import time 
     import json 
@@ -210,7 +210,10 @@ def selenium_get_cookies(site_url,timeout, sleep_time,prox):
     scrape_status=False
     while scrape_status==False:
         try:
-            if prox=='': 
+            try: 
+                prox
+                proxy_type
+            except:
                 prox, proxy_type = workProxy()
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
@@ -546,6 +549,7 @@ def scrape_pages(sql_start, sql_size):
             , timeout=30
             , sleep_time=random.randint(1,9)
             , prox=prox
+            , proxy_type=proxy_type
             )
         print('selenium:', time.time()-_start_time)
         # elif cook_reauid !='' and cook_bm_aksd !='' and cook_kmam_lapoz != '': #cookies exist, regular scrape
