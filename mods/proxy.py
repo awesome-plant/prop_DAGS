@@ -415,7 +415,7 @@ def checkProxy(sql_start, sql_size):
     l_req_time=[]
     for index, row in check_proxy_list.iterrows(): #dont judge me 
         status= error=''
-        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=10, my_ip=myIP)
+        status, error, req_time = testProxy_requests(proxy=row['proxy'], proxy_type=row['proxy_type'],timeout=30, my_ip=myIP)
         l_proxy.append(row['proxy'])
         l_status.append(status)
         l_error.append(error)
