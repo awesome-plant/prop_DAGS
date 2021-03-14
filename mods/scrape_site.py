@@ -270,7 +270,7 @@ def workProxy():
     loopcount=0
     while scrape_status==False: #do until done
         try:
-            if loopcount>=10: #could be a proxy issue 
+            if loopcount>=3: #could be a proxy issue 
                 prox, proxy_type = db_import.getDBProxy(
                     ps_user="postgres"
                     , ps_pass="root"
@@ -284,7 +284,7 @@ def workProxy():
                     if pt =='http': proxies.update({pt : pt + '://' + prox})
                     elif pt =='https': proxies.update({pt : pt + '://' + prox})
                     elif ( pt =='socks4'or pt=='socks5'): proxies.update({'http' : pt + '://' + prox, 'https' : pt + '://' + prox,})
-                print("10 failures, new IP time")
+                print("3 failures, new IP time")
                 loopcount=0
             loopcount+=1 
             session = requests.Session()
