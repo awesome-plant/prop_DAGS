@@ -321,7 +321,7 @@ def getProxy_proxyscan():
             ph = browser.execute_script("return window.pageYOffset")
             browser.execute_script("window.scrollTo(0,document.documentElement.scrollHeight)")
             time.sleep(1)
-            if ph == browser.execute_script("return window.pageYOffset") or sc>=100:
+            if ph == browser.execute_script("return window.pageYOffset") or sc>=30:
                 sc_stat=True 
         sc+=1
     #get table 
