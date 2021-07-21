@@ -315,13 +315,15 @@ def getProxy_proxyscan():
     #scroll to bottom of page
     sc_stat=False
     ph=0 #page height
+    sc=0
     while sc_stat==False:
         if browser.execute_script("return window.pageYOffset") <= browser.execute_script("return document.documentElement.scrollHeight"): 
             ph = browser.execute_script("return window.pageYOffset")
             browser.execute_script("window.scrollTo(0,document.documentElement.scrollHeight)")
             time.sleep(1)
-            if ph == browser.execute_script("return window.pageYOffset"): 
+            if ph == browser.execute_script("return window.pageYOffset") or sc>=100:
                 sc_stat=True 
+        sc+=1
     #get table 
     table_MN = pd.read_html(browser.page_source)
     filtered = table_MN[0][table_MN[0]['Anonymity']!='Transparent']
