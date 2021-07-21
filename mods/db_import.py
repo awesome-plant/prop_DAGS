@@ -130,6 +130,7 @@ def cleanProxies(ps_user, ps_pass, ps_host, ps_port, ps_db):
                 new_count=result[0]
                 print("new count:", new_count)
                 print('proxies removed:', str(int(old_count) - int(new_count)) )
+                update_status=True
         except Exception as e: 
             update_status=False
             rc+=1
